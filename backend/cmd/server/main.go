@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"wial-backend/internal/config"
 	"wial-backend/internal/db"
 	"wial-backend/internal/handlers"
@@ -14,6 +16,11 @@ import (
 
 func main() {
 	cfg := config.Load()
+	handlers.SetAppEnv(cfg.Env)
+
+	if cfg.Env == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

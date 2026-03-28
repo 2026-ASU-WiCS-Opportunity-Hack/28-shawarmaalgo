@@ -19,12 +19,14 @@ func NewCoachHandlers(store *db.Store) *CoachHandlers {
 func (h *CoachHandlers) CreateCoach(c *gin.Context) {
 	var req models.CoachCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid create coach request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
 	coach, err := h.store.CreateCoach(c.Request.Context(), req)
 	if err != nil {
+		logRequestError(c, "failed to create coach", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create coach"})
 		return
 	}
@@ -49,6 +51,7 @@ func (h *CoachHandlers) ListCoaches(c *gin.Context) {
 
 	coaches, total, err := h.store.ListCoaches(c.Request.Context(), page, pageSize, chID, cert, lang, spec)
 	if err != nil {
+		logRequestError(c, "failed to list coaches", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list coaches"})
 		return
 	}

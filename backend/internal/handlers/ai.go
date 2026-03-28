@@ -29,6 +29,7 @@ func (h *AIHandlers) CoachSearch(c *gin.Context) {
 
 	coaches, total, err := h.store.ListCoaches(c.Request.Context(), 1, 10, nil, nil, nil, &query)
 	if err != nil {
+		logRequestError(c, "failed to run coach search", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "search failed"})
 		return
 	}
@@ -48,6 +49,7 @@ func (h *AIHandlers) GenerateChapter(c *gin.Context) {
 
 	var req Request
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid AI generate chapter request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}

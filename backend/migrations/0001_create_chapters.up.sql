@@ -24,4 +24,4 @@ CREATE TABLE IF NOT EXISTS chapters (
 );
 
 CREATE INDEX IF NOT EXISTS idx_chapters_region ON chapters(region);
-CREATE INDEX IF NOT EXISTS idx_chapters_languages ON chapters USING GIN (languages);
+CREATE INDEX IF NOT EXISTS idx_chapters_languages ON chapters USING GIN (supported_languages);

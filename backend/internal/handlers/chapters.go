@@ -22,6 +22,7 @@ func NewChapterHandlers(store *db.Store) *ChapterHandlers {
 func (h *ChapterHandlers) CreateChapter(c *gin.Context) {
 	var req models.ChapterCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid create chapter request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
@@ -32,6 +33,7 @@ func (h *ChapterHandlers) CreateChapter(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
 			return
 		}
+		logRequestError(c, "failed to create chapter", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create chapter"})
 		return
 	}
@@ -47,6 +49,7 @@ func (h *ChapterHandlers) GetChapter(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "chapter not found"})
 			return
 		}
+		logRequestError(c, "failed to fetch chapter", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch chapter"})
 		return
 	}
@@ -79,6 +82,7 @@ func (h *ChapterHandlers) ListChapters(c *gin.Context) {
 
 	chapters, total, err := h.store.ListChapters(c.Request.Context(), page, pageSize, regionPtr, languagePtr)
 	if err != nil {
+		logRequestError(c, "failed to list chapters", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list chapters"})
 		return
 	}
@@ -96,6 +100,7 @@ func (h *ChapterHandlers) UpdateChapter(c *gin.Context) {
 	id := c.Param("id")
 	var req models.ChapterUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid update chapter request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
@@ -110,6 +115,7 @@ func (h *ChapterHandlers) UpdateChapter(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
 			return
 		}
+		logRequestError(c, "failed to update chapter", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update chapter"})
 		return
 	}
@@ -121,6 +127,7 @@ func (h *ChapterHandlers) PatchChapter(c *gin.Context) {
 	id := c.Param("id")
 	var req models.ChapterPatchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid patch chapter request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
@@ -139,6 +146,7 @@ func (h *ChapterHandlers) PatchChapter(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
 			return
 		}
+		logRequestError(c, "failed to patch chapter", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch chapter"})
 		return
 	}
@@ -153,6 +161,7 @@ func (h *ChapterHandlers) DeleteChapter(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "chapter not found"})
 			return
 		}
+		logRequestError(c, "failed to delete chapter", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete chapter"})
 		return
 	}

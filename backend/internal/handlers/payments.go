@@ -25,6 +25,7 @@ func (h *PaymentHandlers) CreateCheckoutSession(c *gin.Context) {
 
 	var req Request
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid create checkout session request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}

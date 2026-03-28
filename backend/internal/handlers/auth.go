@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"wial-backend/internal/db"
 	"wial-backend/internal/models"
 	"wial-backend/internal/utils"
@@ -20,12 +21,14 @@ func NewAuthHandlers(store *db.Store) *AuthHandlers {
 func (h *AuthHandlers) Register(c *gin.Context) {
 	var req models.UserRegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid register request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
 	hashed, err := utils.HashPassword(req.Password)
 	if err != nil {
+		logRequestError(c, "failed to hash password", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
 		return
 	}
@@ -36,12 +39,14 @@ func (h *AuthHandlers) Register(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "email already exists"})
 			return
 		}
+		logRequestError(c, "failed to register user", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register user"})
 		return
 	}
 
 	token, err := utils.GenerateToken(user.ID, user.Role)
 	if err != nil {
+		logRequestError(c, "failed to generate register token", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
 	}
@@ -55,12 +60,16 @@ func (h *AuthHandlers) Register(c *gin.Context) {
 func (h *AuthHandlers) Login(c *gin.Context) {
 	var req models.UserLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid login request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
 	user, err := h.store.GetUserByEmail(c.Request.Context(), req.Email)
 	if err != nil {
+		if err != pgx.ErrNoRows {
+			logRequestError(c, "failed to fetch user during login", err)
+		}
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
@@ -72,6 +81,7 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 
 	token, err := utils.GenerateToken(user.ID, user.Role)
 	if err != nil {
+		logRequestError(c, "failed to generate login token", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
 	}
@@ -93,6 +103,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := authHeader[7:]
 		claims, err := utils.ParseToken(tokenString)
 		if err != nil {
+			logRequestError(c, "invalid auth token", err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}

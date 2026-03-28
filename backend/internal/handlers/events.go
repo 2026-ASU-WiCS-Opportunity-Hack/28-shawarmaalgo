@@ -19,12 +19,14 @@ func NewEventHandlers(store *db.Store) *EventHandlers {
 func (h *EventHandlers) CreateEvent(c *gin.Context) {
 	var req models.EventCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid create event request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
 	event, err := h.store.CreateEvent(c.Request.Context(), req)
 	if err != nil {
+		logRequestError(c, "failed to create event", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create event"})
 		return
 	}
@@ -45,6 +47,7 @@ func (h *EventHandlers) ListEvents(c *gin.Context) {
 
 	events, total, err := h.store.ListEvents(c.Request.Context(), page, pageSize, chID, eType)
 	if err != nil {
+		logRequestError(c, "failed to list events", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list events"})
 		return
 	}
