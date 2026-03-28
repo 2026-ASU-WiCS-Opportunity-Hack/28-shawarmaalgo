@@ -23,8 +23,10 @@ Brief description of your project and its goals.
 ```bash
 git clone https://github.com/2026-ASU-WiCS-Opportunity-Hack/28-shawarmaalgo.git
 cd 28-shawarmaalgo
-# Add your setup commands here
+docker compose up -d
 ```
+
+The local Postgres instance starts on `localhost:5432` with database `wial`, username `postgres`, and password `postgres`.
 
 ## Checklist for the final submission
 ### 0/Judging Criteria
