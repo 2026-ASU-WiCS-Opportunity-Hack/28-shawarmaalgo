@@ -19,63 +19,19 @@ This project is a full-stack WIAL directory and enrollment platform built during
 - Stripe-powered checkout flows in the frontend
 
 ## Tech Stack
-- Frontend: Next.js 16, React 19, TypeScript
-- Backend: Go, Gin
-- Database: PostgreSQL
-- APIs: REST API, Stripe
+- Frontend: React.js, Tailwind CSS
+- Backend: Go
+- Database: Supabase
+- APIs:
 
 ## Getting Started
 ```bash
 git clone https://github.com/2026-ASU-WiCS-Opportunity-Hack/28-shawarmaalgo.git
 cd 28-shawarmaalgo
+docker compose up -d
 ```
 
-### Environment setup
-Use the committed template at [`.env.example`](/Users/beybutabdulrahimov/Documents/28-shawarmaalgo/.env.example) as the source of truth for local configuration.
-
-- Copy the backend variables into `backend/.env`
-- Copy the frontend variables into `frontend/.env.local`
-
-### Run the backend
-```bash
-cd backend
-go run ./cmd/server
-```
-
-The API runs on `http://localhost:8080` by default and exposes routes under `/api/v1`.
-
-### Run with Docker Compose
-```bash
-docker compose up --build
-```
-
-This starts:
-
-- `postgres` on port `5432`
-- a one-shot `migrate` container that applies the SQL migrations
-- `backend` on `http://localhost:8080`
-
-### Run the frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend runs on `http://localhost:3000` by default.
-
-### Database
-The backend expects PostgreSQL. The default local connection string in the example file is:
-
-```bash
-postgres://postgres:postgres@localhost:5432/wial?sslmode=disable
-```
-
-Run migrations from the `backend` directory with `golang-migrate` installed:
-
-```bash
-migrate -path ./migrations -database "$DATABASE_URL" up
-```
+The local Postgres instance starts on `localhost:5432` with database `wial`, username `postgres`, and password `postgres`.
 
 ## Checklist for the final submission
 ### 0/Judging Criteria
