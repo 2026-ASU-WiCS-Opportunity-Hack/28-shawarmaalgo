@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"strings"
 	"wial-backend/internal/db"
 	"wial-backend/internal/models"
 	"wial-backend/internal/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 type AuthHandlers struct {
@@ -24,6 +25,10 @@ func (h *AuthHandlers) Register(c *gin.Context) {
 		logRequestError(c, "invalid register request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
+	}
+
+	if req.ChapterID != nil && strings.TrimSpace(*req.ChapterID) == "" {
+		req.ChapterID = nil
 	}
 
 	hashed, err := utils.HashPassword(req.Password)
