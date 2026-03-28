@@ -15,8 +15,8 @@ export default async function CoachesPage() {
   let initialCoaches = mockCoaches
 
   try {
-    const res = await api.coaches.list({ page_size: 100 })
-    if (res.data.length > 0) initialCoaches = res.data
+    const res = await api.coaches.list({ page_size: 100, approved: true })
+    initialCoaches = res.data
   } catch (err) {
     console.error('Failed to fetch coaches from API, using mock data:', err)
   }

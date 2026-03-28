@@ -25,14 +25,15 @@ export default async function HomePage() {
 
   try {
     const [chaptersRes, eventsRes, coachesRes] = await Promise.all([
-      api.chapters.list({ page_size: 4 }),
+      api.chapters.list({ page_size: 4, status: 'active' }),
       api.events.list({ page_size: 3 }),
-      api.coaches.list({ page_size: 1 }),
+      api.coaches.list({ page_size: 1, approved: true }),
     ])
 
-    if (chaptersRes.data.length > 0) featuredChapters = chaptersRes.data
-    if (eventsRes.data.length > 0) upcomingEvents = eventsRes.data
-    // Update stats if needed (would need a specific stats endpoint)
+    featuredChapters = chaptersRes.data
+    upcomingEvents = eventsRes.data
+    // If you want to keep testimonials as mock for now (since no backend yet)
+    // featuredTestimonials = mockTestimonials.slice(0, 3) 
   } catch (err) {
     console.error('Failed to fetch from API, using mock data:', err)
   }

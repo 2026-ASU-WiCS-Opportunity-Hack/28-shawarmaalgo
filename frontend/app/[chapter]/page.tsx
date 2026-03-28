@@ -79,6 +79,8 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
       ])
       chapterCoaches = coachesRes.data
       chapterEvents = eventsRes.data
+    } else {
+      // If not found in DB, use mock
     }
   } catch (err) {
     console.error('Failed to fetch chapter details from API, using mock data:', err)

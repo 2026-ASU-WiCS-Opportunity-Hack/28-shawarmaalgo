@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,20 +13,28 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
-import { Menu, Globe, X } from 'lucide-react'
+import { Menu, Globe, X, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-const chapters = [
-  { name: 'WIAL USA', slug: 'usa', region: 'North America' },
-  { name: 'WIAL UK', slug: 'uk', region: 'Europe' },
-  { name: 'WIAL Japan', slug: 'japan', region: 'Asia Pacific' },
-  { name: 'WIAL South Korea', slug: 'south-korea', region: 'Asia Pacific' },
-  { name: 'WIAL Brazil', slug: 'brazil', region: 'South America' },
-  { name: 'WIAL Nigeria', slug: 'nigeria', region: 'Africa' },
-]
+import { api } from '@/lib/api'
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [chapters, setChapters] = useState<any[]>([])
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData))
+      } catch (err) {}
+    }
+
+    // Load active chapters for navigation
+    api.chapters.list({ status: 'active' }).then(res => {
+      setChapters(res.data)
+    }).catch(() => {})
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -109,33 +117,45 @@ export function Header() {
               </Link>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>
-                <Globe className="mr-1 h-4 w-4" />
-                Chapters
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[600px] lg:grid-cols-3">
-                  {chapters.map((chapter) => (
-                    <ListItem
-                      key={chapter.slug}
-                      href={`/${chapter.slug}`}
-                      title={chapter.name}
-                    >
-                      {chapter.region}
-                    </ListItem>
-                  ))}
-                  <li className="col-span-full">
-                    <Link
-                      href="/chapters"
-                      className="block text-sm font-medium text-primary hover:underline"
-                    >
-                      View all chapters →
-                    </Link>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+            {chapters.length > 0 && (
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>
+                  <Globe className="mr-1 h-4 w-4" />
+                  Chapters
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[600px] lg:grid-cols-3">
+                    {chapters.map((chapter) => (
+                      <ListItem
+                        key={chapter.slug}
+                        href={`/${chapter.slug}`}
+                        title={chapter.name}
+                      >
+                        {chapter.region}
+                      </ListItem>
+                    ))}
+                    <li className="col-span-full">
+                      <Link
+                        href="/chapters"
+                        className="block text-sm font-medium text-primary hover:underline"
+                      >
+                        View all chapters →
+                      </Link>
+                    </li>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            )}
+
+            {chapters.length === 0 && (
+              <NavigationMenuItem>
+                <Link href="/chapters" legacyBehavior passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Chapters
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            )}
 
             <NavigationMenuItem>
               <Link href="/contact" legacyBehavior passHref>
@@ -148,6 +168,18 @@ export function Header() {
         </NavigationMenu>
 
         <div className="flex items-center gap-4">
+          {!user ? (
+            <Button variant="ghost" asChild className="hidden sm:inline-flex">
+              <Link href="/login">Login</Link>
+            </Button>
+          ) : (
+            <Button variant="outline" asChild className="hidden sm:inline-flex gap-2">
+              <Link href="/dashboard">
+                <User className="h-4 w-4" />
+                Dashboard
+              </Link>
+            </Button>
+          )}
           <Button asChild className="hidden sm:inline-flex">
             <Link href="/certification">Get Certified</Link>
           </Button>
@@ -209,10 +241,27 @@ export function Header() {
                 >
                   Contact
                 </Link>
+                {!user ? (
+                  <Link
+                    href="/login"
+                    className="text-lg font-medium text-foreground hover:text-primary"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Login
+                  </Link>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    className="text-lg font-medium text-foreground hover:text-primary"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                )}
                 <div className="border-t border-border pt-4">
                   <p className="mb-2 text-sm font-medium text-muted-foreground">Chapters</p>
                   <div className="flex flex-col gap-2">
-                    {chapters.map((chapter) => (
+                    {chapters.length > 0 ? chapters.map((chapter) => (
                       <Link
                         key={chapter.slug}
                         href={`/${chapter.slug}`}
@@ -221,7 +270,15 @@ export function Header() {
                       >
                         {chapter.name}
                       </Link>
-                    ))}
+                    )) : (
+                      <Link
+                        href="/chapters"
+                        className="text-foreground hover:text-primary"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        Browse all chapters
+                      </Link>
+                    )}
                   </div>
                 </div>
                 <Button asChild className="mt-4">

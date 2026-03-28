@@ -21,17 +21,35 @@ async function fetcher<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   chapters: {
-    list: (params?: { region?: string; language?: string; page?: number; page_size?: number }) => {
+    list: (params?: { region?: string; language?: string; status?: string; page?: number; page_size?: number }) => {
       const query = new URLSearchParams(params as any).toString()
       return fetcher<{ data: Chapter[]; total: number; page: number; page_size: number }>(`/chapters?${query}`)
     },
     get: (id: string) => fetcher<Chapter>(`/chapters/${id}`),
+    approve: (id: string, status: 'active' | 'inactive') => fetcher<any>(`/chapters/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    }),
+    create: (data: any) => fetcher<Chapter>('/chapters', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    }),
   },
   coaches: {
-    list: (params?: { chapter_id?: string; certification_level?: string; language?: string; specialization?: string; page?: number; page_size?: number }) => {
+    list: (params?: { chapter_id?: string; certification_level?: string; language?: string; specialization?: string; page?: number; page_size?: number; approved?: boolean }) => {
       const query = new URLSearchParams(params as any).toString()
       return fetcher<{ data: Coach[]; total: number; page: number; page_size: number }>(`/coaches?${query}`)
     },
+    approve: (id: string, approved: boolean) => fetcher<any>(`/coaches/${id}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ approved }),
+    }),
+    create: (data: any) => fetcher<Coach>('/coaches', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    }),
   },
   events: {
     list: (params?: { chapter_id?: string; event_type?: string; page?: number; page_size?: number }) => {
