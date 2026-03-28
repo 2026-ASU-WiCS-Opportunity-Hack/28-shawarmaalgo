@@ -1,0 +1,325 @@
+openapi: 3.0.3
+info:
+  title: WIAL Chapters API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /chapters:
+    post:
+      summary: Create chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    get:
+      summary: List chapters
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: region
+          schema:
+            type: string
+        - in: query
+          name: language
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChapterList'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /chapters/{id}:
+    get:
+      summary: Get chapter by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      summary: Replace chapter
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      summary: Patch chapter
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterPatch'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      summary: Delete chapter
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  schemas:
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: string
+        display_name:
+          type: string
+        path_name:
+          type: string
+        contact_email:
+          type: string
+        website:
+          type: string
+          nullable: true
+        languages:
+          type: array
+          items:
+            type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+        region:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - display_name
+        - path_name
+        - contact_email
+        - languages
+        - timezone
+        - currency
+        - region
+        - created_at
+        - updated_at
+    ChapterCreate:
+      type: object
+      required:
+        - display_name
+        - path_name
+        - contact_email
+        - languages
+        - timezone
+        - currency
+        - region
+      properties:
+        display_name:
+          type: string
+        path_name:
+          type: string
+        contact_email:
+          type: string
+        website:
+          type: string
+          nullable: true
+        languages:
+          type: array
+          items:
+            type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+        region:
+          type: string
+    ChapterUpdate:
+      type: object
+      required:
+        - display_name
+        - path_name
+        - contact_email
+        - languages
+        - timezone
+        - currency
+        - region
+      properties:
+        display_name:
+          type: string
+        path_name:
+          type: string
+        contact_email:
+          type: string
+        website:
+          type: string
+          nullable: true
+        languages:
+          type: array
+          items:
+            type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+        region:
+          type: string
+    ChapterPatch:
+      type: object
+      properties:
+        display_name:
+          type: string
+        path_name:
+          type: string
+        contact_email:
+          type: string
+        website:
+          type: string
+          nullable: true
+        languages:
+          type: array
+          items:
+            type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+        region:
+          type: string
+    ChapterList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chapter'
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - data
+        - page
+        - page_size
+        - total
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
