@@ -9,7 +9,14 @@ import (
 	"wial-backend/internal/handlers"
 )
 
-func New(h *handlers.ChapterHandlers) *gin.Engine {
+func New(
+	chapterH *handlers.ChapterHandlers,
+	coachH *handlers.CoachHandlers,
+	eventH *handlers.EventHandlers,
+	authH *handlers.AuthHandlers,
+	payH *handlers.PaymentHandlers,
+	aiH *handlers.AIHandlers,
+) *gin.Engine {
 	r := gin.Default()
 
 	r.GET("/health", func(c *gin.Context) {
@@ -18,12 +25,55 @@ func New(h *handlers.ChapterHandlers) *gin.Engine {
 
 	api := r.Group("/api/v1")
 	{
-		api.POST("/chapters", h.CreateChapter)
-		api.GET("/chapters", h.ListChapters)
-		api.GET("/chapters/:id", h.GetChapter)
-		api.PUT("/chapters/:id", h.UpdateChapter)
-		api.PATCH("/chapters/:id", h.PatchChapter)
-		api.DELETE("/chapters/:id", h.DeleteChapter)
+		// Auth
+		api.POST("/auth/register", authH.Register)
+		api.POST("/auth/login", authH.Login)
+
+		// Chapters (Public)
+		api.GET("/chapters", chapterH.ListChapters)
+		api.GET("/chapters/:id", chapterH.GetChapter)
+
+		// Coaches (Public)
+		api.GET("/coaches", coachH.ListCoaches)
+
+		// Events (Public)
+		api.GET("/events", eventH.ListEvents)
+
+		// AI Features
+		api.GET("/ai/coach-search", aiH.CoachSearch)
+		api.POST("/ai/generate-chapter", aiH.GenerateChapter)
+
+		// Payments
+		api.POST("/payments/create-session", payH.CreateCheckoutSession)
+
+		// Protected routes
+		protected := api.Group("")
+		protected.Use(handlers.AuthMiddleware())
+		{
+			// Chapter Management (Chapter Lead or Super Admin)
+			chapterAdmin := protected.Group("/chapters")
+			chapterAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				chapterAdmin.POST("", chapterH.CreateChapter)
+				chapterAdmin.PUT("/:id", chapterH.UpdateChapter)
+				chapterAdmin.PATCH("/:id", chapterH.PatchChapter)
+				chapterAdmin.DELETE("/:id", chapterH.DeleteChapter)
+			}
+
+			// Coach Management
+			coachAdmin := protected.Group("/coaches")
+			coachAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				coachAdmin.POST("", coachH.CreateCoach)
+			}
+
+			// Event Management
+			eventAdmin := protected.Group("/events")
+			eventAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				eventAdmin.POST("", eventH.CreateEvent)
+			}
+		}
 	}
 
 	r.GET("/swagger", func(c *gin.Context) {

@@ -17,7 +17,8 @@ import {
   Languages,
   Award,
 } from 'lucide-react'
-import { chapters, coaches, events } from '@/lib/mock-data'
+import { api } from '@/lib/api'
+import { chapters as mockChapters, coaches as mockCoaches, events as mockEvents } from '@/lib/mock-data'
 
 interface ChapterPageProps {
   params: Promise<{ chapter: string }>
@@ -25,7 +26,13 @@ interface ChapterPageProps {
 
 export async function generateMetadata({ params }: ChapterPageProps) {
   const { chapter: chapterSlug } = await params
-  const chapter = chapters.find((c) => c.slug === chapterSlug)
+  let chapter = mockChapters.find((c) => c.slug === chapterSlug)
+
+  try {
+    const res = await api.chapters.list({ page_size: 100 })
+    const found = res.data.find((c) => c.slug === chapterSlug)
+    if (found) chapter = found
+  } catch (err) {}
 
   if (!chapter) {
     return {
@@ -40,21 +47,47 @@ export async function generateMetadata({ params }: ChapterPageProps) {
 }
 
 export async function generateStaticParams() {
-  return chapters.map((chapter) => ({
+  try {
+    const res = await api.chapters.list({ page_size: 100 })
+    if (res.data.length > 0) {
+      return res.data.map((chapter) => ({
+        chapter: chapter.slug,
+      }))
+    }
+  } catch (err) {}
+
+  return mockChapters.map((chapter) => ({
     chapter: chapter.slug,
   }))
 }
 
 export default async function ChapterPage({ params }: ChapterPageProps) {
   const { chapter: chapterSlug } = await params
-  const chapter = chapters.find((c) => c.slug === chapterSlug)
+
+  let chapter = mockChapters.find((c) => c.slug === chapterSlug)
+  let chapterCoaches = mockCoaches.filter((coach) => coach.chapter_id === chapter?.id)
+  let chapterEvents = mockEvents.filter((event) => event.chapter_id === chapter?.id)
+
+  try {
+    const res = await api.chapters.list({ page_size: 100 })
+    const found = res.data.find((c) => c.slug === chapterSlug)
+    if (found) {
+      chapter = found
+      const [coachesRes, eventsRes] = await Promise.all([
+        api.coaches.list({ chapter_id: chapter.id, page_size: 100 }),
+        api.events.list({ chapter_id: chapter.id, page_size: 100 }),
+      ])
+      chapterCoaches = coachesRes.data
+      chapterEvents = eventsRes.data
+    }
+  } catch (err) {
+    console.error('Failed to fetch chapter details from API, using mock data:', err)
+  }
 
   if (!chapter) {
     notFound()
   }
 
-  const chapterCoaches = coaches.filter((coach) => coach.chapter_id === chapter.id)
-  const chapterEvents = events.filter((event) => event.chapter_id === chapter.id)
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -29,7 +29,7 @@ func (h *ChapterHandlers) CreateChapter(c *gin.Context) {
 	chapter, err := h.store.CreateChapter(c.Request.Context(), req)
 	if err != nil {
 		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "path_name already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create chapter"})
@@ -107,7 +107,7 @@ func (h *ChapterHandlers) UpdateChapter(c *gin.Context) {
 			return
 		}
 		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "path_name already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update chapter"})
@@ -136,7 +136,7 @@ func (h *ChapterHandlers) PatchChapter(c *gin.Context) {
 			return
 		}
 		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "path_name already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch chapter"})
