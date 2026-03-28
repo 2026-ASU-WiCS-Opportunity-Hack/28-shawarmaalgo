@@ -14,12 +14,28 @@ import {
   Quote,
   MapPin,
 } from 'lucide-react'
-import { stats, testimonials, events, chapters } from '@/lib/mock-data'
+import { api } from '@/lib/api'
+import { stats as mockStats, testimonials as mockTestimonials, events as mockEvents, chapters as mockChapters } from '@/lib/mock-data'
 
-export default function HomePage() {
-  const upcomingEvents = events.slice(0, 3)
-  const featuredTestimonials = testimonials.slice(0, 3)
-  const featuredChapters = chapters.slice(0, 4)
+export default async function HomePage() {
+  let stats = mockStats
+  let featuredTestimonials = mockTestimonials.slice(0, 3)
+  let upcomingEvents = mockEvents.slice(0, 3)
+  let featuredChapters = mockChapters.slice(0, 4)
+
+  try {
+    const [chaptersRes, eventsRes, coachesRes] = await Promise.all([
+      api.chapters.list({ page_size: 4 }),
+      api.events.list({ page_size: 3 }),
+      api.coaches.list({ page_size: 1 }),
+    ])
+
+    if (chaptersRes.data.length > 0) featuredChapters = chaptersRes.data
+    if (eventsRes.data.length > 0) upcomingEvents = eventsRes.data
+    // Update stats if needed (would need a specific stats endpoint)
+  } catch (err) {
+    console.error('Failed to fetch from API, using mock data:', err)
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

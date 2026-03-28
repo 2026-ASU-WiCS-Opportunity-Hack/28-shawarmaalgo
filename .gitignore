@@ -10,7 +10,11 @@ __v0_jsx-dev-runtime.ts
 .v0-trash/
 .vercel/
 next.user-config.*
+.env
+.env.*
+!.env.example
 .env*.local
 node_modules
 .next/
 .DS_Store
+.gocache

@@ -1,181 +1,596 @@
 openapi: 3.0.3
 info:
-  title: WIAL Chapters API
+  title: WIAL Backend API
   version: 1.0.0
+  description: |
+    OpenAPI documentation for the WIAL hackathon backend.
+
+    The API includes public directory endpoints for chapters, coaches, and events,
+    plus authentication, simulated AI helpers, and protected admin routes.
 servers:
-  - url: /api/v1
+  - url: http://localhost:8080
+    description: Local development server
+tags:
+  - name: Health
+  - name: Auth
+  - name: Chapters
+  - name: Coaches
+  - name: Events
+  - name: AI
+  - name: Payments
 paths:
-  /chapters:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/v1/auth/register:
     post:
-      summary: Create chapter
+      tags: [Auth]
+      summary: Register a user
+      operationId: registerUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChapterCreate'
+              $ref: '#/components/schemas/UserRegisterRequest'
       responses:
         '201':
-          description: Created
+          description: User registered
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Chapter'
+                $ref: '#/components/schemas/AuthResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '409':
-          $ref: '#/components/responses/Conflict'
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: email already exists
         '500':
           $ref: '#/components/responses/InternalError'
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in a user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: invalid credentials
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/chapters:
     get:
+      tags: [Chapters]
       summary: List chapters
+      operationId: listChapters
       parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: page_size
-          schema:
-            type: integer
-            default: 20
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
         - in: query
           name: region
           schema:
             type: string
+          description: Filter by chapter region
         - in: query
           name: language
           schema:
             type: string
+          description: Filter by supported language
       responses:
         '200':
-          description: OK
+          description: A paginated list of chapters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChapterList'
+                $ref: '#/components/schemas/ChapterListResponse'
         '500':
           $ref: '#/components/responses/InternalError'
-  /chapters/{id}:
+    post:
+      tags: [Chapters]
+      summary: Create a chapter
+      operationId: createChapter
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterCreateRequest'
+      responses:
+        '201':
+          description: Chapter created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Chapter slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: slug already exists
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/chapters/{id}:
     get:
-      summary: Get chapter by ID
+      tags: [Chapters]
+      summary: Get a chapter by ID
+      operationId: getChapter
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/IdPath'
       responses:
         '200':
-          description: OK
+          description: Chapter found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Chapter'
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: chapter not found
         '500':
           $ref: '#/components/responses/InternalError'
     put:
-      summary: Replace chapter
+      tags: [Chapters]
+      summary: Replace a chapter
+      operationId: updateChapter
+      security:
+        - bearerAuth: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/IdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChapterUpdate'
+              $ref: '#/components/schemas/ChapterUpdateRequest'
       responses:
         '200':
-          description: OK
+          description: Chapter updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Chapter'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: chapter not found
         '409':
-          $ref: '#/components/responses/Conflict'
+          description: Chapter slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: slug already exists
         '500':
           $ref: '#/components/responses/InternalError'
     patch:
-      summary: Patch chapter
+      tags: [Chapters]
+      summary: Patch a chapter
+      operationId: patchChapter
+      security:
+        - bearerAuth: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/IdPath'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChapterPatch'
+              $ref: '#/components/schemas/ChapterPatchRequest'
       responses:
         '200':
-          description: OK
+          description: Chapter patched
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Chapter'
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Invalid request or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid:
+                  value:
+                    error: invalid request
+                emptyPatch:
+                  value:
+                    error: no fields to update
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: chapter not found
         '409':
-          $ref: '#/components/responses/Conflict'
+          description: Chapter slug already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: slug already exists
         '500':
           $ref: '#/components/responses/InternalError'
     delete:
-      summary: Delete chapter
+      tags: [Chapters]
+      summary: Delete a chapter
+      operationId: deleteChapter
+      security:
+        - bearerAuth: []
       parameters:
-        - in: path
-          name: id
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Chapter deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: chapter not found
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/coaches:
+    get:
+      tags: [Coaches]
+      summary: List coaches
+      operationId: listCoaches
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+          description: Filter by chapter ID
+        - in: query
+          name: certification_level
+          schema:
+            type: string
+          description: Filter by certification level
+        - in: query
+          name: language
+          schema:
+            type: string
+          description: Filter by coach language
+        - in: query
+          name: specialization
+          schema:
+            type: string
+          description: Filter by specialization
+      responses:
+        '200':
+          description: A paginated list of coaches
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoachListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Coaches]
+      summary: Create a coach
+      operationId: createCoach
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoachCreateRequest'
+      responses:
+        '201':
+          description: Coach created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/events:
+    get:
+      tags: [Events]
+      summary: List events
+      operationId: listEvents
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+          description: Filter by chapter ID
+        - in: query
+          name: event_type
+          schema:
+            type: string
+          description: Filter by event type
+      responses:
+        '200':
+          description: A paginated list of events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Events]
+      summary: Create an event
+      operationId: createEvent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreateRequest'
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/ai/coach-search:
+    get:
+      tags: [AI]
+      summary: Search coaches using the simulated AI endpoint
+      operationId: aiCoachSearch
+      parameters:
+        - in: query
+          name: query
           required: true
           schema:
             type: string
+          description: Search text
       responses:
-        '204':
-          description: No Content
-        '404':
-          $ref: '#/components/responses/NotFound'
+        '200':
+          description: Coach search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AICoachSearchResponse'
+        '400':
+          description: Query parameter is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: query is required
         '500':
-          $ref: '#/components/responses/InternalError'
+          description: Search failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: search failed
+  /api/v1/ai/generate-chapter:
+    post:
+      tags: [AI]
+      summary: Generate starter chapter content
+      operationId: aiGenerateChapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AIGenerateChapterRequest'
+      responses:
+        '200':
+          description: Generated chapter content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIGenerateChapterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/v1/payments/create-session:
+    post:
+      tags: [Payments]
+      summary: Create a simulated checkout session
+      description: Returns a mocked Stripe checkout response for the hackathon build.
+      operationId: createCheckoutSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutSessionRequest'
+      responses:
+        '200':
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutSessionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdPath:
+      in: path
+      name: id
+      required: true
+      schema:
+        type: string
+      description: Resource ID
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: 1-based page number
+    PageSize:
+      in: query
+      name: page_size
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Number of items per page
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: invalid request
+    Unauthorized:
+      description: Authentication failed or missing bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            unauthorized:
+              value:
+                error: unauthorized
+            invalidToken:
+              value:
+                error: invalid token
+    Forbidden:
+      description: Authenticated user lacks the required role
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: forbidden
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
   schemas:
-    Chapter:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+      required: [status]
+    User:
       type: object
       properties:
         id:
           type: string
-        display_name:
+        email:
           type: string
-        path_name:
+          format: email
+        role:
           type: string
-        contact_email:
-          type: string
-        website:
+        chapter_id:
           type: string
           nullable: true
-        languages:
-          type: array
-          items:
-            type: string
-        timezone:
-          type: string
-        currency:
-          type: string
-        region:
-          type: string
         created_at:
           type: string
           format: date-time
@@ -184,36 +599,138 @@ components:
           format: date-time
       required:
         - id
-        - display_name
-        - path_name
-        - contact_email
-        - languages
-        - timezone
-        - currency
-        - region
+        - email
+        - role
         - created_at
         - updated_at
-    ChapterCreate:
+    UserRegisterRequest:
       type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        role:
+          type: string
+        chapter_id:
+          type: string
+          nullable: true
       required:
-        - display_name
-        - path_name
-        - contact_email
-        - languages
+        - email
+        - password
+        - role
+    UserLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - token
+        - user
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        country:
+          type: string
+        region:
+          type: string
+        description:
+          type: string
+          nullable: true
+        description_local:
+          type: string
+          nullable: true
+        primary_language:
+          type: string
+        supported_languages:
+          type: array
+          items:
+            type: string
+        timezone:
+          type: string
+        currency:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        website_url:
+          type: string
+          nullable: true
+        logo_url:
+          type: string
+          nullable: true
+        hero_image_url:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        founded_year:
+          type: integer
+          nullable: true
+        member_count:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - slug
+        - country
+        - region
+        - primary_language
+        - supported_languages
         - timezone
         - currency
-        - region
+        - contact_email
+        - is_active
+        - created_at
+        - updated_at
+    ChapterCreateRequest:
+      type: object
       properties:
-        display_name:
+        name:
           type: string
-        path_name:
+        slug:
           type: string
-        contact_email:
+        country:
           type: string
-        website:
+        region:
+          type: string
+        description:
           type: string
           nullable: true
-        languages:
+        description_local:
+          type: string
+          nullable: true
+        primary_language:
+          type: string
+        supported_languages:
           type: array
           items:
             type: string
@@ -221,51 +738,59 @@ components:
           type: string
         currency:
           type: string
-        region:
+        contact_email:
           type: string
-    ChapterUpdate:
-      type: object
+          format: email
+        website_url:
+          type: string
+          nullable: true
+        logo_url:
+          type: string
+          nullable: true
+        hero_image_url:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+          default: false
+        founded_year:
+          type: integer
+          nullable: true
+        member_count:
+          type: integer
+          nullable: true
       required:
-        - display_name
-        - path_name
-        - contact_email
-        - languages
+        - name
+        - slug
+        - country
+        - region
+        - primary_language
+        - supported_languages
         - timezone
         - currency
-        - region
-      properties:
-        display_name:
-          type: string
-        path_name:
-          type: string
-        contact_email:
-          type: string
-        website:
-          type: string
-          nullable: true
-        languages:
-          type: array
-          items:
-            type: string
-        timezone:
-          type: string
-        currency:
-          type: string
-        region:
-          type: string
-    ChapterPatch:
+        - contact_email
+    ChapterUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/ChapterCreateRequest'
+    ChapterPatchRequest:
       type: object
+      description: Partial chapter update. At least one field must be supplied.
       properties:
-        display_name:
+        name:
           type: string
-        path_name:
+        slug:
           type: string
-        contact_email:
+        country:
           type: string
-        website:
+        region:
           type: string
-          nullable: true
-        languages:
+        description:
+          type: string
+        description_local:
+          type: string
+        primary_language:
+          type: string
+        supported_languages:
           type: array
           items:
             type: string
@@ -273,9 +798,22 @@ components:
           type: string
         currency:
           type: string
-        region:
+        contact_email:
           type: string
-    ChapterList:
+          format: email
+        website_url:
+          type: string
+        logo_url:
+          type: string
+        hero_image_url:
+          type: string
+        is_active:
+          type: boolean
+        founded_year:
+          type: integer
+        member_count:
+          type: integer
+    ChapterListResponse:
       type: object
       properties:
         data:
@@ -293,33 +831,385 @@ components:
         - page
         - page_size
         - total
-    Error:
+    Coach:
       type: object
       properties:
-        error:
+        id:
           type: string
-  responses:
-    BadRequest:
-      description: Bad Request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Not Found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Conflict:
-      description: Conflict
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InternalError:
-      description: Internal Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          nullable: true
+        profile_image_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        specializations:
+          type: array
+          items:
+            type: string
+        languages:
+          type: array
+          items:
+            type: string
+        country:
+          type: string
+        city:
+          type: string
+          nullable: true
+        chapter_id:
+          type: string
+          nullable: true
+        chapter_name:
+          type: string
+          nullable: true
+        certification_level:
+          type: string
+        certification_date:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        linkedin_url:
+          type: string
+          nullable: true
+        website_url:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - first_name
+        - last_name
+        - email
+        - specializations
+        - languages
+        - country
+        - certification_level
+        - certification_date
+        - is_active
+        - created_at
+        - updated_at
+    CoachCreateRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          nullable: true
+        profile_image_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        specializations:
+          type: array
+          items:
+            type: string
+        languages:
+          type: array
+          items:
+            type: string
+        country:
+          type: string
+        city:
+          type: string
+          nullable: true
+        chapter_id:
+          type: string
+          nullable: true
+        certification_level:
+          type: string
+        certification_date:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+          default: false
+        linkedin_url:
+          type: string
+          nullable: true
+        website_url:
+          type: string
+          nullable: true
+      required:
+        - first_name
+        - last_name
+        - email
+        - country
+        - certification_level
+        - certification_date
+    CoachListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coach'
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - data
+        - page
+        - page_size
+        - total
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        title_local:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        description_local:
+          type: string
+          nullable: true
+        event_type:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        timezone:
+          type: string
+        location_type:
+          type: string
+        venue_name:
+          type: string
+          nullable: true
+        venue_address:
+          type: string
+          nullable: true
+        online_meeting_url:
+          type: string
+          nullable: true
+        chapter_id:
+          type: string
+        chapter_name:
+          type: string
+          nullable: true
+        max_attendees:
+          type: integer
+          nullable: true
+        current_attendees:
+          type: integer
+        price_amount:
+          type: number
+          format: double
+          nullable: true
+        price_currency:
+          type: string
+          nullable: true
+        is_free:
+          type: boolean
+        registration_deadline:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - event_type
+        - start_date
+        - timezone
+        - location_type
+        - chapter_id
+        - current_attendees
+        - is_free
+        - status
+        - created_at
+        - updated_at
+    EventCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        title_local:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        description_local:
+          type: string
+          nullable: true
+        event_type:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+          nullable: true
+        timezone:
+          type: string
+        location_type:
+          type: string
+        venue_name:
+          type: string
+          nullable: true
+        venue_address:
+          type: string
+          nullable: true
+        online_meeting_url:
+          type: string
+          nullable: true
+        chapter_id:
+          type: string
+        max_attendees:
+          type: integer
+          nullable: true
+        price_amount:
+          type: number
+          format: double
+          nullable: true
+        price_currency:
+          type: string
+          nullable: true
+        is_free:
+          type: boolean
+          default: false
+        registration_deadline:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+      required:
+        - title
+        - event_type
+        - start_date
+        - timezone
+        - location_type
+        - chapter_id
+    EventListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - data
+        - page
+        - page_size
+        - total
+    AICoachSearchResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coach'
+        total:
+          type: integer
+        note:
+          type: string
+      required:
+        - data
+        - total
+        - note
+    AIGenerateChapterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        country:
+          type: string
+      required:
+        - name
+        - country
+    AIGenerateChapterResponse:
+      type: object
+      properties:
+        description:
+          type: string
+        description_local:
+          type: string
+        suggested_region:
+          type: string
+        primary_language:
+          type: string
+        timezone:
+          type: string
+      required:
+        - description
+        - description_local
+        - suggested_region
+        - primary_language
+        - timezone
+    CheckoutSessionRequest:
+      type: object
+      properties:
+        program_id:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - program_id
+        - email
+    CheckoutSessionResponse:
+      type: object
+      properties:
+        checkout_url:
+          type: string
+          format: uri
+        session_id:
+          type: string
+      required:
+        - checkout_url
+        - session_id

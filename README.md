@@ -11,7 +11,12 @@
 - Ayan Islam
 
 ## Project Overview
-Brief description of your project and its goals.
+This project is a full-stack WIAL directory and enrollment platform built during the 2026 Spring WiCS ASU hackathon. It includes:
+
+- A Next.js frontend for browsing chapters, coaches, events, and certification programs
+- A Go backend API for serving directory and auth data
+- A Postgres database for application data
+- Stripe-powered checkout flows in the frontend
 
 ## Tech Stack
 - Frontend: React.js, Tailwind CSS

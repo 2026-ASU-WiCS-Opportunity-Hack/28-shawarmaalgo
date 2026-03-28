@@ -2,7 +2,8 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { Badge } from '@/components/ui/badge'
 import { CoachSearch } from '@/components/coach-search'
-import { coaches, languages, countries, specializations } from '@/lib/mock-data'
+import { api } from '@/lib/api'
+import { coaches as mockCoaches, languages, countries, specializations } from '@/lib/mock-data'
 
 export const metadata = {
   title: 'Find a Coach - WIAL Coach Directory',
@@ -10,7 +11,15 @@ export const metadata = {
     'Search our global directory of certified Action Learning coaches. Find the perfect coach for your organization.',
 }
 
-export default function CoachesPage() {
+export default async function CoachesPage() {
+  let initialCoaches = mockCoaches
+
+  try {
+    const res = await api.coaches.list({ page_size: 100 })
+    if (res.data.length > 0) initialCoaches = res.data
+  } catch (err) {
+    console.error('Failed to fetch coaches from API, using mock data:', err)
+  }
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -38,7 +47,7 @@ export default function CoachesPage() {
         <section className="bg-background py-12">
           <div className="container mx-auto px-4">
             <CoachSearch
-              coaches={coaches}
+              coaches={initialCoaches}
               languages={languages}
               countries={countries}
               specializations={specializations}
