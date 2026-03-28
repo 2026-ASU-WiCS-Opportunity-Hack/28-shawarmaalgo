@@ -31,6 +31,18 @@ Example (install migrate CLI separately):
 migrate -path ./migrations -database "$DATABASE_URL" up
 ```
 
+With Docker Compose from the repo root, migrations run automatically before the backend starts:
+
+```bash
+docker compose up --build
+```
+
+The compose stack uses:
+
+- `postgres` for the database
+- `migrate` as a one-shot migration runner
+- `backend` for the Go API
+
 ## Run
 ```
 go run ./cmd/server

@@ -44,6 +44,17 @@ go run ./cmd/server
 
 The API runs on `http://localhost:8080` by default and exposes routes under `/api/v1`.
 
+### Run with Docker Compose
+```bash
+docker compose up --build
+```
+
+This starts:
+
+- `postgres` on port `5432`
+- a one-shot `migrate` container that applies the SQL migrations
+- `backend` on `http://localhost:8080`
+
 ### Run the frontend
 ```bash
 cd frontend
