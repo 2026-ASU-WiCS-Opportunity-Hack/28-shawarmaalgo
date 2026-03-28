@@ -14,9 +14,9 @@
 Brief description of your project and its goals.
 
 ## Tech Stack
-- Frontend:
-- Backend:
-- Database:
+- Frontend: React.js, Tailwind CSS
+- Backend: Go
+- Database: Supabase
 - APIs:
 
 ## Getting Started
