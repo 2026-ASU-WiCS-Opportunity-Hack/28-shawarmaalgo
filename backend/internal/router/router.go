@@ -19,8 +19,10 @@ func New(
 	userH *handlers.UserHandlers,
 	payH *handlers.PaymentHandlers,
 	aiH *handlers.AIHandlers,
+	allowedOrigins []string,
 ) *gin.Engine {
 	r := gin.Default()
+	r.Use(corsMiddleware(allowedOrigins))
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

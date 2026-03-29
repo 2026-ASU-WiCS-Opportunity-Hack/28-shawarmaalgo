@@ -15,6 +15,7 @@ APP_ENV=development
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/wial?sslmode=disable
 SUPER_ADMIN_EMAIL=admin@example.com
 SUPER_ADMIN_PASSWORD=change-me-in-local-dev
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
 
 Notes:
@@ -23,6 +24,7 @@ Notes:
 - `APP_ENV` defaults to `development`
 - `DATABASE_URL` must point to a reachable PostgreSQL instance
 - `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` are required on first launch when the `users` table is empty
+- `CORS_ALLOWED_ORIGINS` controls which browser origins may call the API; by default local frontend origins on port `3000` are allowed
 - JWT signing is currently hardcoded in the app and is not yet configurable through env vars
 
 ## Auth and User Provisioning

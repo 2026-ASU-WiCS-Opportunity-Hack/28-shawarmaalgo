@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -14,6 +15,7 @@ type Config struct {
 	Env                string
 	SuperAdminEmail    string
 	SuperAdminPassword string
+	AllowedOrigins     []string
 }
 
 func Load() Config {
@@ -24,6 +26,7 @@ func Load() Config {
 	env := getEnv("APP_ENV", "development")
 	superAdminEmail := getEnv("SUPER_ADMIN_EMAIL", "")
 	superAdminPassword := getEnv("SUPER_ADMIN_PASSWORD", "")
+	allowedOrigins := getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
 
 	return Config{
 		Port:               port,
@@ -31,6 +34,7 @@ func Load() Config {
 		Env:                env,
 		SuperAdminEmail:    superAdminEmail,
 		SuperAdminPassword: superAdminPassword,
+		AllowedOrigins:     splitCSV(allowedOrigins),
 	}
 }
 
@@ -51,4 +55,17 @@ func GetIntEnv(key string, fallback int) int {
 		return parsed
 	}
 	return fallback
+}
+
+func splitCSV(val string) []string {
+	parts := strings.Split(val, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		trimmed := strings.TrimSpace(part)
+		if trimmed == "" {
+			continue
+		}
+		out = append(out, trimmed)
+	}
+	return out
 }
