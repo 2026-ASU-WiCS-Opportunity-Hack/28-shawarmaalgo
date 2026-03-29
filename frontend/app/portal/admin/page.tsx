@@ -34,7 +34,7 @@ export default async function AdminOverviewPage() {
                 <p className="mt-1 text-sm text-slate-600">/{chapter.slug}</p>
                 <div className="mt-4 flex gap-4 text-sm font-semibold">
                   <Link href={`/portal/admin/chapters/${chapter.slug}`} className="text-brand-navy hover:text-brand-teal">Manage</Link>
-                  <Link href={`/${chapter.slug}`} className="text-brand-navy hover:text-brand-teal">View public page</Link>
+                  <Link href={`/${chapter.slug}`} className="text-brand-navy hover:text-brand-teal">View</Link>
                 </div>
               </div>
             ))}
