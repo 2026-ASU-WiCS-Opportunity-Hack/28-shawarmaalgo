@@ -29,7 +29,7 @@ export default async function ResourcesPage() {
             <p className="font-medium text-brand-teal">{resource.type}</p>
             <p>{resource.summary}</p>
             {resource.url ? (
-              <a href={resource.url} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
+              <a href={resource.url} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal dark:text-slate-100 dark:hover:text-brand-gold">
                 Visit resource →
               </a>
             ) : null}

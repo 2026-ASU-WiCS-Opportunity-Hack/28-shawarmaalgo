@@ -16,19 +16,19 @@ export default async function CoachesPage() {
         description="Browse certified coaches across the WIAL network and discover chapter-based expertise."
       />
 
-      <section className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft lg:grid-cols-[1.4fr_1fr_1fr_auto]">
+      <section className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-950 lg:grid-cols-[1.4fr_1fr_1fr_auto]">
         <input
           aria-label="Search coaches"
           placeholder="Search by specialty, location, or name"
-          className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none ring-brand-teal placeholder:text-slate-400 focus:ring-2"
+          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-brand-ink outline-none ring-brand-teal placeholder:text-slate-400 focus:ring-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
-        <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand-teal">
+        <select className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-brand-ink outline-none focus:ring-2 focus:ring-brand-teal dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
           <option>All chapters</option>
           {chapters.map((country) => (
             <option key={country.slug}>{country.shortName}</option>
           ))}
         </select>
-        <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand-teal">
+        <select className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-brand-ink outline-none focus:ring-2 focus:ring-brand-teal dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
           {certifications.map((level) => (
             <option key={level}>{level}</option>
           ))}
@@ -41,12 +41,12 @@ export default async function CoachesPage() {
           {allCoaches.map((coach) => (
             <div key={`${coach.name}-${coach.country}`}>
               <CoachCard coach={coach} />
-              <p className="mt-2 text-sm text-slate-500">Chapter: {coach.country}</p>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Chapter: {coach.country}</p>
             </div>
           ))}
         </div>
       ) : (
-        <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-soft">
+        <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-soft dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
           No coaches are published yet.
         </div>
       )}

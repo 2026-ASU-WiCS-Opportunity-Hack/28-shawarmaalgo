@@ -15,7 +15,7 @@ export function ThemeToggle({ className = '', fullWidth = false }: { className?:
 
   useEffect(() => {
     const stored = window.localStorage.getItem('wial-theme');
-    const nextTheme = stored === 'dark' ? 'dark' : 'light';
+    const nextTheme = stored === 'dark' || (!stored && document.documentElement.classList.contains('dark')) ? 'dark' : 'light';
     setTheme(nextTheme);
     applyTheme(nextTheme);
     setMounted(true);

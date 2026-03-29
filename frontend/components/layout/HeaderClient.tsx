@@ -17,19 +17,19 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
   const accountHref = portalHref || '/login';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
       <div className="container-shell flex items-center justify-between gap-4 py-4">
         <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setOpen(false)}>
           <img src="/wial-logo.png" alt="WIAL logo" width="100" height="52" className="h-12 w-auto" />
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-teal">World Institute for Action Learning</div>
-            <div className="truncate text-sm text-brand-navy">Certification, coaches, chapters, and resources</div>
+            <div className="truncate text-sm text-brand-navy dark:text-slate-100">Certification, coaches, chapters, and resources</div>
           </div>
         </Link>
 
         <nav className="hidden items-center gap-5 lg:flex">
           {site.primaryNav.map((item) => (
-            <Link key={item.href} href={item.href} className="text-sm font-medium text-slate-700 hover:text-brand-navy">
+            <Link key={item.href} href={item.href} className="text-sm font-medium text-slate-700 hover:text-brand-navy dark:text-slate-300 dark:hover:text-white">
               {item.label}
             </Link>
           ))}
@@ -43,7 +43,7 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
           type="button"
           aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={open}
-          className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2 text-brand-navy lg:hidden"
+          className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2 text-brand-navy dark:border-slate-700 dark:text-slate-100 lg:hidden"
           onClick={() => setOpen((value) => !value)}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -51,14 +51,14 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
       </div>
 
       {open ? (
-        <div className="border-t border-slate-200 bg-white lg:hidden">
+        <div className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:hidden">
           <div className="container-shell flex flex-col gap-1 py-4">
             {site.primaryNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-brand-sand hover:text-brand-navy"
+                className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-brand-sand hover:text-brand-navy dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"
               >
                 {item.label}
               </Link>

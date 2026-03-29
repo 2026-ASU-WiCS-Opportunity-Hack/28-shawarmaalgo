@@ -22,7 +22,7 @@ export default async function CountryCoachesPage({ params }: { params: { country
           ))}
         </div>
       ) : (
-        <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-soft">
+        <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-soft dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
           This chapter does not have any published coaches yet.
         </div>
       )}

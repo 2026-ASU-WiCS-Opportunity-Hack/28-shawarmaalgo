@@ -57,11 +57,11 @@ export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
       />
 
       <div className="mt-8 max-w-2xl">
-        <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+        <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-950 sm:p-8">
           {isLoggedIn ? (
             <>
-              <h2 className="text-2xl font-semibold text-brand-navy">You are already logged in</h2>
-              <p className="mt-4 text-sm leading-7 text-slate-700">
+              <h2 className="text-2xl font-semibold text-brand-navy dark:text-white">You are already logged in</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-300">
                 Use the portal button below to continue to your workspace. When you are done, you can log out from here or from inside the portal.
               </p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -73,21 +73,21 @@ export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-semibold text-brand-navy">Welcome back</h2>
+              <h2 className="text-2xl font-semibold text-brand-navy dark:text-white">Welcome back</h2>
               <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">Email address</label>
-                  <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="you@wial.org" />
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Email address</label>
+                  <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-brand-ink dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder="you@wial.org" />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
-                  <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Enter your password" />
+                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
+                  <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-brand-ink dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100" placeholder="Enter your password" />
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 text-slate-600">
+                  <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                     <input type="checkbox" /> Keep me signed in
                   </label>
-                  <Link href="/contact" className="font-medium text-brand-navy hover:text-brand-teal">Need help?</Link>
+                  <Link href="/contact" className="font-medium text-brand-navy hover:text-brand-teal dark:text-slate-100 dark:hover:text-brand-gold">Need help?</Link>
                 </div>
                 {error ? <p className="text-sm text-red-600">{error}</p> : null}
                 <Button type="submit" disabled={loading} fullWidth>
