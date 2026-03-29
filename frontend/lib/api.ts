@@ -189,6 +189,8 @@ export type ChapterCreatePayload = {
   member_count?: number;
 };
 
+export type ChapterUpdatePayload = ChapterCreatePayload;
+
 export type CoachListQuery = {
   page?: number;
   page_size?: number;
@@ -419,7 +421,8 @@ export const api = {
   getChapter: (id: string) => request<BackendChapter>(`/chapters/${id}`),
   createChapter: (payload: ChapterCreatePayload, token: string) =>
     request<BackendChapter>('/chapters', { method: 'POST', body: payload, token }),
-  updateChapter: (id: string, payload: unknown, token: string) => request<BackendChapter>(`/chapters/${id}`, { method: 'PUT', body: payload, token }),
+  updateChapter: (id: string, payload: ChapterUpdatePayload, token: string) =>
+    request<BackendChapter>(`/chapters/${id}`, { method: 'PUT', body: payload, token }),
   patchChapter: (id: string, payload: unknown, token: string) => request<BackendChapter>(`/chapters/${id}`, { method: 'PATCH', body: payload, token }),
   patchChapterContent: (id: string, payload: unknown, token: string) =>
     request<BackendChapter>(`/chapters/${id}/content`, { method: 'PATCH', body: payload, token }),
