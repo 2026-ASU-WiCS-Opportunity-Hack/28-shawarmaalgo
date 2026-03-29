@@ -1,84 +1,107 @@
-import { Chapter, Coach, Event, CertificationProgram, Testimonial } from './types'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000/api";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1'
-
-async function fetcher<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
     headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
+      "Content-Type": "application/json",
+      ...(init?.headers || {})
     },
-  })
+    cache: "no-store"
+  });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: 'Unknown error' }))
-    throw new Error(error.error || 'API request failed')
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status}`);
   }
 
-  return res.json()
+  return response.json() as Promise<T>;
 }
 
 export const api = {
-  chapters: {
-    list: (params?: { region?: string; language?: string; status?: string; page?: number; page_size?: number }) => {
-      const query = new URLSearchParams(params as any).toString()
-      return fetcher<{ data: Chapter[]; total: number; page: number; page_size: number }>(`/chapters?${query}`)
-    },
-    get: (id: string) => fetcher<Chapter>(`/chapters/${id}`),
-    approve: (id: string, status: 'active' | 'inactive') => fetcher<any>(`/chapters/${id}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ status }),
+  // Public content
+  getPageContent: (slug: string) => request(`/pages/${slug}`),
+  getChapters: () => request("/chapters"),
+  getChapter: (slug: string) => request(`/chapters/${slug}`),
+  getChapterTeam: (slug: string) => request(`/chapters/${slug}/team`),
+  getChapterCoaches: (slug: string) => request(`/chapters/${slug}/coaches`),
+  getChapterEvents: (slug: string) => request(`/chapters/${slug}/events`),
+  getChapterResources: (slug: string) => request(`/chapters/${slug}/resources`),
+  getChapterTestimonials: (slug: string) => request(`/chapters/${slug}/testimonials`),
+  getCoaches: (query = "") => request(`/coaches${query ? `?${query}` : ""}`),
+  getEvents: (query = "") => request(`/events${query ? `?${query}` : ""}`),
+  getResources: (query = "") => request(`/resources${query ? `?${query}` : ""}`),
+  sendContactMessage: (payload: unknown) =>
+    request("/contact", {
+      method: "POST",
+      body: JSON.stringify(payload)
     }),
-    create: (data: any) => fetcher<Chapter>('/chapters', {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  sendChapterContactMessage: (slug: string, payload: unknown) =>
+    request(`/chapters/${slug}/contact`, {
+      method: "POST",
+      body: JSON.stringify(payload)
     }),
-  },
-  coaches: {
-    list: (params?: { chapter_id?: string; certification_level?: string; language?: string; specialization?: string; page?: number; page_size?: number; approved?: boolean }) => {
-      const query = new URLSearchParams(params as any).toString()
-      return fetcher<{ data: Coach[]; total: number; page: number; page_size: number }>(`/coaches?${query}`)
-    },
-    approve: (id: string, approved: boolean) => fetcher<any>(`/coaches/${id}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ approved }),
+
+  // Auth and session
+  login: (payload: unknown) =>
+    request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(payload)
     }),
-    create: (data: any) => fetcher<Coach>('/coaches', {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+  logout: () =>
+    request("/auth/logout", {
+      method: "POST"
     }),
-  },
-  events: {
-    list: (params?: { chapter_id?: string; event_type?: string; page?: number; page_size?: number }) => {
-      const query = new URLSearchParams(params as any).toString()
-      return fetcher<{ data: Event[]; total: number; page: number; page_size: number }>(`/events?${query}`)
-    },
-    get: (id: string) => fetcher<Event>(`/events/${id}`),
-  },
-  auth: {
-    login: (credentials: any) => fetcher<{ token: string; user: any }>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
+  getSession: () => request("/auth/session"),
+  getCurrentUser: () => request("/me"),
+
+  // Coach account
+  getMyCoachProfile: () => request("/me/coach-profile"),
+  updateMyCoachProfile: (payload: unknown) =>
+    request("/me/coach-profile", {
+      method: "PATCH",
+      body: JSON.stringify(payload)
     }),
-    register: (data: any) => fetcher<{ token: string; user: any }>('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
+  getMyCertification: () => request("/me/certification"),
+
+  // Chapter leader workspace
+  getChapterWorkspace: (slug: string) => request(`/portal/chapters/${slug}`),
+  updateChapterContent: (slug: string, payload: unknown) =>
+    request(`/portal/chapters/${slug}/content`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
     }),
-  },
-  ai: {
-    coachSearch: (query: string) => fetcher<{ data: Coach[]; total: number; note: string }>(`/ai/coach-search?query=${encodeURIComponent(query)}`),
-    generateChapter: (data: { name: string; country: string }) => fetcher<any>('/ai/generate-chapter', {
-      method: 'POST',
-      body: JSON.stringify(data),
+  updateChapterContact: (slug: string, payload: unknown) =>
+    request(`/portal/chapters/${slug}/contact`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
     }),
-  },
-  payments: {
-    createSession: (data: { program_id: string; email: string }) => fetcher<{ checkout_url: string; session_id: string }>('/payments/create-session', {
-      method: 'POST',
-      body: JSON.stringify(data),
+  createChapterEvent: (slug: string, payload: unknown) =>
+    request(`/portal/chapters/${slug}/events`, {
+      method: "POST",
+      body: JSON.stringify(payload)
     }),
-  }
-}
+  updateChapterEvent: (slug: string, eventId: string, payload: unknown) =>
+    request(`/portal/chapters/${slug}/events/${eventId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    }),
+  createChapterResource: (slug: string, payload: unknown) =>
+    request(`/portal/chapters/${slug}/resources`, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  updateChapterResource: (slug: string, resourceId: string, payload: unknown) =>
+    request(`/portal/chapters/${slug}/resources/${resourceId}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    }),
+
+  // Global admin workspace
+  getPortalOverview: () => request("/portal/overview"),
+  getPendingApprovals: () => request("/portal/approvals"),
+  updateGlobalPage: (slug: string, payload: unknown) =>
+    request(`/portal/pages/${slug}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    })
+};

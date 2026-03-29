@@ -1,105 +1,55 @@
-'use client'
-
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { api } from '@/lib/api'
-import { useToast } from '@/hooks/use-toast'
+import Link from "next/link";
+import { PageShell } from "@/components/layout/PageShell";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { loginRoles } from "@/data/content";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const { toast } = useToast()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      const res = await api.auth.login({ email, password })
-      localStorage.setItem('token', res.token)
-      localStorage.setItem('user', JSON.stringify(res.user))
-      
-      toast({
-        title: 'Login Successful',
-        description: `Welcome back, ${res.user.email}`,
-      })
-
-      // Redirect based on role
-      if (res.user.role === 'super_admin') {
-        router.push('/dashboard/admin')
-      } else if (res.user.role === 'chapter_lead') {
-        router.push('/dashboard/chapter')
-      } else {
-        router.push('/dashboard/coach')
-      }
-    } catch (err: any) {
-      toast({
-        title: 'Login Failed',
-        description: err.message,
-        variant: 'destructive',
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex flex-1 items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>Enter your credentials to access your WIAL dashboard.</CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </Button>
-              <div className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{' '}
-                <Link href="/register" className="text-primary hover:underline">
-                  Register
-                </Link>
-              </div>
-            </CardFooter>
+    <PageShell>
+      <SectionHeading
+        eyebrow="Account access"
+        title="Sign in to manage chapters, coaches, and network content"
+        description="This frontend includes production-ready sign-in screens for global admins, chapter leaders, and coaches. Wire the form to your backend auth provider when ready."
+      />
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+        <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+          <h2 className="text-2xl font-semibold text-brand-navy">Welcome back</h2>
+          <form className="mt-6 space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Email address</label>
+              <input type="email" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="you@wial.org" />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
+              <input type="password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Enter your password" />
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-slate-600">
+                <input type="checkbox" /> Keep me signed in
+              </label>
+              <a href="#" className="font-medium text-brand-navy hover:text-brand-teal">Forgot password?</a>
+            </div>
+            <button className="w-full rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-ink">Sign in</button>
+            <button className="w-full rounded-full border border-brand-navy px-5 py-3 text-sm font-semibold text-brand-navy hover:bg-brand-sand">Continue with single sign-on</button>
           </form>
-        </Card>
-      </main>
-      <Footer />
-    </div>
-  )
+        </section>
+
+        <section className="rounded-[1.75rem] bg-brand-sand p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold text-brand-navy">Access by role</h2>
+          <div className="mt-6 space-y-4">
+            {loginRoles.map((role) => (
+              <article key={role.title} className="rounded-[1.25rem] border border-white bg-white p-5 shadow-soft">
+                <h3 className="text-lg font-semibold text-brand-navy">{role.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-slate-700">{role.body}</p>
+                <Link href={role.href} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
+                  Preview {role.title} portal →
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </PageShell>
+  );
 }
