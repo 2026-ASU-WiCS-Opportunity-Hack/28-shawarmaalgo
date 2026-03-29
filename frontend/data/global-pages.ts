@@ -24,19 +24,11 @@ export const globalPageDefaults: GlobalPageDefault[] = [
     status: 'Published'
   },
   {
-    slug: 'action-learning',
-    title: 'Action Learning',
-    heroHeading: 'A disciplined way to solve real problems while developing people and teams',
-    introContent:
-      'WIAL explains Action Learning as a process built on questioning, reflection, listening, and action that helps individuals, teams, and organizations work on urgent and important challenges.',
-    status: 'Published'
-  },
-  {
     slug: 'certification',
     title: 'Certification',
-    heroHeading: 'A clear development path for WIAL Action Learning coaches',
+    heroHeading: 'Certification and Action Learning guidance for coaches, sponsors, and chapter communities',
     introContent:
-      'WIAL’s certification journey spans Foundations of Action Learning and the CALC, PALC, SALC, and MALC levels, giving coaches a structured path for practice, contribution, and growth.',
+      'WIAL brings Action Learning methodology and coach certification into one pathway, from understanding the foundations to progressing through CALC, PALC, SALC, and MALC.',
     status: 'Published'
   },
   {

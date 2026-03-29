@@ -23,7 +23,6 @@ export const adminOverview = {
 export const globalPages = [
   { slug: 'home', title: 'Home page', status: 'Published', lastUpdated: 'March 27, 2026' },
   { slug: 'about', title: 'About WIAL', status: 'Published', lastUpdated: 'March 25, 2026' },
-  { slug: 'action-learning', title: 'Action Learning', status: 'Published', lastUpdated: 'March 23, 2026' },
   { slug: 'certification', title: 'Certification', status: 'Published', lastUpdated: 'March 22, 2026' },
   { slug: 'contact', title: 'Contact', status: 'Draft changes', lastUpdated: 'March 28, 2026' }
 ];

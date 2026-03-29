@@ -26,7 +26,6 @@ export function PortalShell({
         links: [
           { label: 'Overview', href: '/portal/admin' },
           { label: 'Chapters', href: '/portal/admin/chapters' },
-          { label: 'Global pages', href: '/portal/admin/pages' },
           { label: 'Users', href: '/portal/admin/users' }
         ]
       }
@@ -62,16 +61,16 @@ export function PortalShell({
   return (
     <div className="container-shell py-10 sm:py-12">
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="h-fit rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft">
+        <aside className="h-fit rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-950">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-teal">Portal</p>
-          <h2 className="mt-2 text-xl font-semibold text-brand-navy">Management console</h2>
+          <h2 className="mt-2 text-xl font-semibold text-brand-navy dark:text-slate-100">Management console</h2>
           <div className="mt-6 space-y-6">
             {sections.map((section) => (
               <div key={section.title}>
-                <h3 className="text-sm font-semibold text-brand-navy">{section.title}</h3>
+                <h3 className="text-sm font-semibold text-brand-navy dark:text-slate-100">{section.title}</h3>
                 <div className="mt-2 grid gap-1">
                   {section.links.map((link) => (
-                    <Link key={link.href} href={link.href} className="rounded-2xl px-3 py-2 text-sm text-slate-700 hover:bg-brand-sand hover:text-brand-navy">
+                    <Link key={link.href} href={link.href} className="rounded-2xl px-3 py-2 text-sm text-slate-700 hover:bg-brand-sand hover:text-brand-navy dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white">
                       {link.label}
                     </Link>
                   ))}
@@ -82,7 +81,7 @@ export function PortalShell({
           <LogoutButton fullWidth className="mt-6" />
         </aside>
         <section>
-          <div className="rounded-[1.75rem] bg-brand-navy px-6 py-8 text-white shadow-soft sm:px-8">
+          <div className="rounded-[1.75rem] bg-brand-navy px-6 py-8 text-white shadow-soft sm:px-8 dark:bg-slate-950">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand-gold">{eyebrow}</p>
             <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>

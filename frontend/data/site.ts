@@ -6,7 +6,6 @@ export const site = {
     'WIAL advances Action Learning through certification, coach development, chapter support, and resources that help organizations address real challenges.',
   primaryNav: [
     { label: 'About', href: '/about' },
-    { label: 'Action Learning', href: '/action-learning' },
     { label: 'Certification', href: '/certification' },
     { label: 'Coaches', href: '/coaches' },
     { label: 'Resources', href: '/resources' },
@@ -19,7 +18,6 @@ export const site = {
       title: 'Explore',
       links: [
         { label: 'About WIAL', href: '/about' },
-        { label: 'Action Learning', href: '/action-learning' },
         { label: 'Certification', href: '/certification' },
         { label: 'Chapters', href: '/chapters' }
       ]

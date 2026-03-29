@@ -29,22 +29,23 @@ export function ThemeToggle({ className = '', fullWidth = false }: { className?:
   }
 
   const isDark = mounted ? theme === 'dark' : false;
+  const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
 
   return (
     <button
       type="button"
       onClick={toggleTheme}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={label}
+      title={label}
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-brand-navy shadow-sm transition-colors hover:bg-brand-sand',
+        'inline-flex items-center justify-center rounded-full border border-slate-200 bg-white p-3 text-brand-navy shadow-sm transition-colors hover:bg-brand-sand dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900',
         fullWidth ? 'w-full' : '',
         className
       ]
         .filter(Boolean)
         .join(' ')}
     >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      {isDark ? 'Light mode' : 'Dark mode'}
+      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </button>
   );
 }
