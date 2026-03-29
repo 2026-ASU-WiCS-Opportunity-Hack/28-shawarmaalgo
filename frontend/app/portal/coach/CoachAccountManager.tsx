@@ -39,9 +39,8 @@ function parseList(value: string) {
     .filter(Boolean);
 }
 
-function optionalString(value: string) {
-  const trimmed = value.trim();
-  return trimmed === '' ? undefined : trimmed;
+function trimOrEmpty(value: string) {
+  return value.trim();
 }
 
 export default function CoachAccountManager({ account }: { account: CoachAccountData }) {
@@ -78,13 +77,13 @@ export default function CoachAccountManager({ account }: { account: CoachAccount
         {
           first_name: form.firstName.trim(),
           last_name: form.lastName.trim(),
-          city: optionalString(form.city),
+          city: trimOrEmpty(form.city),
           country: form.country.trim(),
           specializations: parseList(form.specialties),
           languages: parseList(form.languages),
-          bio: optionalString(form.bio),
-          linkedin_url: optionalString(form.linkedinUrl),
-          website_url: optionalString(form.websiteUrl)
+          bio: trimOrEmpty(form.bio),
+          linkedin_url: trimOrEmpty(form.linkedinUrl),
+          website_url: trimOrEmpty(form.websiteUrl)
         },
         token
       );

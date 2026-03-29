@@ -18,6 +18,10 @@ type CoachForm = {
   certification_date: string;
   city: string;
   country: string;
+  phone: string;
+  profile_image_url: string;
+  linkedin_url: string;
+  website_url: string;
   specializations: string;
   languages: string;
   bio: string;
@@ -27,11 +31,6 @@ type CoachForm = {
 const inputClassName = 'w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm';
 const labelClassName = 'mb-2 block text-sm font-medium text-slate-700';
 const certificationLevels = ['CALC', 'PALC', 'SALC', 'MALC'];
-
-function optionalString(value: string) {
-  const trimmed = value.trim();
-  return trimmed === '' ? undefined : trimmed;
-}
 
 function parseStringList(value: string) {
   return value
@@ -48,11 +47,27 @@ function buildCoachForm(coach: BackendCoach): CoachForm {
     certification_date: coach.certification_date.slice(0, 10),
     city: coach.city || '',
     country: coach.country,
+    phone: coach.phone || '',
+    profile_image_url: coach.profile_image_url || '',
+    linkedin_url: coach.linkedin_url || '',
+    website_url: coach.website_url || '',
     specializations: coach.specializations.join(', '),
     languages: coach.languages.join(', '),
     bio: coach.bio || '',
     is_active: coach.is_active
   };
+}
+
+function trimOrEmpty(value: string) {
+  return value.trim();
+}
+
+function validateForm(form: CoachForm) {
+  if (!form.first_name.trim()) return 'First name is required.';
+  if (!form.last_name.trim()) return 'Last name is required.';
+  if (!form.country.trim()) return 'Country is required.';
+  if (!form.certification_date) return 'Certification date is required.';
+  return null;
 }
 
 export default function ChapterCoachesManager({ chapter, initialCoaches }: ChapterCoachesManagerProps) {
@@ -75,6 +90,13 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
     const form = drafts[coachId];
     if (!form) return;
 
+    const validationError = validateForm(form);
+    if (validationError) {
+      setError(validationError);
+      setSuccess(null);
+      return;
+    }
+
     setError(null);
     setSuccess(null);
     setSavingCoachId(coachId);
@@ -88,11 +110,15 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
             last_name: form.last_name.trim(),
             certification_level: form.certification_level.trim(),
             certification_date: new Date(`${form.certification_date}T00:00:00`).toISOString(),
-            city: optionalString(form.city),
+            city: trimOrEmpty(form.city),
             country: form.country.trim(),
+            phone: trimOrEmpty(form.phone),
+            profile_image_url: trimOrEmpty(form.profile_image_url),
+            linkedin_url: trimOrEmpty(form.linkedin_url),
+            website_url: trimOrEmpty(form.website_url),
             specializations: parseStringList(form.specializations),
             languages: parseStringList(form.languages),
-            bio: optionalString(form.bio),
+            bio: trimOrEmpty(form.bio),
             is_active: form.is_active,
             chapter_id: chapter.id
           },
@@ -123,6 +149,11 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
     try {
       await withToken((token) => api.deleteCoach(coachId, token));
       setCoaches((current) => current.filter((item) => item.id !== coachId));
+      setDrafts((current) => {
+        const next = { ...current };
+        delete next[coachId];
+        return next;
+      });
       setSuccess(`Deleted ${coach.first_name} ${coach.last_name}.`);
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : 'Unable to delete coach.');
@@ -169,6 +200,10 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
                   <span className={labelClassName}>City</span>
                   <input className={inputClassName} value={form.city} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, city: event.target.value } }))} />
                 </label>
+                <label className="block">
+                  <span className={labelClassName}>Phone</span>
+                  <input className={inputClassName} value={form.phone} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, phone: event.target.value } }))} />
+                </label>
                 <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700">
                   <input type="checkbox" checked={form.is_active} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, is_active: event.target.checked } }))} />
                   Visible on the chapter coach page
@@ -176,16 +211,31 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
               </div>
               <label className="block">
                 <span className={labelClassName}>Specializations</span>
-                <input className={inputClassName} value={form.specializations} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, specializations: event.target.value } }))} />
+                <input className={inputClassName} value={form.specializations} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, specializations: event.target.value } }))} placeholder="Leadership development, team effectiveness" />
               </label>
               <label className="block">
                 <span className={labelClassName}>Languages</span>
-                <input className={inputClassName} value={form.languages} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, languages: event.target.value } }))} />
+                <input className={inputClassName} value={form.languages} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, languages: event.target.value } }))} placeholder="English, French" />
               </label>
+              <label className="block">
+                <span className={labelClassName}>Profile image URL</span>
+                <input className={inputClassName} value={form.profile_image_url} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, profile_image_url: event.target.value } }))} placeholder="https://..." />
+              </label>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block">
+                  <span className={labelClassName}>LinkedIn URL</span>
+                  <input className={inputClassName} value={form.linkedin_url} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, linkedin_url: event.target.value } }))} placeholder="https://linkedin.com/in/..." />
+                </label>
+                <label className="block">
+                  <span className={labelClassName}>Website URL</span>
+                  <input className={inputClassName} value={form.website_url} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, website_url: event.target.value } }))} placeholder="https://..." />
+                </label>
+              </div>
               <label className="block">
                 <span className={labelClassName}>Bio</span>
                 <textarea className={`${inputClassName} min-h-32`} value={form.bio} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, bio: event.target.value } }))} />
               </label>
+              <p className="text-xs text-slate-500">Email login and chapter assignment stay linked to the coach account user and are managed automatically.</p>
               <div className="flex flex-wrap gap-3">
                 <Button type="button" onClick={() => handleSaveCoach(coach.id)} disabled={savingCoachId === coach.id}>
                   {savingCoachId === coach.id ? 'Saving...' : 'Save coach'}

@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { countries, getCountryBySlug, type Coach as UICoach, type CountryPageData } from '@/data/countries';
 import { adminOverview, coachAccount, mockSession, users } from '@/data/portal';
 import { resources, globalEvents } from '@/data/content';
@@ -15,6 +16,7 @@ import {
   type BackendUser
 } from '@/lib/api';
 import { getServerAuthToken } from '@/lib/auth';
+import { getRoleDestination } from '@/lib/auth-routing';
 
 async function safeFetch<T>(loader: () => Promise<T>, fallback: T): Promise<T> {
   try {
@@ -485,4 +487,47 @@ export async function getChapterOptions() {
 
 export async function getCoachProfilesRaw() {
   return safeFetch(async () => (await api.listCoaches({ page_size: 200 })).data, [] as BackendCoach[]);
+}
+
+
+export async function getPortalMe() {
+  const token = getServerAuthToken();
+  if (!token) return null;
+
+  return safeFetch(async () => api.getMe(token), null as Awaited<ReturnType<typeof api.getMe>> | null);
+}
+
+export async function requireChapterPortalAccess(
+  requestedSlug: string,
+  options: {
+    allowedRoles?: string[];
+    pathSuffix?: string;
+  } = {}
+) {
+  const allowedRoles = options.allowedRoles || ['chapter_lead'];
+  const pathSuffix = options.pathSuffix || '';
+  const me = await getPortalMe();
+
+  if (!me) {
+    redirect('/login');
+  }
+
+  if (!allowedRoles.includes(me.user.role)) {
+    redirect(getRoleDestination(me.user.role) || '/login');
+  }
+
+  if (!me.chapter?.slug) {
+    redirect('/portal/chapter');
+  }
+
+  if (me.chapter.slug !== requestedSlug) {
+    redirect(`/portal/chapter/${me.chapter.slug}${pathSuffix}`);
+  }
+
+  const chapter = await getChapterRecord(requestedSlug);
+  if (!chapter) {
+    redirect('/portal/chapter');
+  }
+
+  return { me, chapter };
 }

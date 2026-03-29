@@ -1,11 +1,25 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel, StatCard } from '@/components/portal/PortalCards';
-import { getPortalChapterWorkspace } from '@/lib/server-data';
+import { getPortalChapterWorkspace, getPortalMe } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterPortalPage() {
+  const me = await getPortalMe();
+
+  if (!me) {
+    redirect('/login');
+  }
+
+  if (me.user.role === 'content_creator') {
+    if (!me.chapter?.slug) {
+      redirect('/login');
+    }
+    redirect(`/portal/chapter/${me.chapter.slug}/content`);
+  }
+
   const { chapter, stats } = await getPortalChapterWorkspace();
   if (!chapter) return null;
 

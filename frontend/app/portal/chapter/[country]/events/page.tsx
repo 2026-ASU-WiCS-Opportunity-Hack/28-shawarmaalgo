@@ -1,14 +1,15 @@
-import { notFound } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import ChapterEventsManager from '@/app/portal/chapter/[country]/ChapterEventsManager';
 import { api } from '@/lib/api';
-import { getChapterRecord } from '@/lib/server-data';
+import { requireChapterPortalAccess } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterEventsPage({ params }: { params: { country: string } }) {
-  const chapter = await getChapterRecord(params.country);
-  if (!chapter) notFound();
+  const { chapter } = await requireChapterPortalAccess(params.country, {
+    allowedRoles: ['chapter_lead'],
+    pathSuffix: '/events'
+  });
   const events = await api.listEvents({ page_size: 100, chapter_id: chapter.id });
 
   return (

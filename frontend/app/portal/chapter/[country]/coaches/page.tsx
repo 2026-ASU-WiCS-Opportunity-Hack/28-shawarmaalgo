@@ -1,14 +1,15 @@
-import { notFound } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import ChapterCoachesManager from '@/app/portal/chapter/[country]/ChapterCoachesManager';
 import { api } from '@/lib/api';
-import { getChapterRecord } from '@/lib/server-data';
+import { requireChapterPortalAccess } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterCoachesPage({ params }: { params: { country: string } }) {
-  const chapter = await getChapterRecord(params.country);
-  if (!chapter) notFound();
+  const { chapter } = await requireChapterPortalAccess(params.country, {
+    allowedRoles: ['chapter_lead'],
+    pathSuffix: '/coaches'
+  });
   const coaches = await api.listCoaches({ page_size: 100, chapter_id: chapter.id });
 
   return (

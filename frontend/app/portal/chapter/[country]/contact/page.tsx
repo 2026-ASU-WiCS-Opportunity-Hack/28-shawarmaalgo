@@ -1,13 +1,14 @@
-import { notFound } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import ChapterContactManager from '@/app/portal/chapter/[country]/ChapterContactManager';
-import { getChapterRecord } from '@/lib/server-data';
+import { requireChapterPortalAccess } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterContactPage({ params }: { params: { country: string } }) {
-  const chapter = await getChapterRecord(params.country);
-  if (!chapter) notFound();
+  const { chapter } = await requireChapterPortalAccess(params.country, {
+    allowedRoles: ['chapter_lead'],
+    pathSuffix: '/contact'
+  });
 
   return (
     <PortalShell

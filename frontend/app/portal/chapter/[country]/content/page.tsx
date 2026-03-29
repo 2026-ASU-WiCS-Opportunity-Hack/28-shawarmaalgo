@@ -1,13 +1,14 @@
-import { notFound } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import ChapterContentManager from '@/app/portal/chapter/[country]/ChapterContentManager';
-import { getChapterRecord } from '@/lib/server-data';
+import { requireChapterPortalAccess } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterContentPage({ params }: { params: { country: string } }) {
-  const chapter = await getChapterRecord(params.country);
-  if (!chapter) notFound();
+  const { chapter } = await requireChapterPortalAccess(params.country, {
+    allowedRoles: ['chapter_lead', 'content_creator'],
+    pathSuffix: '/content'
+  });
 
   return (
     <PortalShell
