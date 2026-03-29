@@ -21,6 +21,7 @@ func New(
 	teamMemberH *handlers.TeamMemberHandlers,
 	resourceH *handlers.ResourceHandlers,
 	testimonialH *handlers.TestimonialHandlers,
+	uploadH *handlers.UploadHandlers,
 	payH *handlers.PaymentHandlers,
 	aiH *handlers.AIHandlers,
 	allowedOrigins []string,
@@ -168,6 +169,8 @@ func New(
 				testimonialAdmin.PATCH("/:id", testimonialH.PatchTestimonial)
 				testimonialAdmin.DELETE("/:id", testimonialH.DeleteTestimonial)
 			}
+
+			protected.POST("/uploads/images", uploadH.UploadImage)
 		}
 	}
 

@@ -12,6 +12,7 @@ import (
 	"wial-backend/internal/db"
 	"wial-backend/internal/handlers"
 	"wial-backend/internal/router"
+	"wial-backend/internal/storage"
 	"wial-backend/internal/utils"
 )
 
@@ -33,6 +34,19 @@ func main() {
 	defer pool.Close()
 
 	store := db.NewStore(pool)
+	imageStorage, err := storage.NewS3ImageStorage(ctx, storage.S3Config{
+		Endpoint:        cfg.S3Endpoint,
+		Region:          cfg.S3Region,
+		Bucket:          cfg.S3Bucket,
+		AccessKeyID:     cfg.S3AccessKeyID,
+		SecretAccessKey: cfg.S3SecretAccessKey,
+		UsePathStyle:    cfg.S3UsePathStyle,
+		PublicBaseURL:   cfg.S3PublicBaseURL,
+	})
+	if err != nil {
+		log.Fatalf("failed to initialize image storage: %v", err)
+	}
+
 	chapterHandlers := handlers.NewChapterHandlers(store)
 	coachHandlers := handlers.NewCoachHandlers(store)
 	eventHandlers := handlers.NewEventHandlers(store)
@@ -44,6 +58,7 @@ func main() {
 	teamMemberHandlers := handlers.NewTeamMemberHandlers(store)
 	resourceHandlers := handlers.NewResourceHandlers(store)
 	testimonialHandlers := handlers.NewTestimonialHandlers(store)
+	uploadHandlers := handlers.NewUploadHandlers(imageStorage, cfg.MaxUploadSizeBytes)
 	payHandlers := handlers.NewPaymentHandlers()
 	aiHandlers := handlers.NewAIHandlers(store)
 
@@ -63,6 +78,7 @@ func main() {
 		teamMemberHandlers,
 		resourceHandlers,
 		testimonialHandlers,
+		uploadHandlers,
 		payHandlers,
 		aiHandlers,
 		cfg.AllowedOrigins,

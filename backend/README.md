@@ -16,6 +16,14 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/wial?sslmode=disable
 SUPER_ADMIN_EMAIL=admin@example.com
 SUPER_ADMIN_PASSWORD=change-me-in-local-dev
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+S3_ENDPOINT=http://localhost:9000
+S3_REGION=us-east-1
+S3_BUCKET=wial-images
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_USE_PATH_STYLE=true
+S3_PUBLIC_BASE_URL=http://localhost:9000/wial-images
+MAX_UPLOAD_SIZE_BYTES=10485760
 ```
 
 Notes:
@@ -25,7 +33,15 @@ Notes:
 - `DATABASE_URL` must point to a reachable PostgreSQL instance
 - `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` are required on first launch when the `users` table is empty
 - `CORS_ALLOWED_ORIGINS` controls which browser origins may call the API; by default local frontend origins on port `3000` are allowed
+- `S3_*` values configure image uploads; the local Docker Compose stack provisions a MinIO bucket that matches these defaults
+- `MAX_UPLOAD_SIZE_BYTES` defaults to `10485760` (10 MiB)
 - JWT signing is currently hardcoded in the app and is not yet configurable through env vars
+
+## Image Uploads
+- Authenticated users can upload images through `POST /api/v1/uploads/images`.
+- Send `multipart/form-data` with a single `file` field.
+- Supported image types are `jpeg`, `png`, `gif`, and `webp`.
+- Successful uploads return a public object URL plus the object key and detected content type.
 
 ## Auth and User Provisioning
 - Public self-registration is disabled.
@@ -67,6 +83,8 @@ The compose stack uses:
 
 - `postgres` for the database
 - `migrate` as a one-shot migration runner
+- `minio` for S3-compatible object storage
+- `create-bucket` as a one-shot bucket bootstrapper
 - `backend` for the Go API
 
 ## Run
@@ -75,6 +93,11 @@ go run ./cmd/server
 ```
 
 The server starts on `http://localhost:8080` by default.
+
+With the Compose stack running, MinIO is available at:
+
+- S3 API: `http://localhost:9000`
+- Console: `http://localhost:9001`
 
 ## Swagger
 - OpenAPI spec: `/swagger`

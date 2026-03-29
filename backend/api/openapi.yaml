@@ -21,6 +21,7 @@ tags:
   - name: Team Members
   - name: Resources
   - name: Testimonials
+  - name: Uploads
   - name: AI
   - name: Payments
 paths:
@@ -1128,6 +1129,47 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+  /api/v1/uploads/images:
+    post:
+      tags: [Uploads]
+      summary: Upload an image to S3-backed storage
+      operationId: uploadImage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        '201':
+          description: Image uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageUploadResponse'
+        '400':
+          description: Missing file, invalid image, or file too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '415':
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
   /api/v1/ai/coach-search:
     get:
       tags: [AI]
@@ -1270,6 +1312,14 @@ components:
         status:
           type: string
       required: [status]
+    ImageUploadResponse:
+      type: object
+      properties:
+        url: { type: string }
+        key: { type: string }
+        content_type: { type: string }
+        size: { type: integer, format: int64 }
+      required: [url, key, content_type, size]
     User:
       type: object
       properties:
