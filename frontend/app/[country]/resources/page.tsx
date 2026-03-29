@@ -2,7 +2,10 @@ import { notFound } from "next/navigation";
 import { PageShell } from "@/components/layout/PageShell";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { InfoCard } from "@/components/cards/InfoCard";
+import { buttonClassName } from '@/components/ui/button';
 import { getChapter } from "@/lib/server-data";
+
+const CHAPTER_COACH_DUES_URL = 'https://buy.stripe.com/test_5kQeV6f6bf1W7Ws3k62cg01';
 
 export default async function CountryResourcesPage({ params }: { params: { country: string } }) {
   const country = await getChapter(params.country);
@@ -27,6 +30,11 @@ export default async function CountryResourcesPage({ params }: { params: { count
             ) : null}
           </InfoCard>
         ))}
+      </div>
+      <div className="mt-10 flex justify-center">
+        <a href={CHAPTER_COACH_DUES_URL} target="_blank" rel="noreferrer" className={buttonClassName()}>
+          Pay Chapter Coach Dues
+        </a>
       </div>
     </PageShell>
   );
