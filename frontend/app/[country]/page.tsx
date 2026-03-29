@@ -36,7 +36,7 @@ export default async function CountryOverviewPage({ params }: { params: { countr
           <p>{country.contact.city}</p>
         </InfoCard>
         <InfoCard title="Chapter leadership">
-          <p>Chapter leaders can maintain local content, events, coach visibility, and chapter contact details from the online workspace.</p>
+          <p>Chapter leaders can keep chapter content, coaches, events, resources, and contact details current so the public chapter pages stay accurate.</p>
         </InfoCard>
       </section>
 

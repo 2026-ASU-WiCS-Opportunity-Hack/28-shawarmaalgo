@@ -10,7 +10,7 @@ export default async function CountryEventsPage({ params }: { params: { country:
 
   return (
     <PageShell>
-      <SectionHeading eyebrow="Chapter events" title={`${country.shortName} events`} description="Local chapter sessions, certification information events, and chapter programming can roll into the global calendar while remaining easy to manage here." />
+      <SectionHeading eyebrow="Chapter events" title={`${country.shortName} events`} description="Local chapter sessions, certification information events, and chapter programming can be published here while staying aligned with the wider WIAL calendar and chapter experience." />
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         {events.map((event) => (
           <EventCard key={`${event.title}-${event.date}`} event={event} />

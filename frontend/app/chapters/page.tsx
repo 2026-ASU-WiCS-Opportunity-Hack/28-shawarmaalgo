@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { PageShell } from "@/components/layout/PageShell";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { chapterBenefits } from "@/data/content";
-import { getChapters } from "@/lib/server-data";
+import Link from 'next/link';
+import { PageShell } from '@/components/layout/PageShell';
+import { SectionHeading } from '@/components/ui/SectionHeading';
+import { chapterBenefits } from '@/data/content';
+import { getChapters } from '@/lib/server-data';
 
 export const revalidate = 3600;
 
@@ -14,7 +14,7 @@ export default async function ChaptersPage() {
       <SectionHeading
         eyebrow="Chapters"
         title="WIAL chapters around the world"
-        description="WIAL affiliates promote Action Learning in their geographic region, support aspiring and certified coaches, and deliver local programming while staying connected to the global WIAL network."
+        description="WIAL chapters help people connect Action Learning to local relationships, regional programming, and chapter-based coach visibility while staying connected to the wider global organization."
       />
 
       <section className="mt-8 grid gap-6 md:grid-cols-2">

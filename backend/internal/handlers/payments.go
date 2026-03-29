@@ -16,7 +16,7 @@ func NewPaymentHandlers() *PaymentHandlers {
 
 func (h *PaymentHandlers) CreateCheckoutSession(c *gin.Context) {
 	// This would normally call Stripe SDK
-	// For this hackathon, we'll simulate the response
+	// For now, we'll simulate the response
 	
 	type Request struct {
 		ProgramID string `json:"program_id"`

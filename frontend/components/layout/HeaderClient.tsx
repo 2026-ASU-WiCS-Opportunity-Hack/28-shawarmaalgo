@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { site } from '@/data/site';
 import { buttonClassName } from '@/components/ui/button';
 
@@ -22,7 +23,7 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
           <img src="/wial-logo.png" alt="WIAL logo" width="100" height="52" className="h-12 w-auto" />
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-teal">World Institute for Action Learning</div>
-            <div className="truncate text-sm text-brand-navy">Global network and chapter platform</div>
+            <div className="truncate text-sm text-brand-navy">Certification, coaches, chapters, and resources</div>
           </div>
         </Link>
 
@@ -32,6 +33,7 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
               {item.label}
             </Link>
           ))}
+          <ThemeToggle />
           <Link href={accountHref} className={buttonClassName()}>
             {accountLabel}
           </Link>
@@ -61,6 +63,7 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
                 {item.label}
               </Link>
             ))}
+            <ThemeToggle fullWidth className="mt-2" />
             <Link href={accountHref} onClick={() => setOpen(false)} className={buttonClassName({ fullWidth: true, className: 'mt-2' })}>
               {accountLabel}
             </Link>

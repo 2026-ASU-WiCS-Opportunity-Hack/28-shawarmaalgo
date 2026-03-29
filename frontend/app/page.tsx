@@ -22,10 +22,10 @@ export default async function HomePage() {
     <PageShell>
       <Hero
         eyebrow={page?.title || 'World Institute for Action Learning'}
-        title={page?.heroHeading || 'Developing leaders and organizations through Action Learning'}
+        title={page?.heroHeading || 'The global home for Action Learning, certification, and coach discovery'}
         description={
           page?.introContent ||
-          'WIAL advances Action Learning worldwide through certification, coaching, chapter development, and practical support for organizations solving real challenges.'
+          'WIAL presents itself as the world’s leading certifying body for Action Learning, connecting chapters, certified coaches, and organizations using Action Learning to solve real problems.'
         }
         primaryCta={{ label: 'Explore chapters', href: '/chapters' }}
         secondaryCta={{ label: 'Find a coach', href: '/coaches' }}
@@ -43,7 +43,7 @@ export default async function HomePage() {
         <SectionHeading
           eyebrow="Action Learning"
           title="A practical way to solve important problems while learning together"
-          description="WIAL presents Action Learning as a disciplined process built on questioning, reflection, listening, and action in service of real organizational challenges."
+          description="WIAL describes Action Learning as a way of thinking, doing business, and interacting in teams that helps people work on urgent and important challenges through questioning, reflection, listening, and action."
         />
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {homeHighlights.map((item) => (
@@ -58,7 +58,7 @@ export default async function HomePage() {
         <SectionHeading
           eyebrow="Why WIAL"
           title="One shared platform for the global organization and every chapter"
-          description="The global site stays authoritative while chapter leaders manage local coaches, events, resources, and chapter contact details in dedicated content areas."
+          description="The global site remains the authoritative home for WIAL information while chapter leaders manage local coaches, events, resources, and contact details in dedicated chapter workspaces."
         />
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {featuredBenefits.map((item) => (
@@ -95,7 +95,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-20">
-        <SectionHeading eyebrow="Events" title="Programming at both the global and chapter level" />
+        <SectionHeading eyebrow="Events" title="Programming at both the global and chapter level" description="From introductory sessions to certification-related programming, WIAL pages can showcase both global and chapter activity in one place." />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {globalEvents.map((event) => (
             <EventCard key={event.title} event={event} />
@@ -104,12 +104,17 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-20">
-        <SectionHeading eyebrow="Resources" title="Certification, articles, guides, and chapter-ready content" />
+        <SectionHeading eyebrow="Resources" title="Certification, articles, guides, and WIAL learning materials" />
         <div className="mt-8 grid gap-6 md:grid-cols-3">
           {resources.map((resource) => (
             <InfoCard key={resource.title} title={resource.title}>
               <p className="font-medium text-brand-teal">{resource.type}</p>
               <p>{resource.summary}</p>
+              {'url' in resource && resource.url ? (
+                <a href={resource.url} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
+                  Visit resource →
+                </a>
+              ) : null}
             </InfoCard>
           ))}
         </div>

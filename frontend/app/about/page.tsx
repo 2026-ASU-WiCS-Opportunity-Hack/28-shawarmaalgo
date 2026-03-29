@@ -7,27 +7,27 @@ export default async function AboutPage() {
   return (
     <ContentPage
       eyebrow={page?.title || 'About WIAL'}
-      title={page?.heroHeading || 'A global nonprofit network advancing Action Learning'}
+      title={page?.heroHeading || 'A global Action Learning organization active across six continents'}
       intro={
         page?.introContent ||
-        "WIAL describes itself as the world's leading certifying body for Action Learning and a rapidly growing international nonprofit supported by affiliates around the world."
+        'WIAL describes its community as a global network of coaches, affiliates, partners, and chapter leaders brought together by a shared commitment to Action Learning.'
       }
       sections={[
         {
           title: 'Who WIAL is',
-          body: 'The World Institute for Action Learning provides training and certification programs internationally while helping organizations solve urgent and important challenges through Action Learning.'
-        },
-        {
-          title: 'Why organizations engage WIAL',
-          body: 'WIAL positions Action Learning as a way to improve organizational, leadership, and team development while creating measurable business impact and stronger collaboration.'
+          body: 'The World Institute for Action Learning positions itself as the world’s leading certifying body for Action Learning, supporting coach development, chapter growth, and organizational application of the methodology.'
         },
         {
           title: 'A global community',
-          body: 'The network includes chapters, affiliates, certified coaches, partners, and clients across multiple regions, all connected by a shared methodology and professional standards.'
+          body: 'WIAL says its members span six continents and many countries, bringing together varied industries, languages, and perspectives through a shared passion for Action Learning.'
         },
         {
-          title: 'History and foundations',
-          body: 'WIAL traces its roots to the work of Reg Revans, later refined with Michael Marquardt into the WIAL model of Action Learning with its six components and two ground rules.'
+          title: 'What the network includes',
+          body: 'The broader WIAL ecosystem includes certified coaches, affiliates, partners, chapters, and organizations looking for practical ways to develop leaders, teams, and learning cultures.'
+        },
+        {
+          title: 'Why organizations engage WIAL',
+          body: 'WIAL connects Action Learning with breakthrough problem solving, high-performing teams, leadership development, learning organizations, and coach certification.'
         }
       ]}
       cta={{

@@ -1,93 +1,96 @@
 export const homeStats = [
-  { label: "Global affiliate network", value: "International" },
-  { label: "Certification pathway", value: "4 levels" },
-  { label: "Shared chapter platform", value: "1 unified experience" }
+  { label: 'Global community', value: '6 continents' },
+  { label: 'Certification pathway', value: '4 levels' },
+  { label: 'Coach discovery', value: 'Global directory' }
 ];
 
 export const featuredBenefits = [
   {
-    title: "Global consistency",
-    body: "Core branding, navigation, and page patterns stay aligned across WIAL and every chapter site."
+    title: 'Global standards',
+    body: 'WIAL describes itself as the world’s leading certifying body for Action Learning, so the platform keeps certification, chapter, and coach information aligned with one shared standard.'
   },
   {
-    title: "Local chapter ownership",
-    body: "Chapter leaders can manage local coaches, events, resources, and chapter details without changing code."
+    title: 'Chapter visibility',
+    body: 'Local chapters can publish coaches, events, resources, and contact details while staying connected to the wider WIAL network and methodology.'
   },
   {
-    title: "Fast, accessible delivery",
-    body: "Text-first pages, optimized assets, and static-friendly routes support low-bandwidth access across regions."
+    title: 'Practical pathways',
+    body: 'The site gives visitors a clear path from learning about Action Learning to finding a coach, exploring certification, joining a chapter, or contacting WIAL.'
   }
 ];
 
 export const homeHighlights = [
   {
-    title: "What is Action Learning?",
-    body: "Action Learning helps teams solve urgent and important problems through questioning, reflection, listening, and action."
+    title: 'What is Action Learning?',
+    body: 'WIAL describes Action Learning as a way of thinking, doing business, and interacting in teams that uses questioning, reflection, listening, and action to address real challenges.'
   },
   {
-    title: "Coach certification",
-    body: "WIAL supports a professional development journey from Certified Action Learning Coach through Master Action Learning Coach."
+    title: 'Foundations and certification',
+    body: 'WIAL’s coach pathway includes Foundations of Action Learning and four certification levels: CALC, PALC, SALC, and MALC.'
   },
   {
-    title: "Affiliate and chapter growth",
-    body: "Chapters can promote programs in their region while staying connected to the global WIAL network and standards."
+    title: 'Global team and chapters',
+    body: 'WIAL presents itself as an international organization active across six continents, with coaches, chapters, affiliates, partners, and clients connected through Action Learning.'
   }
 ];
 
 export const globalEvents = [
   {
-    title: "Global Action Learning Webinar",
-    date: "May 30, 2026",
-    location: "Online",
-    summary: "An open session introducing Action Learning, current WIAL programming, and opportunities to engage with the global network."
+    title: 'Foundations of Action Learning information session',
+    date: 'May 30, 2026',
+    location: 'Online',
+    summary: 'An introductory session for potential coaches, sponsors, and organizational champions exploring the six components and two ground rules of Action Learning.'
   },
   {
-    title: "Certification Pathways Session",
-    date: "June 14, 2026",
-    location: "Online",
-    summary: "A guided overview of CALC, PALC, SALC, and MALC pathways for aspiring and current coaches."
+    title: 'Coach certification pathway briefing',
+    date: 'June 14, 2026',
+    location: 'Online',
+    summary: 'A guided overview of the WIAL certification pathway, including CALC, PALC, SALC, and MALC expectations.'
   }
 ];
 
 export const resources = [
   {
-    title: "Action Learning Overview",
-    type: "Overview",
-    summary: "An introduction to the WIAL model and how organizations use Action Learning to improve performance and learning."
+    title: 'Foundations of Action Learning',
+    type: 'Program overview',
+    summary: 'A starting point for potential coaches, sponsors, and organizational champions who want a deeper understanding of Action Learning.',
+    url: 'https://wial.org/certification/foundations/'
   },
   {
-    title: "Certification Levels",
-    type: "Guide",
-    summary: "A simple guide to the four WIAL certification levels and the role each level plays in the community."
+    title: 'Become a Coach',
+    type: 'Coach pathway',
+    summary: 'Overview of who pursues WIAL certification and how Action Learning supports individuals, teams, and organizations across industries.',
+    url: 'https://wial.org/become-a-coach/'
   },
   {
-    title: "Chapter Operations Toolkit",
-    type: "Toolkit",
-    summary: "A chapter-ready resource collection for updating local content, events, and coach visibility within the shared platform."
+    title: 'Coach Directory',
+    type: 'Directory',
+    summary: 'Search WIAL certified coaches through the official directory experience and connect with practitioners around the world.',
+    url: 'https://directory.wial.org/'
   }
 ];
 
 export const chapterBenefits = [
-  "Promote WIAL Action Learning in a specific geographic region.",
-  "Support aspiring and certified coaches with local programming, communication, and visibility.",
-  "Surface local events, CALC workshops, resources, and chapter contacts inside a global brand system.",
-  "Give chapter leaders a practical content workspace for updates without code changes."
+  'Promote WIAL Action Learning in a geographic region while staying connected to the wider global organization.',
+  'Support aspiring and certified coaches with local programming, visibility, and chapter-based community building.',
+  'Publish local events, resources, and contact details alongside WIAL’s broader certification and coach-discovery experience.',
+  'Give chapter leaders a practical workspace for maintaining content without changing code.'
 ];
 
 export const loginRoles = [
   {
-    title: "Global Admin",
-    body: "Manage shared pages, chapter templates, approvals, and global network settings.",
-    href: "/portal?role=admin"
+    title: 'Global Admin',
+    body: 'Manage shared pages, chapter templates, approvals, and organization-wide settings.',
+    href: '/portal?role=admin'
   },
   {
-    title: "Chapter Leader",
-    body: "Update chapter content, publish local events, manage coach listings, and review inquiries.",
-    href: "/portal?role=chapter-leader"
+    title: 'Chapter Leader',
+    body: 'Update chapter content, publish local events, manage coach listings, and support local chapter activity.',
+    href: '/portal?role=chapter-leader'
   },
   {
-    title: "Coach",
-    body: "Maintain your profile, review certification details, and stay connected to chapter activity.",
-    href: "/portal?role=coach"
+    title: 'Coach',
+    body: 'Maintain your public profile, review certification details, and stay visible to chapters and prospective clients.',
+    href: '/portal?role=coach'
   }
 ];

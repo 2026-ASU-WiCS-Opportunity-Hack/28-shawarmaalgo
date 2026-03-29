@@ -10,7 +10,7 @@ export default async function CountryTeamPage({ params }: { params: { country: s
 
   return (
     <PageShell>
-      <SectionHeading eyebrow="Chapter team" title={`${country.shortName} chapter leadership`} description="Local chapter leaders and program owners keep chapter information current while staying inside the shared WIAL structure." />
+      <SectionHeading eyebrow="Chapter team" title={`${country.shortName} chapter leadership`} description="Local chapter leaders and program owners help keep chapter information, programming, and coach visibility current within the broader WIAL network." />
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {country.team.map((member) => (
           <InfoCard key={member.name} title={member.name}>

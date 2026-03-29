@@ -134,12 +134,12 @@ export const countries: CountryPageData[] = [
     shortName: "USA",
     hero: {
       eyebrow: "Official WIAL chapter",
-      title: "A chapter experience designed for local relevance and global consistency",
+      title: "Action Learning programs, coaches, and chapter connections across the United States",
       description:
-        "WIAL USA demonstrates how the same shared platform can support another chapter with its own coaches, events, and resources."
+        "WIAL USA showcases local coach expertise, chapter events, and regional resources within the broader WIAL experience."
     },
     overview:
-      "WIAL USA demonstrates the reusable chapter model, making it easy to launch and maintain chapter pages while preserving shared WIAL structure, branding, and navigation.",
+      "WIAL USA highlights how a chapter can support local coach visibility, chapter communications, and regional programming while staying aligned with the wider WIAL network.",
     contact: {
       email: "usa@wial.org",
       phone: "+1 202 555 0184",
@@ -185,7 +185,7 @@ export const countries: CountryPageData[] = [
       {
         title: "US Chapter Welcome Pack",
         type: "Guide",
-        summary: "A sample resource showing how local chapter documents fit within the shared content model."
+        summary: "A chapter-ready introduction to local programming, coach visibility, and ways to connect with WIAL in the United States."
       }
     ],
     testimonials: [

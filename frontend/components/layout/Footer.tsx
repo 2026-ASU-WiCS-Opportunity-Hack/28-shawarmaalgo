@@ -7,7 +7,7 @@ export function Footer() {
       <div className="container-shell grid gap-10 py-12 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-teal">WIAL</p>
-          <h2 className="mt-3 text-2xl font-semibold">Developing leaders and organizations through Action Learning.</h2>
+          <h2 className="mt-3 text-2xl font-semibold">The global home for Action Learning, certification, and coach discovery.</h2>
           <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">{site.description}</p>
           <p className="mt-4 text-sm text-slate-300">{site.contact.address}</p>
           <p className="text-sm text-slate-300">{site.contact.email}</p>

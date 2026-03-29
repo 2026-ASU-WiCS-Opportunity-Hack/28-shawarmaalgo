@@ -9,27 +9,27 @@ export default async function CertificationPage() {
   return (
     <ContentPage
       eyebrow={page?.title || 'Certification'}
-      title={page?.heroHeading || 'A four-level certification pathway for Action Learning coaches'}
+      title={page?.heroHeading || 'A clear development path for WIAL Action Learning coaches'}
       intro={
         page?.introContent ||
-        'WIAL explains that organizations increasingly want Action Learning programs led by trained coaches and offers four certification levels with increasing education, coaching practice, and contribution requirements.'
+        'WIAL’s certification journey spans Foundations of Action Learning and the CALC, PALC, SALC, and MALC levels, giving coaches a structured path for practice, contribution, and growth.'
       }
       sections={[
         {
-          title: 'Why get certified',
-          body: 'Certification helps professionals deepen their practice, strengthen credibility, and deliver Action Learning programs with a recognized standard for quality and coaching capability.'
+          title: 'Foundations first',
+          body: 'WIAL’s Foundations of Action Learning session is designed for potential coaches, sponsors, and organizational champions who want a deeper grounding in the methodology.'
         },
         {
-          title: 'Four levels',
-          body: 'The pathway includes Certified Action Learning Coach, Professional Action Learning Coach, Senior Action Learning Coach, and Master Action Learning Coach, each representing a more advanced stage of practice and contribution.'
+          title: 'Four certification levels',
+          body: 'The pathway includes Certified Action Learning Coach (CALC), Professional Action Learning Coach (PALC), Senior Action Learning Coach (SALC), and Master Action Learning Coach (MALC).'
         },
         {
-          title: 'Digital badges',
-          body: 'WIAL highlights digital badging so certified coaches can share and verify their achievements online, including award dates, expiration, and demonstrated competencies.'
+          title: 'Progressive experience',
+          body: 'WIAL describes each level as building on workshop participation, coaching practice, documented experience, contribution to the community, and observed capability.'
         },
         {
-          title: 'Global and local relevance',
-          body: 'The global site can carry the core certification pathway while chapters publish local information sessions, coach development opportunities, and chapter-specific event details.'
+          title: 'Professional visibility',
+          body: 'Certification connects coaches to the wider WIAL network, including chapter activity and public visibility through coach-directory experiences and chapter pages.'
         }
       ]}
       cta={{

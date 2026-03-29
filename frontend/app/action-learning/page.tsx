@@ -7,27 +7,27 @@ export default async function ActionLearningPage() {
   return (
     <ContentPage
       eyebrow={page?.title || 'Action Learning'}
-      title={page?.heroHeading || 'A disciplined process for solving real problems while learning'}
+      title={page?.heroHeading || 'A disciplined way to solve real problems while developing people and teams'}
       intro={
         page?.introContent ||
-        'Across the WIAL global and Nigeria sites, Action Learning is described as a new way of thinking, doing business, and interacting in teams.'
+        'WIAL explains Action Learning as a process built on questioning, reflection, listening, and action that helps individuals, teams, and organizations work on urgent and important challenges.'
       }
       sections={[
         {
           title: 'What it is',
-          body: 'Action Learning tackles important real-world problems through insightful questioning, reflective listening, careful clarification, and action. Teams learn as they work on real issues rather than simulated exercises.'
+          body: 'WIAL describes Action Learning as a way of thinking, doing business, and interacting in teams. People work on real problems rather than simulations, using questions and reflection to move toward action.'
+        },
+        {
+          title: 'How it works',
+          body: 'The Foundations of Action Learning program introduces the six components of Action Learning and the two ground rules that shape a disciplined team-learning process.'
+        },
+        {
+          title: 'Who it helps',
+          body: 'WIAL presents the method as useful for individuals, teams, and organizations, including potential coaches, organizational champions, sponsors, and leaders who want stronger collaboration and better problem solving.'
         },
         {
           title: 'Why it matters',
-          body: 'WIAL presents the method as a way to improve business performance, team effectiveness, leadership development, engagement, and organizational learning.'
-        },
-        {
-          title: 'Who it is for',
-          body: 'The approach is relevant for HR leaders, trainers, coaches, managers, and organizations that want better collaboration, stronger problem solving, and more effective leadership development.'
-        },
-        {
-          title: 'How WIAL supports it',
-          body: 'WIAL offers services in broad solution areas, chapter-led programming, coach certification, and a global network of certified professionals who can facilitate Action Learning experiences.'
+          body: 'Across WIAL’s materials, Action Learning is tied to leadership development, team effectiveness, learning organizations, and practical business impact through real-time work on urgent challenges.'
         }
       ]}
       cta={{

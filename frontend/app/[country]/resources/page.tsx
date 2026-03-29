@@ -13,7 +13,7 @@ export default async function CountryResourcesPage({ params }: { params: { count
       <SectionHeading
         eyebrow="Chapter resources"
         title={`${country.shortName} resources`}
-        description="Each chapter can maintain local resources while inheriting shared page structure and design patterns from the global platform."
+        description="Each chapter can maintain local resources while staying connected to WIAL’s broader learning materials, certification information, and coach-development pathways."
       />
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         {country.resources.map((resource) => (

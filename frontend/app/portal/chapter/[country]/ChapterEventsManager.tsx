@@ -25,12 +25,37 @@ type EventForm = {
   status: string;
 };
 
+const EVENT_TYPES = [
+  { value: 'workshop', label: 'Workshop' },
+  { value: 'webinar', label: 'Webinar' },
+  { value: 'conference', label: 'Conference' },
+  { value: 'training', label: 'Training' },
+  { value: 'meetup', label: 'Meetup' }
+] as const;
+
+const LOCATION_TYPES = [
+  { value: 'in_person', label: 'In person' },
+  { value: 'online', label: 'Online' },
+  { value: 'hybrid', label: 'Hybrid' }
+] as const;
+
+const STATUS_OPTIONS = [
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'completed', label: 'Completed' }
+] as const;
+
 const inputClassName = 'w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm';
 const labelClassName = 'mb-2 block text-sm font-medium text-slate-700';
 
 function optionalString(value: string) {
   const trimmed = value.trim();
   return trimmed === '' ? undefined : trimmed;
+}
+
+function normalizeOption(value: string | undefined | null, options: readonly { value: string }[], fallback: string) {
+  return value && options.some((option) => option.value === value) ? value : fallback;
 }
 
 function toDateTimeLocal(value?: string | null) {
@@ -49,15 +74,15 @@ function buildEventForm(event?: BackendEvent, timezone?: string): EventForm {
   return {
     title: event?.title || '',
     description: event?.description || '',
-    event_type: event?.event_type || 'chapter_session',
+    event_type: normalizeOption(event?.event_type, EVENT_TYPES, 'workshop'),
     start_date: toDateTimeLocal(event?.start_date),
     end_date: toDateTimeLocal(event?.end_date),
     timezone: event?.timezone || timezone || 'UTC',
-    location_type: event?.location_type || 'in_person',
+    location_type: normalizeOption(event?.location_type, LOCATION_TYPES, 'online'),
     venue_name: event?.venue_name || '',
     venue_address: event?.venue_address || '',
     online_meeting_url: event?.online_meeting_url || '',
-    status: event?.status || 'published'
+    status: normalizeOption(event?.status, STATUS_OPTIONS, 'published')
   };
 }
 
@@ -79,6 +104,10 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
     return action(token);
   }
 
+  function updateDraft(eventId: string, patch: Partial<EventForm>) {
+    setDrafts((current) => ({ ...current, [eventId]: { ...(current[eventId] || buildEventForm(undefined, chapter.timezone)), ...patch } }));
+  }
+
   async function handleSaveEvent(eventId: string) {
     const form = drafts[eventId];
     if (!form) return;
@@ -94,15 +123,15 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
           {
             title: form.title.trim(),
             description: optionalString(form.description),
-            event_type: form.event_type.trim(),
+            event_type: form.event_type,
             start_date: toIsoDate(form.start_date),
             end_date: toIsoDate(form.end_date),
             timezone: form.timezone.trim(),
-            location_type: form.location_type.trim(),
+            location_type: form.location_type,
             venue_name: optionalString(form.venue_name),
             venue_address: optionalString(form.venue_address),
             online_meeting_url: optionalString(form.online_meeting_url),
-            status: form.status.trim(),
+            status: form.status,
             chapter_id: chapter.id
           },
           token
@@ -131,6 +160,11 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
     try {
       await withToken((token) => api.deleteEvent(eventId, token));
       setEvents((current) => current.filter((event) => event.id !== eventId));
+      setDrafts((current) => {
+        const next = { ...current };
+        delete next[eventId];
+        return next;
+      });
       setSuccess(`Deleted ${eventRecord.title}.`);
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : 'Unable to delete event.');
@@ -151,17 +185,17 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
           {
             title: newEvent.title.trim(),
             description: optionalString(newEvent.description),
-            event_type: newEvent.event_type.trim(),
+            event_type: newEvent.event_type,
             start_date: toIsoDate(newEvent.start_date),
             end_date: toIsoDate(newEvent.end_date),
             timezone: newEvent.timezone.trim(),
-            location_type: newEvent.location_type.trim(),
+            location_type: newEvent.location_type,
             venue_name: optionalString(newEvent.venue_name),
             venue_address: optionalString(newEvent.venue_address),
             online_meeting_url: optionalString(newEvent.online_meeting_url),
             chapter_id: chapter.id,
             is_free: true,
-            status: newEvent.status.trim()
+            status: newEvent.status
           },
           token
         )
@@ -182,53 +216,65 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
       {events.map((event) => {
         const form = drafts[event.id] || buildEventForm(event, chapter.timezone);
         return (
-          <Panel key={event.id} title={event.title} description={`${event.event_type} • ${event.status}`}>
+          <Panel key={event.id} title={event.title} description={`${form.event_type.replace(/_/g, ' ')} • ${form.status}`}>
             <div className="grid gap-4">
               <label className="block">
                 <span className={labelClassName}>Title</span>
-                <input className={inputClassName} value={form.title} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, title: evt.target.value } }))} />
+                <input className={inputClassName} value={form.title} onChange={(evt) => updateDraft(event.id, { title: evt.target.value })} />
               </label>
               <label className="block">
                 <span className={labelClassName}>Summary</span>
-                <textarea className={`${inputClassName} min-h-28`} value={form.description} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, description: evt.target.value } }))} />
+                <textarea className={`${inputClassName} min-h-28`} value={form.description} onChange={(evt) => updateDraft(event.id, { description: evt.target.value })} />
               </label>
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className={labelClassName}>Start</span>
-                  <input className={inputClassName} type="datetime-local" value={form.start_date} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, start_date: evt.target.value } }))} />
+                  <input className={inputClassName} type="datetime-local" value={form.start_date} onChange={(evt) => updateDraft(event.id, { start_date: evt.target.value })} />
                 </label>
                 <label className="block">
                   <span className={labelClassName}>End</span>
-                  <input className={inputClassName} type="datetime-local" value={form.end_date} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, end_date: evt.target.value } }))} />
+                  <input className={inputClassName} type="datetime-local" value={form.end_date} onChange={(evt) => updateDraft(event.id, { end_date: evt.target.value })} />
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Event type</span>
-                  <input className={inputClassName} value={form.event_type} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, event_type: evt.target.value } }))} />
+                  <select className={inputClassName} value={form.event_type} onChange={(evt) => updateDraft(event.id, { event_type: evt.target.value })}>
+                    {EVENT_TYPES.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Status</span>
-                  <input className={inputClassName} value={form.status} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, status: evt.target.value } }))} />
+                  <select className={inputClassName} value={form.status} onChange={(evt) => updateDraft(event.id, { status: evt.target.value })}>
+                    {STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Timezone</span>
-                  <input className={inputClassName} value={form.timezone} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, timezone: evt.target.value } }))} />
+                  <input className={inputClassName} value={form.timezone} onChange={(evt) => updateDraft(event.id, { timezone: evt.target.value })} />
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Location type</span>
-                  <input className={inputClassName} value={form.location_type} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, location_type: evt.target.value } }))} />
+                  <select className={inputClassName} value={form.location_type} onChange={(evt) => updateDraft(event.id, { location_type: evt.target.value })}>
+                    {LOCATION_TYPES.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Venue name</span>
-                  <input className={inputClassName} value={form.venue_name} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, venue_name: evt.target.value } }))} />
+                  <input className={inputClassName} value={form.venue_name} onChange={(evt) => updateDraft(event.id, { venue_name: evt.target.value })} />
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Venue address</span>
-                  <input className={inputClassName} value={form.venue_address} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, venue_address: evt.target.value } }))} />
+                  <input className={inputClassName} value={form.venue_address} onChange={(evt) => updateDraft(event.id, { venue_address: evt.target.value })} />
                 </label>
               </div>
               <label className="block">
                 <span className={labelClassName}>Online meeting URL</span>
-                <input className={inputClassName} value={form.online_meeting_url} onChange={(evt) => setDrafts((current) => ({ ...current, [event.id]: { ...form, online_meeting_url: evt.target.value } }))} />
+                <input className={inputClassName} value={form.online_meeting_url} onChange={(evt) => updateDraft(event.id, { online_meeting_url: evt.target.value })} />
               </label>
               <div className="flex flex-wrap gap-3">
                 <Button type="button" onClick={() => handleSaveEvent(event.id)} disabled={savingEventId === event.id}>
@@ -243,7 +289,7 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
         );
       })}
 
-      <Panel title="Add a new event" description="Create a new chapter event for the public chapter page.">
+      <Panel title="Add a new event" description="Create a new chapter event for the public chapter events page.">
         <form className="grid gap-4" onSubmit={handleCreateEvent}>
           <label className="block">
             <span className={labelClassName}>Title</span>
@@ -264,11 +310,19 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
             </label>
             <label className="block">
               <span className={labelClassName}>Event type</span>
-              <input className={inputClassName} value={newEvent.event_type} onChange={(event) => setNewEvent((current) => ({ ...current, event_type: event.target.value }))} required />
+              <select className={inputClassName} value={newEvent.event_type} onChange={(event) => setNewEvent((current) => ({ ...current, event_type: event.target.value }))}>
+                {EVENT_TYPES.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </label>
             <label className="block">
               <span className={labelClassName}>Status</span>
-              <input className={inputClassName} value={newEvent.status} onChange={(event) => setNewEvent((current) => ({ ...current, status: event.target.value }))} required />
+              <select className={inputClassName} value={newEvent.status} onChange={(event) => setNewEvent((current) => ({ ...current, status: event.target.value }))}>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </label>
             <label className="block">
               <span className={labelClassName}>Timezone</span>
@@ -276,7 +330,11 @@ export default function ChapterEventsManager({ chapter, initialEvents }: Chapter
             </label>
             <label className="block">
               <span className={labelClassName}>Location type</span>
-              <input className={inputClassName} value={newEvent.location_type} onChange={(event) => setNewEvent((current) => ({ ...current, location_type: event.target.value }))} required />
+              <select className={inputClassName} value={newEvent.location_type} onChange={(event) => setNewEvent((current) => ({ ...current, location_type: event.target.value }))}>
+                {LOCATION_TYPES.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
             </label>
             <label className="block">
               <span className={labelClassName}>Venue name</span>
