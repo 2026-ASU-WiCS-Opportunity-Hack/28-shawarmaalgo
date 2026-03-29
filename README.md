@@ -31,6 +31,7 @@ cd 28-shawarmaalgo
 docker compose up -d
 ```
 
+The frontend is available at `http://localhost:3000`, the backend at `http://localhost:8080`, and Postgres at `localhost:5432`.
 The local Postgres instance starts on `localhost:5432` with database `wial`, username `postgres`, and password `postgres`.
 The backend bootstrap flow also requires `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` on first launch; the compose file now provides development defaults.
 
