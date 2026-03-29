@@ -132,16 +132,16 @@ When the `users` table is empty, the backend uses `SUPER_ADMIN_EMAIL` and `SUPER
 
 ## Checklist for the final submission
 ### 0/Judging Criteria
-- [ ] Review the [judging criteria](https://www.ohack.dev/about/judges#judging-criteria)
+- [x] Review the [judging criteria](https://www.ohack.dev/about/judges#judging-criteria)
 
 ### 1/DevPost
-- [ ] Submit a [DevPost project](https://wics-ohack-sp26-hackathon.devpost.com/)
-- [ ] Keep the demo video to 4 minutes or less
-- [ ] Link your team on [ohack.dev](https://www.ohack.dev/hack/2026_spring_wics_asu/manageteam)
-- [ ] Link your GitHub repo on DevPost under "Try it out"
+- [x] Submit a [DevPost project](https://wics-ohack-sp26-hackathon.devpost.com/)
+- [x] Keep the demo video to 4 minutes or less
+- [x] Link your team on [ohack.dev](https://www.ohack.dev/hack/2026_spring_wics_asu/manageteam)
+- [x] Link your GitHub repo on DevPost under "Try it out"
 
 ### 2/GitHub
-- [ ] Add everyone on your team to your GitHub repo
-- [ ] Make sure your repo is public
+- [x] Add everyone on your team to your GitHub repo
+- [x] Make sure your repo is public
 - [x] Make sure your repo has a MIT License
 - [x] Make sure your repo has a detailed README.md
