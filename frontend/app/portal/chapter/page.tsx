@@ -44,6 +44,7 @@ export default async function ChapterPortalPage() {
             <Link href={`/portal/chapter/${chapter.slug}/coaches`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage coaches</Link>
             <Link href={`/portal/chapter/${chapter.slug}/events`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage events</Link>
             <Link href={`/portal/chapter/${chapter.slug}/resources`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage resources</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/testimonials`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage testimonials</Link>
             <Link href={`/portal/chapter/${chapter.slug}/contact`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Update contact details</Link>
           </div>
         </Panel>

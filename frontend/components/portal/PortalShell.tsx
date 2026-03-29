@@ -43,6 +43,7 @@ export function PortalShell({
                 { label: 'Coaches', href: `/portal/chapter/${chapterSlug}/coaches` },
                 { label: 'Events', href: `/portal/chapter/${chapterSlug}/events` },
                 { label: 'Resources', href: `/portal/chapter/${chapterSlug}/resources` },
+                { label: 'Testimonials', href: `/portal/chapter/${chapterSlug}/testimonials` },
                 { label: 'Contact', href: `/portal/chapter/${chapterSlug}/contact` }
               ]
             : [])
