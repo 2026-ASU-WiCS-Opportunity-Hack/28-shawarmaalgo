@@ -121,6 +121,19 @@ export type BackendResource = {
   updated_at: string;
 };
 
+
+export type BackendGlobalPage = {
+  id: string;
+  slug: string;
+  title: string;
+  hero_heading: string;
+  intro_content: string;
+  status: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type BackendTestimonial = {
   id: string;
   author_name: string;
@@ -480,6 +493,15 @@ export const api = {
     request<PortalOverviewResponse | AdminPortalOverviewResponse>('/portal/overview', { token, query: { chapter_id: chapterId } }),
   getPortalChapter: (token: string, chapterId?: string) =>
     request<BackendChapter>('/portal/chapter', { token, query: { chapter_id: chapterId } }),
+
+
+  listGlobalPages: () => request<{ data: BackendGlobalPage[] }>('/global-pages'),
+  getGlobalPage: (slug: string) => request<BackendGlobalPage>(`/global-pages/${slug}`),
+  patchGlobalPage: (
+    slug: string,
+    payload: Partial<Pick<BackendGlobalPage, 'title' | 'hero_heading' | 'intro_content' | 'status'>>,
+    token: string
+  ) => request<BackendGlobalPage>(`/global-pages/${slug}`, { method: 'PATCH', body: payload, token }),
 
   coachSearch: (query: string) => request<AICoachSearchResponse>('/ai/coach-search', { query: { query } }),
   generateChapter: (payload: AIGenerateChapterPayload) =>

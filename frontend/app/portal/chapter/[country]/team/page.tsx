@@ -9,7 +9,7 @@ export default async function ChapterTeamPage({ params }: { params: { country: s
   const chapter = await getChapter(params.country);
   if (!chapter) notFound();
   return (
-    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} team management`} description="Maintain chapter leadership and contributor records shown on the public chapter pages." chapterSlug={chapter.slug}>
+    <PortalShell roleScope="chapter" eyebrow="Chapter leader console" title={`${chapter.name} team management`} description="Maintain chapter leadership and contributor records shown on the public chapter pages." chapterSlug={chapter.slug}>
       <div className="grid gap-6 xl:grid-cols-2">
         {chapter.team.map((member) => (
           <Panel key={member.name} title={member.name} description={member.role}>

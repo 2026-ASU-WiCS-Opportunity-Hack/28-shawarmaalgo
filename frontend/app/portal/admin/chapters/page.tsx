@@ -10,6 +10,7 @@ export default async function AdminChaptersPage() {
 
   return (
     <PortalShell
+      roleScope="admin"
       eyebrow="Admin console"
       title="Chapter management"
       description="Review every chapter, open chapter settings, and provision new chapter sites such as WIAL Canada from the shared base template."

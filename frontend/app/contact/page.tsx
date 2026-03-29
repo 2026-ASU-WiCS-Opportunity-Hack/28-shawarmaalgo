@@ -1,16 +1,22 @@
 import { PageShell } from '@/components/layout/PageShell';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { site } from '@/data/site';
+import { getGlobalPageContent } from '@/lib/server-data';
 
 export const revalidate = 3600;
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const page = await getGlobalPageContent('contact');
+
   return (
     <PageShell>
       <SectionHeading
-        eyebrow="Contact"
-        title="Get in touch with WIAL"
-        description="Connect with the World Institute for Action Learning for chapter inquiries, Action Learning questions, certification information, and general organizational contact."
+        eyebrow={page?.title || 'Contact'}
+        title={page?.heroHeading || 'Get in touch with WIAL'}
+        description={
+          page?.introContent ||
+          'Connect with the World Institute for Action Learning for chapter inquiries, Action Learning questions, certification information, and general organizational contact.'
+        }
       />
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         <section className="rounded-[1.5rem] border border-slate-200 p-6 shadow-soft">

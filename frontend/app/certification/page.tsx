@@ -1,13 +1,19 @@
 import { ContentPage } from '@/components/sections/ContentPage';
+import { getGlobalPageContent } from '@/lib/server-data';
 
 export const revalidate = 3600;
 
-export default function CertificationPage() {
+export default async function CertificationPage() {
+  const page = await getGlobalPageContent('certification');
+
   return (
     <ContentPage
-      eyebrow="Certification"
-      title="A four-level certification pathway for Action Learning coaches"
-      intro="WIAL explains that organizations increasingly want Action Learning programs led by trained coaches and offers four certification levels with increasing education, coaching practice, and contribution requirements."
+      eyebrow={page?.title || 'Certification'}
+      title={page?.heroHeading || 'A four-level certification pathway for Action Learning coaches'}
+      intro={
+        page?.introContent ||
+        'WIAL explains that organizations increasingly want Action Learning programs led by trained coaches and offers four certification levels with increasing education, coaching practice, and contribution requirements.'
+      }
       sections={[
         {
           title: 'Why get certified',

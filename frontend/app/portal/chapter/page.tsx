@@ -11,6 +11,7 @@ export default async function ChapterPortalPage() {
 
   return (
     <PortalShell
+      roleScope="chapter"
       eyebrow="Chapter leader console"
       title={`${chapter.name} workspace`}
       description="Edit local content, manage team members and coaches, publish events and resources, and keep chapter contact information current without touching code."

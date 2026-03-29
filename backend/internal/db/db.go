@@ -18,6 +18,8 @@ type Store struct {
 	pool *pgxpool.Pool
 }
 
+var ErrNoFieldsToUpdate = errors.New("no fields to update")
+
 func NewPool(ctx context.Context, databaseURL string) (*pgxpool.Pool, error) {
 	cfg, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
@@ -1517,4 +1519,88 @@ func UniqueConstraintName(err error) string {
 		return pgErr.ConstraintName
 	}
 	return ""
+}
+
+func (s *Store) ListGlobalPages(ctx context.Context) ([]models.GlobalPage, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT id, slug, title, hero_heading, intro_content, status, sort_order, created_at, updated_at
+		FROM global_pages
+		ORDER BY sort_order ASC, created_at ASC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	pages := []models.GlobalPage{}
+	for rows.Next() {
+		var page models.GlobalPage
+		if err := rows.Scan(&page.ID, &page.Slug, &page.Title, &page.HeroHeading, &page.IntroContent, &page.Status, &page.SortOrder, &page.CreatedAt, &page.UpdatedAt); err != nil {
+			return nil, err
+		}
+		pages = append(pages, page)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return pages, nil
+}
+
+func (s *Store) GetGlobalPageBySlug(ctx context.Context, slug string) (models.GlobalPage, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT id, slug, title, hero_heading, intro_content, status, sort_order, created_at, updated_at
+		FROM global_pages
+		WHERE slug = $1
+	`, slug)
+
+	var page models.GlobalPage
+	if err := row.Scan(&page.ID, &page.Slug, &page.Title, &page.HeroHeading, &page.IntroContent, &page.Status, &page.SortOrder, &page.CreatedAt, &page.UpdatedAt); err != nil {
+		return models.GlobalPage{}, err
+	}
+
+	return page, nil
+}
+
+func (s *Store) PatchGlobalPageBySlug(ctx context.Context, slug string, req models.GlobalPagePatchRequest) (models.GlobalPage, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.Title != nil {
+		set = append(set, fmt.Sprintf("title = $%d", argPos))
+		args = append(args, *req.Title)
+		argPos++
+	}
+	if req.HeroHeading != nil {
+		set = append(set, fmt.Sprintf("hero_heading = $%d", argPos))
+		args = append(args, *req.HeroHeading)
+		argPos++
+	}
+	if req.IntroContent != nil {
+		set = append(set, fmt.Sprintf("intro_content = $%d", argPos))
+		args = append(args, *req.IntroContent)
+		argPos++
+	}
+	if req.Status != nil {
+		set = append(set, fmt.Sprintf("status = $%d", argPos))
+		args = append(args, *req.Status)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.GlobalPage{}, ErrNoFieldsToUpdate
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE global_pages SET %s WHERE slug = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, slug)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.GlobalPage{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.GlobalPage{}, pgx.ErrNoRows
+	}
+
+	return s.GetGlobalPageBySlug(ctx, slug)
 }

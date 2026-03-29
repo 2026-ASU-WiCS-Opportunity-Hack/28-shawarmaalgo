@@ -16,24 +16,6 @@ type LoginFormProps = {
   portalHref: string | null;
 };
 
-const roles = [
-  {
-    title: 'Global admin',
-    body: 'Manage shared pages, create and configure chapters, assign chapter leaders, and oversee users across the network.',
-    href: '/portal/admin'
-  },
-  {
-    title: 'Chapter leader',
-    body: 'Update chapter content online, manage chapter coaches, publish resources, and maintain chapter event information.',
-    href: '/portal/chapter'
-  },
-  {
-    title: 'Coach',
-    body: 'Maintain your public profile, review certification details, and manage your directory presence.',
-    href: '/portal/coach'
-  }
-];
-
 export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -69,12 +51,12 @@ export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
         title={isLoggedIn ? 'You are signed in to the WIAL platform' : 'Log in to the WIAL platform'}
         description={
           isLoggedIn
-            ? 'Open your portal to manage WIAL content and access, or log out when you are finished.'
-            : 'Use your WIAL account to access the global admin console, chapter leader tools, or your coach profile and certification information.'
+            ? 'Open your portal to continue, or log out when you are finished.'
+            : 'Use your WIAL account to access your WIAL portal.'
         }
       />
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+      <div className="mt-8 max-w-2xl">
         <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
           {isLoggedIn ? (
             <>
@@ -114,25 +96,6 @@ export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
               </form>
             </>
           )}
-        </section>
-
-        <section className="rounded-[1.75rem] bg-brand-sand p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold text-brand-navy">Role-based access</h2>
-          <div className="mt-6 space-y-4">
-            {roles.map((role) => (
-              <article key={role.title} className="rounded-[1.25rem] border border-white bg-white p-5 shadow-soft">
-                <h3 className="text-lg font-semibold text-brand-navy">{role.title}</h3>
-                <p className="mt-2 text-sm leading-7 text-slate-700">{role.body}</p>
-                {isLoggedIn ? (
-                  <Link href={role.href} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
-                    Open {role.title} console →
-                  </Link>
-                ) : (
-                  <p className="mt-4 text-sm font-medium text-slate-500">Log in to view console links.</p>
-                )}
-              </article>
-            ))}
-          </div>
         </section>
       </div>
     </PageShell>

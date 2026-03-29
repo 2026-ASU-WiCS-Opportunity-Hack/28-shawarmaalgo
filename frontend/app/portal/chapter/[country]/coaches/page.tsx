@@ -9,7 +9,7 @@ export default async function ChapterCoachesPage({ params }: { params: { country
   const chapter = await getChapter(params.country);
   if (!chapter) notFound();
   return (
-    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} coaches`} description="Review coach profiles, update featured specialists, and coordinate visibility for chapter-level and global directory listings." chapterSlug={chapter.slug}>
+    <PortalShell roleScope="chapter" eyebrow="Chapter leader console" title={`${chapter.name} coaches`} description="Review coach profiles, update featured specialists, and coordinate visibility for chapter-level and global directory listings." chapterSlug={chapter.slug}>
       <div className="grid gap-6 xl:grid-cols-2">
         {chapter.coaches.map((coach) => (
           <Panel key={coach.name} title={coach.name} description={`${coach.certification} • ${coach.location}`}>

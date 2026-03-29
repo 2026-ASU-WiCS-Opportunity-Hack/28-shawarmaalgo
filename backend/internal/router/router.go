@@ -17,6 +17,7 @@ func New(
 	meH *handlers.MeHandlers,
 	portalH *handlers.PortalHandlers,
 	userH *handlers.UserHandlers,
+	globalPageH *handlers.GlobalPageHandlers,
 	teamMemberH *handlers.TeamMemberHandlers,
 	resourceH *handlers.ResourceHandlers,
 	testimonialH *handlers.TestimonialHandlers,
@@ -59,6 +60,10 @@ func New(
 		api.GET("/testimonials", testimonialH.ListTestimonials)
 		api.GET("/testimonials/:id", testimonialH.GetTestimonial)
 
+		// Global Pages (Public)
+		api.GET("/global-pages", globalPageH.ListGlobalPages)
+		api.GET("/global-pages/:slug", globalPageH.GetGlobalPage)
+
 		// AI Features
 		api.GET("/ai/coach-search", aiH.CoachSearch)
 		api.POST("/ai/generate-chapter", aiH.GenerateChapter)
@@ -87,6 +92,12 @@ func New(
 			{
 				portal.GET("/overview", portalH.GetOverview)
 				portal.GET("/chapter", portalH.GetChapter)
+			}
+
+			globalPageAdmin := protected.Group("/global-pages")
+			globalPageAdmin.Use(handlers.RoleMiddleware("super_admin"))
+			{
+				globalPageAdmin.PATCH("/:slug", globalPageH.PatchGlobalPage)
 			}
 
 			chapterContent := protected.Group("/chapters")

@@ -137,6 +137,7 @@ export default function NewChapterPage() {
 
   return (
     <PortalShell
+      roleScope="admin"
       eyebrow="Admin console"
       title="Create a new chapter"
       description="Create a chapter using the backend chapter API, then continue managing that chapter from the admin console."

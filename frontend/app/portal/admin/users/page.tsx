@@ -9,6 +9,7 @@ export default async function AdminUsersPage() {
 
   return (
     <PortalShell
+      roleScope="admin"
       eyebrow="Admin console"
       title="User access and roles"
       description="Create and delete chapter leaders, content creators, and coaches directly from the admin console using the managed users API."

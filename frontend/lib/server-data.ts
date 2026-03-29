@@ -1,12 +1,14 @@
 import { countries, getCountryBySlug, type Coach as UICoach, type CountryPageData } from '@/data/countries';
-import { adminOverview, coachAccount, globalPages, mockSession, users } from '@/data/portal';
+import { adminOverview, coachAccount, mockSession, users } from '@/data/portal';
 import { resources, globalEvents } from '@/data/content';
+import { getGlobalPageDefault, globalPageDefaults } from '@/data/global-pages';
 import {
   api,
   type AdminPortalOverviewResponse,
   type BackendChapter,
   type BackendCoach,
   type BackendEvent,
+  type BackendGlobalPage,
   type BackendResource,
   type BackendTeamMember,
   type BackendTestimonial,
@@ -27,6 +29,30 @@ function formatDate(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Date to be announced';
   return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(date);
+}
+
+
+function formatAdminDate(value?: string | null) {
+  if (!value) return 'Static content';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Static content';
+  return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).format(date);
+}
+
+function formatPageStatus(status?: string | null) {
+  if (!status) return 'Published';
+  return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function mapGlobalPageToUI(page: BackendGlobalPage) {
+  return {
+    slug: page.slug,
+    title: page.title,
+    heroHeading: page.hero_heading,
+    introContent: page.intro_content,
+    status: formatPageStatus(page.status),
+    lastUpdated: formatAdminDate(page.updated_at)
+  };
 }
 
 function mapCoachToUI(coach: BackendCoach): UICoach {
@@ -298,7 +324,57 @@ export async function getAdminOverview() {
 }
 
 export async function getGlobalPages() {
-  return globalPages;
+  const fallback = globalPageDefaults.map((page) => ({
+    slug: page.slug,
+    title: page.title,
+    heroHeading: page.heroHeading,
+    introContent: page.introContent,
+    status: page.status,
+    lastUpdated: 'Static content'
+  }));
+
+  return safeFetch(async () => {
+    const response = await api.listGlobalPages();
+    const pagesBySlug = new Map(response.data.map((page) => [page.slug, page]));
+
+    return globalPageDefaults.map((page) => {
+      const loaded = pagesBySlug.get(page.slug);
+      return loaded
+        ? mapGlobalPageToUI(loaded)
+        : {
+            slug: page.slug,
+            title: page.title,
+            heroHeading: page.heroHeading,
+            introContent: page.introContent,
+            status: page.status,
+            lastUpdated: 'Static content'
+          };
+    });
+  }, fallback);
+}
+
+export async function getGlobalPageContent(slug: string) {
+  const fallback = getGlobalPageDefault(slug);
+  if (!fallback) return null;
+
+  return safeFetch(async () => {
+    const page = await api.getGlobalPage(slug);
+    return {
+      slug: page.slug,
+      title: page.title,
+      heroHeading: page.hero_heading,
+      introContent: page.intro_content,
+      status: formatPageStatus(page.status),
+      lastUpdated: formatAdminDate(page.updated_at)
+    };
+  }, {
+    slug: fallback.slug,
+    title: fallback.title,
+    heroHeading: fallback.heroHeading,
+    introContent: fallback.introContent,
+    status: fallback.status,
+    lastUpdated: 'Static content'
+  });
 }
 
 export async function getUsers() {

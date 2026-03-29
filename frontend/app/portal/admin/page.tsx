@@ -13,6 +13,7 @@ export default async function AdminOverviewPage() {
 
   return (
     <PortalShell
+      roleScope="admin"
       eyebrow="Admin console"
       title="Global network administration"
       description="Create and configure chapters, assign chapter leaders, maintain global pages, review coach visibility, and keep the entire WIAL network aligned from one place."

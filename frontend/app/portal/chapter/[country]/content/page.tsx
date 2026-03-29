@@ -11,6 +11,7 @@ export default async function ChapterContentPage({ params }: { params: { country
 
   return (
     <PortalShell
+      roleScope="chapter"
       eyebrow="Chapter leader console"
       title={`${chapter.name} content editor`}
       description="Adjust the chapter homepage copy, local introduction, and featured messaging from structured fields that map directly to the public chapter pages."

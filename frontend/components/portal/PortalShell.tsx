@@ -2,50 +2,62 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { LogoutButton } from '@/components/auth/LogoutButton';
 
-export function PortalShell({
-  eyebrow,
-  title,
-  description,
-  chapterSlug,
-  children
-}: {
+type PortalShellProps = {
+  roleScope: 'admin' | 'chapter' | 'coach';
   eyebrow: string;
   title: string;
   description: string;
   chapterSlug?: string | null;
   children: ReactNode;
-}) {
-  const sections = [
-    {
-      title: 'Admin',
-      links: [
-        { label: 'Overview', href: '/portal/admin' },
-        { label: 'Chapters', href: '/portal/admin/chapters' },
-        { label: 'Global pages', href: '/portal/admin/pages' },
-        { label: 'Users', href: '/portal/admin/users' }
-      ]
-    },
-    {
-      title: 'Chapter leader',
-      links: [
-        { label: 'Workspace', href: '/portal/chapter' },
-        ...(chapterSlug
-          ? [
-              { label: 'Content', href: `/portal/chapter/${chapterSlug}/content` },
-              { label: 'Team', href: `/portal/chapter/${chapterSlug}/team` },
-              { label: 'Coaches', href: `/portal/chapter/${chapterSlug}/coaches` },
-              { label: 'Events', href: `/portal/chapter/${chapterSlug}/events` },
-              { label: 'Resources', href: `/portal/chapter/${chapterSlug}/resources` },
-              { label: 'Contact', href: `/portal/chapter/${chapterSlug}/contact` }
-            ]
-          : [])
-      ]
-    },
-    {
-      title: 'Coach',
-      links: [{ label: 'My account', href: '/portal/coach' }]
-    }
-  ];
+};
+
+export function PortalShell({
+  roleScope,
+  eyebrow,
+  title,
+  description,
+  chapterSlug,
+  children
+}: PortalShellProps) {
+  const sectionsByRole = {
+    admin: [
+      {
+        title: 'Admin',
+        links: [
+          { label: 'Overview', href: '/portal/admin' },
+          { label: 'Chapters', href: '/portal/admin/chapters' },
+          { label: 'Global pages', href: '/portal/admin/pages' },
+          { label: 'Users', href: '/portal/admin/users' }
+        ]
+      }
+    ],
+    chapter: [
+      {
+        title: 'Chapter leader',
+        links: [
+          { label: 'Workspace', href: '/portal/chapter' },
+          ...(chapterSlug
+            ? [
+                { label: 'Content', href: `/portal/chapter/${chapterSlug}/content` },
+                { label: 'Team', href: `/portal/chapter/${chapterSlug}/team` },
+                { label: 'Coaches', href: `/portal/chapter/${chapterSlug}/coaches` },
+                { label: 'Events', href: `/portal/chapter/${chapterSlug}/events` },
+                { label: 'Resources', href: `/portal/chapter/${chapterSlug}/resources` },
+                { label: 'Contact', href: `/portal/chapter/${chapterSlug}/contact` }
+              ]
+            : [])
+        ]
+      }
+    ],
+    coach: [
+      {
+        title: 'Coach',
+        links: [{ label: 'My account', href: '/portal/coach' }]
+      }
+    ]
+  } as const;
+
+  const sections = sectionsByRole[roleScope];
 
   return (
     <div className="container-shell py-10 sm:py-12">

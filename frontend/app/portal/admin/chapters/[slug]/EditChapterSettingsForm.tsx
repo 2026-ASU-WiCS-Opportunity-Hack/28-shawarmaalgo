@@ -1,9 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel } from '@/components/portal/PortalCards';
+import { buttonClassName } from '@/components/ui/button';
 import { api, type BackendChapter, type ChapterUpdatePayload } from '@/lib/api';
 import { getClientAuthToken } from '@/lib/auth-cookies';
 
@@ -29,6 +31,12 @@ type EditChapterFormState = {
   member_count: string;
 };
 
+type ChapterLeaderSummary = {
+  id: string;
+  email: string;
+  createdAt: string;
+};
+
 const inputClassName = 'w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm';
 const labelClassName = 'mb-2 block text-sm font-medium text-slate-700';
 
@@ -43,6 +51,16 @@ function optionalNumber(value: string) {
 
   const parsed = Number.parseInt(trimmed, 10);
   return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Unknown';
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(date);
 }
 
 function buildInitialState(chapter: BackendChapter): EditChapterFormState {
@@ -69,7 +87,13 @@ function buildInitialState(chapter: BackendChapter): EditChapterFormState {
   };
 }
 
-export function EditChapterSettingsForm({ chapter }: { chapter: BackendChapter }) {
+export function EditChapterSettingsForm({
+  chapter,
+  chapterLeaders
+}: {
+  chapter: BackendChapter;
+  chapterLeaders: ChapterLeaderSummary[];
+}) {
   const router = useRouter();
   const [form, setForm] = useState<EditChapterFormState>(() => buildInitialState(chapter));
   const [loading, setLoading] = useState(false);
@@ -142,6 +166,7 @@ export function EditChapterSettingsForm({ chapter }: { chapter: BackendChapter }
 
   return (
     <PortalShell
+      roleScope="admin"
       eyebrow="Admin console"
       title={`Manage ${chapter.name}`}
       description="Control chapter-level settings and publishing details without affecting the shared platform template."
@@ -260,19 +285,39 @@ export function EditChapterSettingsForm({ chapter }: { chapter: BackendChapter }
             </div>
           </form>
         </Panel>
+
         <Panel
-          title="Assign chapter leader"
-          description="This panel is intentionally read-only for now. The current backend user API requires an email, password, role, and chapter assignment, but it does not store a separate leader name field or support the previous placeholder flow."
+          title="Chapter leader access"
+          description="This chapter now reflects the currently assigned chapter leader accounts from the user management API."
         >
-          <div className="grid gap-4">
+          {chapterLeaders.length > 0 ? (
+            <div className="space-y-4">
+              {chapterLeaders.map((leader) => (
+                <div key={leader.id} className="rounded-2xl border border-slate-200 p-4">
+                  <p className="font-semibold text-brand-navy">{leader.email}</p>
+                  <p className="mt-1 text-sm text-slate-600">Chapter leader • Added {formatDate(leader.createdAt)}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              Chapter-leader assignment still needs a dedicated UX. Use the admin users API flow instead of this placeholder card for now.
+              No chapter leader is currently assigned to this chapter.
             </div>
-            <div className="grid gap-3 text-sm text-slate-600">
-              <p>Suggested next step: create or update a `chapter_lead` user for this chapter from the admin users area.</p>
-              <p>Chapter slug: <span className="font-semibold text-brand-navy">{chapter.slug}</span></p>
-              <p>Contact email: <span className="font-semibold text-brand-navy">{chapter.contact_email}</span></p>
-            </div>
+          )}
+
+          <div className="mt-5 grid gap-3 text-sm text-slate-600">
+            <p>
+              Chapter slug: <span className="font-semibold text-brand-navy">{chapter.slug}</span>
+            </p>
+            <p>
+              Contact email: <span className="font-semibold text-brand-navy">{chapter.contact_email}</span>
+            </p>
+          </div>
+
+          <div className="mt-5">
+            <Link href="/portal/admin/users" className={buttonClassName()}>
+              Manage chapter users
+            </Link>
           </div>
         </Panel>
       </div>

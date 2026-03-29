@@ -1,28 +1,34 @@
-import Link from "next/link";
-import { PageShell } from "@/components/layout/PageShell";
-import { Hero } from "@/components/sections/Hero";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { homeStats, featuredBenefits, homeHighlights } from "@/data/content";
-import { InfoCard } from "@/components/cards/InfoCard";
-import { EventCard } from "@/components/cards/EventCard";
-import { CtaBlock } from "@/components/sections/CtaBlock";
-import { getChapters, getGlobalEvents, getGlobalResources } from "@/lib/server-data";
+import Link from 'next/link';
+import { PageShell } from '@/components/layout/PageShell';
+import { Hero } from '@/components/sections/Hero';
+import { SectionHeading } from '@/components/ui/SectionHeading';
+import { homeStats, featuredBenefits, homeHighlights } from '@/data/content';
+import { InfoCard } from '@/components/cards/InfoCard';
+import { EventCard } from '@/components/cards/EventCard';
+import { CtaBlock } from '@/components/sections/CtaBlock';
+import { getChapters, getGlobalEvents, getGlobalPageContent, getGlobalResources } from '@/lib/server-data';
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const countries = await getChapters();
-  const globalEvents = await getGlobalEvents();
-  const resources = await getGlobalResources();
+  const [countries, globalEvents, resources, page] = await Promise.all([
+    getChapters(),
+    getGlobalEvents(),
+    getGlobalResources(),
+    getGlobalPageContent('home')
+  ]);
 
   return (
     <PageShell>
       <Hero
-        eyebrow="World Institute for Action Learning"
-        title="Developing leaders and organizations through Action Learning"
-        description="WIAL advances Action Learning worldwide through certification, coaching, chapter development, and practical support for organizations solving real challenges."
-        primaryCta={{ label: "Explore chapters", href: "/chapters" }}
-        secondaryCta={{ label: "Find a coach", href: "/coaches" }}
+        eyebrow={page?.title || 'World Institute for Action Learning'}
+        title={page?.heroHeading || 'Developing leaders and organizations through Action Learning'}
+        description={
+          page?.introContent ||
+          'WIAL advances Action Learning worldwide through certification, coaching, chapter development, and practical support for organizations solving real challenges.'
+        }
+        primaryCta={{ label: 'Explore chapters', href: '/chapters' }}
+        secondaryCta={{ label: 'Find a coach', href: '/coaches' }}
       />
 
       <section className="mt-16 grid gap-6 md:grid-cols-3">
@@ -113,8 +119,8 @@ export default async function HomePage() {
         <CtaBlock
           title="Explore chapters, coaches, and certification pathways"
           description="WIAL connects Action Learning practice, coach development, and chapter activity in one globally aligned experience."
-          primary={{ label: "Sign in", href: "/login" }}
-          secondary={{ label: "Explore chapters", href: "/chapters" }}
+          primary={{ label: 'Sign in', href: '/login' }}
+          secondary={{ label: 'Explore chapters', href: '/chapters' }}
         />
       </div>
     </PageShell>

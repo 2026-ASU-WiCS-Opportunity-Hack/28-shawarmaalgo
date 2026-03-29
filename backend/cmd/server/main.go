@@ -40,6 +40,7 @@ func main() {
 	meHandlers := handlers.NewMeHandlers(store)
 	portalHandlers := handlers.NewPortalHandlers(store)
 	userHandlers := handlers.NewUserHandlers(store)
+	globalPageHandlers := handlers.NewGlobalPageHandlers(store)
 	teamMemberHandlers := handlers.NewTeamMemberHandlers(store)
 	resourceHandlers := handlers.NewResourceHandlers(store)
 	testimonialHandlers := handlers.NewTestimonialHandlers(store)
@@ -58,6 +59,7 @@ func main() {
 		meHandlers,
 		portalHandlers,
 		userHandlers,
+		globalPageHandlers,
 		teamMemberHandlers,
 		resourceHandlers,
 		testimonialHandlers,

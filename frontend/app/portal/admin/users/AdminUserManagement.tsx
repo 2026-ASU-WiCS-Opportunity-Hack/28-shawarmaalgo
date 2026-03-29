@@ -102,7 +102,7 @@ export default function AdminUserManagement({ initialUsers, chapters }: AdminUse
   }
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
+    <div className="grid gap-8">
       <Panel title="Create a user" description="This form is connected to the managed users API so admins can add chapter leaders, coaches, and content creators directly from the console.">
         <form className="grid gap-4" onSubmit={handleCreateUser}>
           <label className="block">
