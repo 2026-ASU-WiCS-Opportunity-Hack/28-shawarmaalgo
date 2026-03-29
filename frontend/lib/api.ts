@@ -361,6 +361,13 @@ export type CheckoutSessionResponse = {
   session_id: string;
 };
 
+export type ImageUploadResponse = {
+  url: string;
+  key: string;
+  content_type: string;
+  size: number;
+};
+
 function getApiBaseUrl() {
   if (typeof window === 'undefined') {
     return (
@@ -415,6 +422,33 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
 
   if (response.status === 204) {
     return undefined as T;
+  }
+
+  return response.json() as Promise<T>;
+}
+
+async function uploadFile<T>(path: string, file: File, token: string): Promise<T> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    body: formData,
+    cache: 'no-store'
+  });
+
+  if (!response.ok) {
+    let message = `API request failed: ${response.status}`;
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (payload?.error) message = payload.error;
+    } catch {
+      // ignore JSON parse failures for non-JSON error bodies
+    }
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;
@@ -506,6 +540,7 @@ export const api = {
     payload: Partial<Pick<BackendGlobalPage, 'title' | 'hero_heading' | 'intro_content' | 'body_content' | 'hero_image_url' | 'status'>>,
     token: string
   ) => request<BackendGlobalPage>(`/global-pages/${slug}`, { method: 'PATCH', body: payload, token }),
+  uploadImage: (file: File, token: string) => uploadFile<ImageUploadResponse>('/uploads/images', file, token),
 
   coachSearch: (query: string) => request<AICoachSearchResponse>('/ai/coach-search', { query: { query } }),
   generateChapter: (payload: AIGenerateChapterPayload) =>

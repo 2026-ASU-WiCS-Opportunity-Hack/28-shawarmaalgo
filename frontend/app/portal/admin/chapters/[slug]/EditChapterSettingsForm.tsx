@@ -5,6 +5,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel } from '@/components/portal/PortalCards';
+import { ImageUploadField } from '@/components/forms/ImageUploadField';
 import { buttonClassName } from '@/components/ui/button';
 import { api, type BackendChapter, type ChapterUpdatePayload } from '@/lib/api';
 import { getClientAuthToken } from '@/lib/auth-cookies';
@@ -238,14 +239,24 @@ export function EditChapterSettingsForm({
               <span className={labelClassName}>Website URL</span>
               <input className={inputClassName} value={form.website_url} onChange={(event) => updateField('website_url', event.target.value)} />
             </label>
-            <label className="block">
-              <span className={labelClassName}>Logo URL</span>
-              <input className={inputClassName} value={form.logo_url} onChange={(event) => updateField('logo_url', event.target.value)} />
-            </label>
-            <label className="block">
-              <span className={labelClassName}>Hero image URL</span>
-              <input className={inputClassName} value={form.hero_image_url} onChange={(event) => updateField('hero_image_url', event.target.value)} />
-            </label>
+            <div className="md:col-span-2 grid gap-4 md:grid-cols-2">
+              <ImageUploadField
+                label="Logo image"
+                value={form.logo_url}
+                onChange={(value) => updateField('logo_url', value)}
+                helpText="Upload a replacement chapter logo. The form stores the returned S3 URL."
+                previewAlt={`${form.name || chapter.name} logo`}
+                emptyLabel="No logo uploaded yet."
+              />
+              <ImageUploadField
+                label="Hero image"
+                value={form.hero_image_url}
+                onChange={(value) => updateField('hero_image_url', value)}
+                helpText="Upload the public chapter hero image."
+                previewAlt={`${form.name || chapter.name} hero`}
+                emptyLabel="No hero image uploaded yet."
+              />
+            </div>
             <label className="block">
               <span className={labelClassName}>Founded year</span>
               <input type="number" className={inputClassName} value={form.founded_year} onChange={(event) => updateField('founded_year', event.target.value)} />

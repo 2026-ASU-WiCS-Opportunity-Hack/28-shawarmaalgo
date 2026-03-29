@@ -5,6 +5,7 @@ import { Panel } from '@/components/portal/PortalCards';
 import { Button, buttonClassName } from '@/components/ui/button';
 import { api } from '@/lib/api';
 import { getClientAuthToken } from '@/lib/auth-cookies';
+import { ImageUploadField } from '@/components/forms/ImageUploadField';
 
 type EditableGlobalPage = {
   slug: string;
@@ -43,11 +44,9 @@ export default function AdminGlobalPagesManager({ initialPages }: { initialPages
   const [bodyContent, setBodyContent] = useState(initialPages[0]?.bodyContent || '');
   const [heroImageUrl, setHeroImageUrl] = useState(initialPages[0]?.heroImageUrl || '');
   const [loading, setLoading] = useState(false);
-  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
   const [uploadingBodyImage, setUploadingBodyImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const heroUploadRef = useRef<HTMLInputElement | null>(null);
   const bodyUploadRef = useRef<HTMLInputElement | null>(null);
 
   const selectedPage = useMemo(
@@ -64,43 +63,23 @@ export default function AdminGlobalPagesManager({ initialPages }: { initialPages
     setHeroImageUrl(selectedPage.heroImageUrl);
   }, [selectedPage]);
 
-  async function readFileAsDataUrl(file: File) {
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
-      reader.onerror = () => reject(new Error('Unable to read image file.'));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function handleHeroImageUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setError(null);
-    setSuccess(null);
-    setUploadingHeroImage(true);
-    try {
-      const dataUrl = await readFileAsDataUrl(file);
-      setHeroImageUrl(dataUrl);
-    } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : 'Unable to upload hero image.');
-    } finally {
-      setUploadingHeroImage(false);
-      event.target.value = '';
-    }
-  }
-
   async function handleBodyImageUpload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    const token = getClientAuthToken();
+    if (!token) {
+      setError('Your session has expired. Please log in again.');
+      event.target.value = '';
+      return;
+    }
 
     setError(null);
     setSuccess(null);
     setUploadingBodyImage(true);
     try {
-      const dataUrl = await readFileAsDataUrl(file);
-      const imageMarkup = `![${file.name}](${dataUrl})`;
+      const uploaded = await api.uploadImage(file, token);
+      const imageMarkup = `![${file.name}](${uploaded.url})`;
       setBodyContent((current) => `${current.trim()}${current.trim() ? '\n\n' : ''}${imageMarkup}`);
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Unable to insert image into page content.');
@@ -190,7 +169,7 @@ export default function AdminGlobalPagesManager({ initialPages }: { initialPages
         </div>
       </Panel>
 
-      <Panel title="Edit shared page content" description="Update the public copy for the selected page. You can paste an image URL or upload an image to embed in the page body.">
+      <Panel title="Edit shared page content" description="Update the public copy for the selected page. Uploaded images are stored through the backend and saved as S3 URLs.">
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Page</span>
@@ -238,29 +217,14 @@ export default function AdminGlobalPagesManager({ initialPages }: { initialPages
             />
           </label>
 
-          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Hero image URL</span>
-              <input
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
-                value={heroImageUrl}
-                onChange={(event) => setHeroImageUrl(event.target.value)}
-                placeholder="https://... or upload below"
-              />
-            </label>
-            <div className="flex gap-3">
-              <input ref={heroUploadRef} type="file" accept="image/*" className="hidden" onChange={handleHeroImageUpload} />
-              <Button type="button" onClick={() => heroUploadRef.current?.click()}>
-                {uploadingHeroImage ? 'Uploading...' : 'Upload hero image'}
-              </Button>
-            </div>
-          </div>
-
-          {heroImageUrl ? (
-            <div className="overflow-hidden rounded-[1.25rem] border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-950">
-              <img src={heroImageUrl} alt={`${title || 'Page'} hero`} className="max-h-60 w-full object-cover" />
-            </div>
-          ) : null}
+          <ImageUploadField
+            label="Hero image"
+            value={heroImageUrl}
+            onChange={setHeroImageUrl}
+            helpText="Upload the hero image for this shared page. Saving will persist the returned S3 URL."
+            previewAlt={`${title || 'Page'} hero`}
+            emptyLabel="No hero image uploaded yet."
+          />
 
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">Body content</span>
@@ -268,7 +232,7 @@ export default function AdminGlobalPagesManager({ initialPages }: { initialPages
               className="min-h-56 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950"
               value={bodyContent}
               onChange={(event) => setBodyContent(event.target.value)}
-              placeholder="Use plain text, headings with ##, bullets with -, links like [Label](https://...), and images like ![Alt](image-url)."
+              placeholder="Use plain text, headings with ##, bullets with -, links like [Label](https://...), and images like ![Alt](https://your-s3-image-url)."
             />
           </label>
 

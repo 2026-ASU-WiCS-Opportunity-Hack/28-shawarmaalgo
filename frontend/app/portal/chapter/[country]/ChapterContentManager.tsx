@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from 'react';
 import { Button, buttonClassName } from '@/components/ui/button';
 import { Panel } from '@/components/portal/PortalCards';
+import { ImageUploadField } from '@/components/forms/ImageUploadField';
 import { type BackendChapter, api } from '@/lib/api';
 import { getClientAuthToken } from '@/lib/auth-cookies';
 
@@ -148,24 +149,26 @@ export default function ChapterContentManager({ chapter }: ChapterContentManager
               placeholder="https://chapter.example.org"
             />
           </label>
-          <label className="block">
-            <span className={labelClassName}>Logo URL</span>
-            <input
-              className={inputClassName}
+          <div className="md:col-span-2">
+            <ImageUploadField
+              label="Logo image"
               value={form.logo_url}
-              onChange={(event) => setForm((current) => ({ ...current, logo_url: event.target.value }))}
+              onChange={(value) => setForm((current) => ({ ...current, logo_url: value }))}
+              helpText="Upload a chapter logo and the form will save the S3 URL automatically."
+              previewAlt={`${chapter.name} logo`}
+              emptyLabel="No logo uploaded yet."
             />
-          </label>
+          </div>
         </div>
 
-        <label className="block">
-          <span className={labelClassName}>Hero image URL</span>
-          <input
-            className={inputClassName}
-            value={form.hero_image_url}
-            onChange={(event) => setForm((current) => ({ ...current, hero_image_url: event.target.value }))}
-          />
-        </label>
+        <ImageUploadField
+          label="Hero image"
+          value={form.hero_image_url}
+          onChange={(value) => setForm((current) => ({ ...current, hero_image_url: value }))}
+          helpText="Upload the main chapter image and the saved chapter content will reference the S3 URL."
+          previewAlt={`${chapter.name} hero`}
+          emptyLabel="No hero image uploaded yet."
+        />
 
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         {success ? <p className="text-sm text-emerald-700">{success}</p> : null}

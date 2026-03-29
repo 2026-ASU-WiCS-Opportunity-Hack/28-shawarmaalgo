@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel } from '@/components/portal/PortalCards';
+import { ImageUploadField } from '@/components/forms/ImageUploadField';
 import { api, type ChapterCreatePayload } from '@/lib/api';
 import { getClientAuthToken } from '@/lib/auth-cookies';
 
@@ -252,24 +253,24 @@ export default function NewChapterPage() {
               placeholder="https://example.org"
             />
           </label>
-          <label className="block">
-            <span className={labelClassName}>Logo URL</span>
-            <input
-              className={inputClassName}
+          <div className="md:col-span-2 grid gap-4 md:grid-cols-2">
+            <ImageUploadField
+              label="Logo image"
               value={form.logo_url}
-              onChange={(event) => updateField('logo_url', event.target.value)}
-              placeholder="https://example.org/logo.png"
+              onChange={(value) => updateField('logo_url', value)}
+              helpText="Upload a chapter logo. The saved chapter record will use the returned S3 URL."
+              previewAlt={`${form.name || 'Chapter'} logo`}
+              emptyLabel="No logo uploaded yet."
             />
-          </label>
-          <label className="block">
-            <span className={labelClassName}>Hero image URL</span>
-            <input
-              className={inputClassName}
+            <ImageUploadField
+              label="Hero image"
               value={form.hero_image_url}
-              onChange={(event) => updateField('hero_image_url', event.target.value)}
-              placeholder="https://example.org/hero.jpg"
+              onChange={(value) => updateField('hero_image_url', value)}
+              helpText="Upload the hero image shown on the chapter page."
+              previewAlt={`${form.name || 'Chapter'} hero`}
+              emptyLabel="No hero image uploaded yet."
             />
-          </label>
+          </div>
           <label className="block">
             <span className={labelClassName}>Founded year</span>
             <input
