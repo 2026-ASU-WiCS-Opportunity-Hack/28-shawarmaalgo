@@ -5,8 +5,9 @@ The frontend is a Next.js App Router application for WIAL public pages, chapter 
 ## Links
 - [Project README](../README.md)
 - [Backend Documentation](../backend/README.md)
-- [Frontend-to-Backend Handoff](./docs/BACKEND_HANDOFF.md)
 - [OpenAPI Spec](../backend/api/openapi.yaml)
+- [Live Frontend](https://frontend-production-7610b.up.railway.app/)
+- [Production Swagger UI](https://backend-production-3478.up.railway.app/swagger-ui)
 
 ## What the Frontend Includes
 - Public marketing pages for WIAL content and certification information
@@ -92,6 +93,8 @@ npm run dev
 ```
 
 Open [`http://localhost:3000`](http://localhost:3000).
+
+The deployed frontend is available at [https://frontend-production-7610b.up.railway.app/](https://frontend-production-7610b.up.railway.app/).
 
 ## Integration Map
 The frontend client in [`./lib/api.ts`](./lib/api.ts) is aligned to the current backend router, not the older `/api/portal/chapters/:slug/...` contract.

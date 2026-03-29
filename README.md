@@ -4,10 +4,11 @@
 - [Hackathon Details](https://www.ohack.dev/hack/2026_spring_wics_asu)
 - [DevPost Submission](https://wics-ohack-sp26-hackathon.devpost.com/)
 - [Team Slack Channel](https://opportunity-hack.slack.com/app_redirect?channel=team-28-shawarmaalgo)
+- [Live Frontend](https://frontend-production-7610b.up.railway.app/)
+- [Production Swagger UI](https://backend-production-3478.up.railway.app/swagger-ui)
 - [Product Brief](./project_description.md)
 - [Frontend Documentation](./frontend/README.md)
 - [Backend Documentation](./backend/README.md)
-- [Frontend-to-Backend Handoff](./frontend/docs/BACKEND_HANDOFF.md)
 - [OpenAPI Spec](./backend/api/openapi.yaml)
 - [Fixes Applied](./FIXES_APPLIED.md)
 
@@ -73,7 +74,6 @@ The current hackathon build includes real content management, uploads, and CRUD 
 ### Repository Map
 - [`frontend/`](./frontend) contains the Next.js app, route handlers, shared UI, and API client helpers
 - [`backend/`](./backend) contains the Go API, handlers, router, storage integration, and SQL migrations
-- [`frontend/docs/BACKEND_HANDOFF.md`](./frontend/docs/BACKEND_HANDOFF.md) maps frontend data needs to backend routes
 - [`project_description.md`](./project_description.md) captures the product brief and stakeholder context
 - [`FIXES_APPLIED.md`](./FIXES_APPLIED.md) summarizes notable implementation fixes already completed
 
@@ -126,9 +126,10 @@ npm run dev
 When the `users` table is empty, the backend uses `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` to bootstrap the first super admin.
 
 ## Documentation and API Links
+- Open the live app at [https://frontend-production-7610b.up.railway.app/](https://frontend-production-7610b.up.railway.app/)
+- Browse the deployed API docs at [https://backend-production-3478.up.railway.app/swagger-ui](https://backend-production-3478.up.railway.app/swagger-ui)
 - Start with the [Frontend Documentation](./frontend/README.md) for routes, rendering, and API usage
 - Use the [Backend Documentation](./backend/README.md) for environment setup, roles, and endpoint ownership
-- Use the [Frontend-to-Backend Handoff](./frontend/docs/BACKEND_HANDOFF.md) for the current integration contract
 - Review the [OpenAPI Spec](./backend/api/openapi.yaml) or open Swagger UI at [`/swagger-ui`](http://localhost:8080/swagger-ui) when the backend is running
 
 ## Checklist for the final submission

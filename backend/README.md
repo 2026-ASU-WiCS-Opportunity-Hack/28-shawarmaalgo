@@ -5,8 +5,8 @@ The backend is a Go + Gin API for chapters, coaches, events, team members, resou
 ## Links
 - [Project README](../README.md)
 - [Frontend Documentation](../frontend/README.md)
-- [Frontend-to-Backend Handoff](../frontend/docs/BACKEND_HANDOFF.md)
 - [OpenAPI Spec](./api/openapi.yaml)
+- [Production Swagger UI](https://backend-production-3478.up.railway.app/swagger-ui)
 
 ## What This Service Owns
 - Login-based authentication and `GET /api/v1/me`
@@ -100,6 +100,8 @@ migrate -path ./migrations -database "$DATABASE_URL" up
 - Demo endpoints: `GET /api/v1/ai/coach-search`, `POST /api/v1/ai/generate-chapter`, `POST /api/v1/payments/create-session`
 
 For full request and response schemas, use the [OpenAPI spec](./api/openapi.yaml) or open Swagger UI at [`http://localhost:8080/swagger-ui`](http://localhost:8080/swagger-ui) when the service is running.
+
+For the deployed docs, use [https://backend-production-3478.up.railway.app/swagger-ui](https://backend-production-3478.up.railway.app/swagger-ui).
 
 ## Role Access
 - `super_admin` has global access across managed users, chapters, coaches, events, resources, testimonials, and global pages
