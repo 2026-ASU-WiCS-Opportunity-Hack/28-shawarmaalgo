@@ -985,16 +985,6 @@ func (s *Store) PatchEvent(ctx context.Context, id string, req models.EventPatch
 		args = append(args, *req.RegistrationDeadline)
 		argPos++
 	}
-	if req.BodyContent != nil {
-		set = append(set, fmt.Sprintf("body_content = $%d", argPos))
-		args = append(args, *req.BodyContent)
-		argPos++
-	}
-	if req.HeroImageURL != nil {
-		set = append(set, fmt.Sprintf("hero_image_url = $%d", argPos))
-		args = append(args, *req.HeroImageURL)
-		argPos++
-	}
 	if req.Status != nil {
 		set = append(set, fmt.Sprintf("status = $%d", argPos))
 		args = append(args, *req.Status)
