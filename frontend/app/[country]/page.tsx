@@ -1,0 +1,67 @@
+import { notFound } from "next/navigation";
+import { PageShell } from "@/components/layout/PageShell";
+import { Hero } from "@/components/sections/Hero";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { getCountryBySlug } from "@/data/countries";
+import { InfoCard } from "@/components/cards/InfoCard";
+import { CoachCard } from "@/components/cards/CoachCard";
+import { EventCard } from "@/components/cards/EventCard";
+import { TestimonialCard } from "@/components/cards/TestimonialCard";
+
+export default function CountryOverviewPage({ params }: { params: { country: string } }) {
+  const country = getCountryBySlug(params.country);
+  if (!country) notFound();
+
+  return (
+    <PageShell>
+      <Hero
+        eyebrow={country.hero.eyebrow}
+        title={country.hero.title}
+        description={country.hero.description}
+        primaryCta={{ label: "See local coaches", href: `/${country.slug}/coaches` }}
+        secondaryCta={{ label: "See local events", href: `/${country.slug}/events` }}
+      />
+
+      <section className="mt-16 grid gap-6 md:grid-cols-3">
+        <InfoCard title="About this chapter">
+          <p>{country.overview}</p>
+        </InfoCard>
+        <InfoCard title="Contact">
+          <p>{country.contact.email}</p>
+          <p>{country.contact.phone}</p>
+          <p>{country.contact.city}</p>
+        </InfoCard>
+        <InfoCard title="Chapter leadership">
+          <p>Chapter leaders can maintain local content, events, coach visibility, and chapter contact details from the online workspace.</p>
+        </InfoCard>
+      </section>
+
+      <section className="mt-20">
+        <SectionHeading eyebrow="Featured coaches" title={`Meet ${country.shortName} coaches`} />
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {country.coaches.map((coach) => (
+            <CoachCard key={coach.name} coach={coach} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-20">
+        <SectionHeading eyebrow="Local events" title={`Upcoming events in ${country.shortName}`} />
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {country.events.map((event) => (
+            <EventCard key={event.title} event={event} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-20">
+        <SectionHeading eyebrow="Testimonials" title="What organizations say about Action Learning" />
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {country.testimonials.map((item) => (
+            <TestimonialCard key={item.name} item={item} />
+          ))}
+        </div>
+      </section>
+    </PageShell>
+  );
+}

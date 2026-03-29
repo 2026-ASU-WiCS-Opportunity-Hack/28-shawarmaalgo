@@ -1,62 +1,52 @@
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
-import { Badge } from '@/components/ui/badge'
-import { CoachSearch } from '@/components/coach-search'
-import { api } from '@/lib/api'
-import { coaches as mockCoaches, languages, countries, specializations } from '@/lib/mock-data'
+import { PageShell } from "@/components/layout/PageShell";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { CoachCard } from "@/components/cards/CoachCard";
+import { countries } from "@/data/countries";
 
-export const metadata = {
-  title: 'Find a Coach - WIAL Coach Directory',
-  description:
-    'Search our global directory of certified Action Learning coaches. Find the perfect coach for your organization.',
-}
+const allCoaches = countries.flatMap((country) => country.coaches.map((coach) => ({ ...coach, country: country.shortName })));
+const certifications = ["All levels", "CALC", "PALC", "SALC", "MALC"];
 
-export default async function CoachesPage() {
-  let initialCoaches = mockCoaches
-
-  try {
-    const res = await api.coaches.list({ page_size: 100 })
-    if (res.data.length > 0) initialCoaches = res.data
-  } catch (err) {
-    console.error('Failed to fetch coaches from API, using mock data:', err)
-  }
+export default function CoachesPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
+    <PageShell>
+      <SectionHeading
+        eyebrow="Coach Directory"
+        title="Search WIAL certified coaches"
+        description="WIAL highlights its coach directory as a fast way to discover certified Action Learning coaches. This page gives you a production-ready shell for global search and chapter filtering."
+      />
 
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-primary px-4 py-16 text-primary-foreground">
-          <div className="container mx-auto">
-            <div className="mx-auto max-w-3xl text-center">
-              <Badge variant="secondary" className="mb-4">
-                Coach Directory
-              </Badge>
-              <h1 className="mb-4 text-balance text-3xl font-bold tracking-tight md:text-4xl">
-                Find a Certified Action Learning Coach
-              </h1>
-              <p className="text-primary-foreground/80">
-                Search our global network of certified coaches by location, language,
-                specialization, or use our AI-powered search to describe exactly what you need.
-              </p>
-            </div>
+      <section className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft lg:grid-cols-[1.4fr_1fr_1fr_auto]">
+        <input
+          aria-label="Search coaches"
+          placeholder="Search by specialty, location, or name"
+          className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none ring-brand-teal placeholder:text-slate-400 focus:ring-2"
+        />
+        <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand-teal">
+          <option>All chapters</option>
+          {countries.map((country) => (
+            <option key={country.slug}>{country.shortName}</option>
+          ))}
+        </select>
+        <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand-teal">
+          {certifications.map((level) => (
+            <option key={level}>{level}</option>
+          ))}
+        </select>
+        <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-ink">Search</button>
+      </section>
+
+      <div className="mt-8 rounded-[1.5rem] border border-dashed border-brand-teal bg-brand-sand p-5 text-sm text-brand-ink">
+        Backend hook: connect this page to filtered coach search, chapter membership rules, and coach profile visibility controls.
+      </div>
+
+      <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {allCoaches.map((coach) => (
+          <div key={`${coach.name}-${coach.country}`}>
+            <CoachCard coach={coach} />
+            <p className="mt-2 text-sm text-slate-500">Chapter: {coach.country}</p>
           </div>
-        </section>
-
-        {/* Search Section */}
-        <section className="bg-background py-12">
-          <div className="container mx-auto px-4">
-            <CoachSearch
-              coaches={initialCoaches}
-              languages={languages}
-              countries={countries}
-              specializations={specializations}
-            />
-          </div>
-        </section>
-      </main>
-
-      <Footer />
-    </div>
-  )
+        ))}
+      </div>
+    </PageShell>
+  );
 }
