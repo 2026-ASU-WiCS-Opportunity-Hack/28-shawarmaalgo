@@ -2,6 +2,13 @@ package models
 
 import "time"
 
+const (
+	RoleSuperAdmin     = "super_admin"
+	RoleChapterLead    = "chapter_lead"
+	RoleCoach          = "coach"
+	RoleContentCreator = "content_creator"
+)
+
 type User struct {
 	ID           string    `json:"id"`
 	Email        string    `json:"email"`
@@ -13,6 +20,13 @@ type User struct {
 }
 
 type UserRegisterRequest struct {
+	Email     string  `json:"email" binding:"required,email"`
+	Password  string  `json:"password" binding:"required,min=8"`
+	Role      string  `json:"role" binding:"required"`
+	ChapterID *string `json:"chapter_id"`
+}
+
+type UserCreateRequest struct {
 	Email     string  `json:"email" binding:"required,email"`
 	Password  string  `json:"password" binding:"required,min=8"`
 	Role      string  `json:"role" binding:"required"`

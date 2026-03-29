@@ -440,6 +440,41 @@ func (s *Store) CreateUser(ctx context.Context, req models.UserRegisterRequest, 
 	return u, nil
 }
 
+func (s *Store) CountUsers(ctx context.Context) (int, error) {
+	var count int
+	if err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM users`).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (s *Store) GetUserByID(ctx context.Context, id string) (models.User, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT id, email, password_hash, role, chapter_id, created_at, updated_at
+		FROM users
+		WHERE id = $1
+	`, id)
+	var u models.User
+	if err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Role, &u.ChapterID, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		return models.User{}, err
+	}
+	return u, nil
+}
+
+func (s *Store) CreateBootstrapSuperAdmin(ctx context.Context, email, passwordHash string) (models.User, error) {
+	row := s.pool.QueryRow(ctx, `
+		INSERT INTO users (email, password_hash, role, chapter_id)
+		VALUES ($1, $2, $3, NULL)
+		RETURNING id, email, role, chapter_id, created_at, updated_at
+	`, email, passwordHash, models.RoleSuperAdmin)
+
+	var u models.User
+	if err := row.Scan(&u.ID, &u.Email, &u.Role, &u.ChapterID, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		return models.User{}, err
+	}
+	return u, nil
+}
+
 func (s *Store) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
 	row := s.pool.QueryRow(ctx, `
 		SELECT id, email, password_hash, role, chapter_id, created_at, updated_at
