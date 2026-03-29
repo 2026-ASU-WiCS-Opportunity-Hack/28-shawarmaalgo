@@ -54,9 +54,10 @@ export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
             ? 'Open your portal to continue, or log out when you are finished.'
             : 'Use your WIAL account to access your WIAL portal.'
         }
+        align="center"
       />
 
-      <div className="mt-8 max-w-2xl">
+      <div className="mx-auto mt-8 max-w-2xl">
         <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-950 sm:p-8">
           {isLoggedIn ? (
             <>
