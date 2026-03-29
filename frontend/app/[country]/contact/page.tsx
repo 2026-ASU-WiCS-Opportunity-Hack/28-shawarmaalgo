@@ -16,6 +16,7 @@ export default async function CountryContactPage({ params }: { params: { country
           <p className="mt-4 text-sm leading-7 text-slate-700">Email: {country.contact.email}</p>
           <p className="text-sm leading-7 text-slate-700">Phone: {country.contact.phone}</p>
           <p className="text-sm leading-7 text-slate-700">Location: {country.contact.city}</p>
+          {country.contact.website ? <p className="text-sm leading-7 text-slate-700">Website: {country.contact.website}</p> : null}
         </section>
         <section className="rounded-[1.5rem] border border-slate-200 bg-brand-sand p-6 shadow-soft">
           <h3 className="text-xl font-semibold text-brand-navy">Send a chapter inquiry</h3>

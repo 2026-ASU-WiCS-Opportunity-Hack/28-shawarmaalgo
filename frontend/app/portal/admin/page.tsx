@@ -1,22 +1,27 @@
-import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel, StatCard } from '@/components/portal/PortalCards';
 import { buttonClassName } from '@/components/ui/button';
-import { getAdminOverview, getGlobalPages, getChapters } from '@/lib/server-data';
+import { api } from '@/lib/api';
+import { getAdminOverview, getGlobalPages } from '@/lib/server-data';
+import AdminChapterSitesManager from '@/app/portal/admin/chapters/AdminChapterSitesManager';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOverviewPage() {
-  const overview = await getAdminOverview();
-  const pages = await getGlobalPages();
-  const chapters = await getChapters();
+  const [overview, pages, chaptersResponse] = await Promise.all([
+    getAdminOverview(),
+    getGlobalPages(),
+    api.listChapters({ page_size: 100 })
+  ]);
+  const chapters = chaptersResponse.data;
 
   return (
     <PortalShell
       roleScope="admin"
       eyebrow="Admin console"
       title="Global network administration"
-      description="Create and configure chapters, assign chapter leaders, maintain global pages, review coach visibility, and keep the entire WIAL network aligned from one place."
+      description="Create and configure chapters, assign leadership, maintain global pages, review coach visibility, and keep the entire WIAL network aligned from one place."
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard label="Chapters" value={overview.chapters} />
@@ -26,20 +31,8 @@ export default async function AdminOverviewPage() {
       </div>
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-        <Panel title="Chapter provisioning" description="Administrators can launch new chapters from the shared template, assign leadership, and control publishing status.">
-          <div className="grid gap-4 md:grid-cols-2">
-            {chapters.map((chapter) => (
-              <div key={chapter.slug} className="rounded-[1.25rem] border border-slate-200 p-4">
-                <h3 className="text-lg font-semibold text-brand-navy">{chapter.name}</h3>
-                <p className="mt-1 text-sm text-slate-600">/{chapter.slug}</p>
-                <div className="mt-4 flex gap-4 text-sm font-semibold">
-                  <Link href={`/portal/admin/chapters/${chapter.slug}`} className="text-brand-navy hover:text-brand-teal">Manage</Link>
-                  <Link href={`/${chapter.slug}`} className="text-brand-navy hover:text-brand-teal">View</Link>
-                </div>
-              </div>
-            ))}
-          </div>
-          <Link href="/portal/admin/chapters/new" className={buttonClassName({ className: 'mt-5' })}>Create new chapter</Link>
+        <Panel title="Chapter provisioning" description="Administrators can launch new chapters from the shared template, assign leadership, and remove retired chapter sites from the admin console.">
+          <AdminChapterSitesManager initialChapters={chapters} mode="cards" />
         </Panel>
 
         <div className="grid gap-8">

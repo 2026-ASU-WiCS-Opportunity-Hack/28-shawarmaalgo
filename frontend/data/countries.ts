@@ -20,11 +20,12 @@ export type CountryPageData = {
     email: string;
     phone: string;
     city: string;
+    website?: string;
   };
   team: Array<{ name: string; role: string; blurb: string }>;
   coaches: Coach[];
   events: Array<{ title: string; date: string; location: string; summary: string }>;
-  resources: Array<{ title: string; type: string; summary: string }>;
+  resources: Array<{ title: string; type: string; summary: string; url?: string }>;
   testimonials: Array<{ quote: string; name: string; role: string }>;
 };
 

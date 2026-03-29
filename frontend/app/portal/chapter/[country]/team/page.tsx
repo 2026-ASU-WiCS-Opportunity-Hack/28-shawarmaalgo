@@ -1,27 +1,35 @@
 import { notFound } from 'next/navigation';
 import { PortalShell } from '@/components/portal/PortalShell';
-import { Field, Panel } from '@/components/portal/PortalCards';
-import { getChapter } from '@/lib/server-data';
+import ChapterTeamManager from '@/app/portal/chapter/[country]/ChapterTeamManager';
+import { api } from '@/lib/api';
+import { getChapterRecord, getManagedUsersRaw } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterTeamPage({ params }: { params: { country: string } }) {
-  const chapter = await getChapter(params.country);
+  const chapter = await getChapterRecord(params.country);
   if (!chapter) notFound();
+
+  const [teamMembersResponse, users, coachesResponse] = await Promise.all([
+    api.listTeamMembers({ chapter_id: chapter.id }),
+    getManagedUsersRaw(),
+    api.listCoaches({ page_size: 100, chapter_id: chapter.id })
+  ]);
+
   return (
-    <PortalShell roleScope="chapter" eyebrow="Chapter leader console" title={`${chapter.name} team management`} description="Maintain chapter leadership and contributor records shown on the public chapter pages." chapterSlug={chapter.slug}>
-      <div className="grid gap-6 xl:grid-cols-2">
-        {chapter.team.map((member) => (
-          <Panel key={member.name} title={member.name} description={member.role}>
-            <div className="grid gap-4">
-              <Field label="Name" defaultValue={member.name} />
-              <Field label="Role" defaultValue={member.role} />
-              <Field label="Profile summary" textarea defaultValue={member.blurb} />
-              <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save member</button>
-            </div>
-          </Panel>
-        ))}
-      </div>
+    <PortalShell
+      roleScope="chapter"
+      eyebrow="Chapter leader console"
+      title={`${chapter.name} team management`}
+      description="Maintain public chapter leadership cards, assign additional chapter leaders, and create coaches under this chapter."
+      chapterSlug={chapter.slug}
+    >
+      <ChapterTeamManager
+        chapter={chapter}
+        initialTeamMembers={teamMembersResponse.data}
+        initialUsers={users.filter((user) => user.chapter_id === chapter.id)}
+        initialCoaches={coachesResponse.data}
+      />
     </PortalShell>
   );
 }

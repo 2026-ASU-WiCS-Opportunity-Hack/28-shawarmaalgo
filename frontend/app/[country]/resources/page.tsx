@@ -20,6 +20,11 @@ export default async function CountryResourcesPage({ params }: { params: { count
           <InfoCard key={resource.title} title={resource.title}>
             <p className="font-medium text-brand-teal">{resource.type}</p>
             <p>{resource.summary}</p>
+            {resource.url ? (
+              <a href={resource.url} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
+                Open resource
+              </a>
+            ) : null}
           </InfoCard>
         ))}
       </div>

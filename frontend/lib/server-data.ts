@@ -91,7 +91,8 @@ function mapResourceToUI(resource: BackendResource) {
   return {
     title: resource.title,
     type: resource.type,
-    summary: resource.summary
+    summary: resource.summary,
+    url: resource.url || undefined
   };
 }
 
@@ -114,26 +115,31 @@ function mapUserToUI(user: BackendUser) {
 }
 
 function mapChapterToCountryPage(chapter: BackendChapter, fallback?: CountryPageData): CountryPageData {
+  const chapterDescription =
+    chapter.description ||
+    fallback?.hero.description ||
+    fallback?.overview ||
+    `Explore coaching, chapter events, and local WIAL information for ${chapter.country}.`;
+
   return {
     slug: chapter.slug,
     name: chapter.name,
     shortName: fallback?.shortName || chapter.country,
     hero: {
       eyebrow: 'Official WIAL chapter',
-      title: fallback?.hero.title || `${chapter.name} chapter`,
-      description:
-        chapter.description ||
-        fallback?.hero.description ||
-        `Explore coaching, chapter events, and local WIAL information for ${chapter.country}.`
+      title: `${chapter.name} chapter`,
+      description: chapterDescription
     },
     overview:
+      chapter.description_local ||
       chapter.description ||
       fallback?.overview ||
       `${chapter.name} is part of the WIAL network serving ${chapter.country}.`,
     contact: {
       email: chapter.contact_email,
       phone: chapter.contact_phone || fallback?.contact.phone || 'Contact chapter directly',
-      city: chapter.contact_city || fallback?.contact.city || chapter.country
+      city: chapter.contact_city || fallback?.contact.city || chapter.country,
+      website: chapter.website_url || fallback?.contact.website
     },
     team: fallback?.team || [],
     coaches: fallback?.coaches || [],
@@ -143,7 +149,7 @@ function mapChapterToCountryPage(chapter: BackendChapter, fallback?: CountryPage
   };
 }
 
-async function getChapterRecord(slug: string) {
+export async function getChapterRecord(slug: string) {
   const chapterList = await safeFetch(async () => (await api.listChapters({ page_size: 100 })).data, [] as BackendChapter[]);
   return chapterList.find((item) => item.slug === slug);
 }
