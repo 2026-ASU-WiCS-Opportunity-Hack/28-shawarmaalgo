@@ -1,18 +1,19 @@
 import { PageShell } from "@/components/layout/PageShell";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CoachCard } from "@/components/cards/CoachCard";
-import { countries } from "@/data/countries";
+import { getChapters, getCoachDirectory } from "@/lib/server-data";
 
-const allCoaches = countries.flatMap((country) => country.coaches.map((coach) => ({ ...coach, country: country.shortName })));
 const certifications = ["All levels", "CALC", "PALC", "SALC", "MALC"];
 
-export default function CoachesPage() {
+export default async function CoachesPage() {
+  const [allCoaches, chapters] = await Promise.all([getCoachDirectory(), getChapters()]);
+
   return (
     <PageShell>
       <SectionHeading
         eyebrow="Coach Directory"
         title="Search WIAL certified coaches"
-        description="WIAL highlights its coach directory as a fast way to discover certified Action Learning coaches. This page gives you a production-ready shell for global search and chapter filtering."
+        description="WIAL highlights its coach directory as a fast way to discover certified Action Learning coaches. This page now reads from the backend coach and chapter endpoints when available."
       />
 
       <section className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft lg:grid-cols-[1.4fr_1fr_1fr_auto]">
@@ -23,7 +24,7 @@ export default function CoachesPage() {
         />
         <select className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand-teal">
           <option>All chapters</option>
-          {countries.map((country) => (
+          {chapters.map((country) => (
             <option key={country.slug}>{country.shortName}</option>
           ))}
         </select>
@@ -36,7 +37,7 @@ export default function CoachesPage() {
       </section>
 
       <div className="mt-8 rounded-[1.5rem] border border-dashed border-brand-teal bg-brand-sand p-5 text-sm text-brand-ink">
-        Backend hook: connect this page to filtered coach search, chapter membership rules, and coach profile visibility controls.
+        Connected endpoints: GET /api/v1/coaches and GET /api/v1/chapters. The search UI is still static, but the cards below will hydrate from backend data when the API is reachable.
       </div>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

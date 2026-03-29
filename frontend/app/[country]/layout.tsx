@@ -1,12 +1,12 @@
 import { ReactNode } from "react";
 import { notFound } from "next/navigation";
-import { getCountryBySlug } from "@/data/countries";
+import { getChapter } from "@/lib/server-data";
 import { CountrySubnav } from "@/components/layout/CountrySubnav";
 
 export const revalidate = 3600;
 
-export default function CountryLayout({ children, params }: { children: ReactNode; params: { country: string } }) {
-  const country = getCountryBySlug(params.country);
+export default async function CountryLayout({ children, params }: { children: ReactNode; params: { country: string } }) {
+  const country = await getChapter(params.country);
   if (!country) {
     notFound();
   }

@@ -2,14 +2,18 @@ import { notFound } from "next/navigation";
 import { PageShell } from "@/components/layout/PageShell";
 import { Hero } from "@/components/sections/Hero";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { getCountryBySlug } from "@/data/countries";
 import { InfoCard } from "@/components/cards/InfoCard";
 import { CoachCard } from "@/components/cards/CoachCard";
 import { EventCard } from "@/components/cards/EventCard";
 import { TestimonialCard } from "@/components/cards/TestimonialCard";
+import { getChapter, getCountryCoaches, getCountryEvents } from "@/lib/server-data";
 
-export default function CountryOverviewPage({ params }: { params: { country: string } }) {
-  const country = getCountryBySlug(params.country);
+export default async function CountryOverviewPage({ params }: { params: { country: string } }) {
+  const [country, coaches, events] = await Promise.all([
+    getChapter(params.country),
+    getCountryCoaches(params.country),
+    getCountryEvents(params.country)
+  ]);
   if (!country) notFound();
 
   return (
@@ -39,7 +43,7 @@ export default function CountryOverviewPage({ params }: { params: { country: str
       <section className="mt-20">
         <SectionHeading eyebrow="Featured coaches" title={`Meet ${country.shortName} coaches`} />
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {country.coaches.map((coach) => (
+          {coaches.map((coach) => (
             <CoachCard key={coach.name} coach={coach} />
           ))}
         </div>
@@ -48,8 +52,8 @@ export default function CountryOverviewPage({ params }: { params: { country: str
       <section className="mt-20">
         <SectionHeading eyebrow="Local events" title={`Upcoming events in ${country.shortName}`} />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {country.events.map((event) => (
-            <EventCard key={event.title} event={event} />
+          {events.map((event) => (
+            <EventCard key={`${event.title}-${event.date}`} event={event} />
           ))}
         </div>
       </section>

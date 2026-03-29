@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/layout/PageShell";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { getCountryBySlug } from "@/data/countries";
 import { InfoCard } from "@/components/cards/InfoCard";
+import { getChapter } from "@/lib/server-data";
 
-export default function CountryTeamPage({ params }: { params: { country: string } }) {
-  const country = getCountryBySlug(params.country);
+export default async function CountryTeamPage({ params }: { params: { country: string } }) {
+  const country = await getChapter(params.country);
   if (!country) notFound();
 
   return (
