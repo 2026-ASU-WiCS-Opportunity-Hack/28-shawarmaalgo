@@ -241,8 +241,8 @@ paths:
   /api/v1/portal/overview:
     get:
       tags: [Portal]
-      summary: Get leader portal overview
-      description: Chapter leads are scoped to their assigned chapter. Super-admins must pass `chapter_id`.
+      summary: Get portal overview
+      description: Chapter leads are scoped to their assigned chapter. Super-admins receive a global admin overview when `chapter_id` is omitted, or a chapter-scoped overview when `chapter_id` is provided.
       operationId: getPortalOverview
       security:
         - bearerAuth: []
@@ -251,22 +251,16 @@ paths:
           name: chapter_id
           schema:
             type: string
-          description: Required for `super_admin`; ignored for `chapter_lead`.
+          description: Optional for `super_admin`; ignored for `chapter_lead`.
       responses:
         '200':
-          description: Portal overview for the scoped chapter
+          description: Portal overview for the caller scope
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PortalOverviewResponse'
-        '400':
-          description: Missing required chapter_id for super-admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                error: chapter_id is required
+                oneOf:
+                  - $ref: '#/components/schemas/PortalOverviewResponse'
+                  - $ref: '#/components/schemas/AdminPortalOverviewResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1382,6 +1376,14 @@ components:
           items:
             $ref: '#/components/schemas/Event'
       required: [user, chapter, stats, recent_coaches, recent_events]
+    AdminPortalOverviewResponse:
+      type: object
+      properties:
+        chapters: { type: integer }
+        active_coaches: { type: integer }
+        upcoming_events: { type: integer }
+        chapter_leaders: { type: integer }
+      required: [chapters, active_coaches, upcoming_events, chapter_leaders]
     Chapter:
       type: object
       properties:

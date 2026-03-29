@@ -162,6 +162,13 @@ export type PortalOverviewResponse = {
   recent_events: BackendEvent[];
 };
 
+export type AdminPortalOverviewResponse = {
+  chapters: number;
+  active_coaches: number;
+  upcoming_events: number;
+  chapter_leaders: number;
+};
+
 export type ChapterListQuery = {
   page?: number;
   page_size?: number;
@@ -470,7 +477,7 @@ export const api = {
   deleteTestimonial: (id: string, token: string) => request<void>(`/testimonials/${id}`, { method: 'DELETE', token }),
 
   getPortalOverview: (token: string, chapterId?: string) =>
-    request<PortalOverviewResponse>('/portal/overview', { token, query: { chapter_id: chapterId } }),
+    request<PortalOverviewResponse | AdminPortalOverviewResponse>('/portal/overview', { token, query: { chapter_id: chapterId } }),
   getPortalChapter: (token: string, chapterId?: string) =>
     request<BackendChapter>('/portal/chapter', { token, query: { chapter_id: chapterId } }),
 

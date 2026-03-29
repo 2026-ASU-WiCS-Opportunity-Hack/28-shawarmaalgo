@@ -21,7 +21,50 @@ func NewPortalHandlers(store *db.Store) *PortalHandlers {
 }
 
 func (h *PortalHandlers) GetOverview(c *gin.Context) {
-	user, chapter, ok := resolvePortalChapter(c, h.store)
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+
+	if user.Role == models.RoleSuperAdmin && c.Query("chapter_id") == "" {
+		chapters, err := h.store.CountChapters(c.Request.Context())
+		if err != nil {
+			logRequestError(c, "failed to count chapters for admin overview", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch portal overview"})
+			return
+		}
+
+		activeCoaches, err := h.store.CountActiveCoaches(c.Request.Context())
+		if err != nil {
+			logRequestError(c, "failed to count active coaches for admin overview", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch portal overview"})
+			return
+		}
+
+		upcomingEvents, err := h.store.CountUpcomingEvents(c.Request.Context())
+		if err != nil {
+			logRequestError(c, "failed to count upcoming events for admin overview", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch portal overview"})
+			return
+		}
+
+		chapterLeaders, err := h.store.CountUsersByRole(c.Request.Context(), models.RoleChapterLead)
+		if err != nil {
+			logRequestError(c, "failed to count chapter leads for admin overview", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch portal overview"})
+			return
+		}
+
+		c.JSON(http.StatusOK, models.AdminPortalOverviewResponse{
+			Chapters:       chapters,
+			ActiveCoaches:  activeCoaches,
+			UpcomingEvents: upcomingEvents,
+			ChapterLeaders: chapterLeaders,
+		})
+		return
+	}
+
+	_, chapter, ok := resolvePortalChapter(c, h.store)
 	if !ok {
 		return
 	}

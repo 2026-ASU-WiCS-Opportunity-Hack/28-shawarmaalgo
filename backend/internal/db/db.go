@@ -520,6 +520,43 @@ func (s *Store) CountCoachesByChapter(ctx context.Context, chapterID string) (in
 	return total, nil
 }
 
+func (s *Store) CountChapters(ctx context.Context) (int, error) {
+	var total int
+	if err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM chapters`).Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (s *Store) CountActiveCoaches(ctx context.Context) (int, error) {
+	var total int
+	if err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM coaches WHERE is_active = true`).Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (s *Store) CountUpcomingEvents(ctx context.Context) (int, error) {
+	var total int
+	if err := s.pool.QueryRow(ctx, `
+		SELECT COUNT(*)
+		FROM events
+		WHERE start_date >= now()
+		  AND status NOT IN ('cancelled', 'completed')
+	`).Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (s *Store) CountUsersByRole(ctx context.Context, role string) (int, error) {
+	var total int
+	if err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM users WHERE role = $1`, role).Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
 func (s *Store) ListRecentCoachesByChapter(ctx context.Context, chapterID string, limit int) ([]models.Coach, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT c.id, c.user_id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at

@@ -20,8 +20,6 @@ export default async function AdminOverviewPage() {
         <StatCard label="Chapters" value={overview.chapters} />
         <StatCard label="Active coaches" value={overview.activeCoaches} />
         <StatCard label="Upcoming events" value={overview.upcomingEvents} />
-        <StatCard label="Pending approvals" value={overview.pendingApprovals} />
-        <StatCard label="Global page updates" value={overview.pageUpdates} />
         <StatCard label="Chapter leaders" value={overview.chapterLeaders} />
       </div>
 

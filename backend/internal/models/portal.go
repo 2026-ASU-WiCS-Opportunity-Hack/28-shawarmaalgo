@@ -18,3 +18,10 @@ type PortalOverviewResponse struct {
 	RecentCoaches []Coach             `json:"recent_coaches"`
 	RecentEvents  []Event             `json:"recent_events"`
 }
+
+type AdminPortalOverviewResponse struct {
+	Chapters       int `json:"chapters"`
+	ActiveCoaches  int `json:"active_coaches"`
+	UpcomingEvents int `json:"upcoming_events"`
+	ChapterLeaders int `json:"chapter_leaders"`
+}

@@ -3,6 +3,7 @@ import { adminOverview, coachAccount, globalPages, mockSession, users } from '@/
 import { resources, globalEvents } from '@/data/content';
 import {
   api,
+  type AdminPortalOverviewResponse,
   type BackendChapter,
   type BackendCoach,
   type BackendEvent,
@@ -169,6 +170,18 @@ function buildFallbackPortalWorkspace() {
   };
 }
 
+function isAdminPortalOverviewResponse(
+  overview: Awaited<ReturnType<typeof api.getPortalOverview>>
+): overview is AdminPortalOverviewResponse {
+  return 'chapters' in overview;
+}
+
+function isChapterPortalOverviewResponse(
+  overview: Awaited<ReturnType<typeof api.getPortalOverview>>
+): overview is Exclude<Awaited<ReturnType<typeof api.getPortalOverview>>, AdminPortalOverviewResponse> {
+  return 'stats' in overview;
+}
+
 export async function getChapters() {
   return safeFetch(async () => {
     const response = await api.listChapters({ page_size: 100 });
@@ -243,6 +256,10 @@ export async function getPortalChapterWorkspace() {
       api.getPortalOverview(token, chapterId)
     ]);
 
+    if (!isChapterPortalOverviewResponse(overview)) {
+      throw new Error('expected chapter portal overview');
+    }
+
     return {
       session: mapSessionFromMe(me),
       chapter: mapChapterToCountryPage(chapterResponse, getCountryBySlug(chapterResponse.slug)),
@@ -257,7 +274,27 @@ export async function getPortalChapterWorkspace() {
 }
 
 export async function getAdminOverview() {
-  return adminOverview;
+  const token = getServerAuthToken();
+  if (!token) return adminOverview;
+
+  return safeFetch(async () => {
+    const me = await api.getMe(token);
+    if (me.user.role !== 'super_admin') {
+      return adminOverview;
+    }
+
+    const overview = await api.getPortalOverview(token);
+    if (!isAdminPortalOverviewResponse(overview)) {
+      throw new Error('expected admin portal overview');
+    }
+
+    return {
+      chapters: overview.chapters,
+      activeCoaches: overview.active_coaches,
+      upcomingEvents: overview.upcoming_events,
+      chapterLeaders: overview.chapter_leaders
+    };
+  }, adminOverview);
 }
 
 export async function getGlobalPages() {
