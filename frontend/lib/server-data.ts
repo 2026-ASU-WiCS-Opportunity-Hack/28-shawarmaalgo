@@ -1,7 +1,16 @@
 import { countries, getCountryBySlug, type Coach as UICoach, type CountryPageData } from '@/data/countries';
 import { adminOverview, coachAccount, globalPages, mockSession, users } from '@/data/portal';
 import { resources, globalEvents } from '@/data/content';
-import { api, type BackendChapter, type BackendCoach, type BackendEvent } from '@/lib/api';
+import {
+  api,
+  type BackendChapter,
+  type BackendCoach,
+  type BackendEvent,
+  type BackendResource,
+  type BackendTeamMember,
+  type BackendTestimonial,
+  type BackendUser
+} from '@/lib/api';
 import { getServerAuthToken } from '@/lib/auth';
 
 async function safeFetch<T>(loader: () => Promise<T>, fallback: T): Promise<T> {
@@ -43,6 +52,40 @@ function mapEventToUI(event: BackendEvent) {
   };
 }
 
+function mapTeamMemberToUI(member: BackendTeamMember) {
+  return {
+    name: member.name,
+    role: member.role,
+    blurb: member.blurb
+  };
+}
+
+function mapResourceToUI(resource: BackendResource) {
+  return {
+    title: resource.title,
+    type: resource.type,
+    summary: resource.summary
+  };
+}
+
+function mapTestimonialToUI(testimonial: BackendTestimonial) {
+  return {
+    quote: testimonial.content,
+    name: testimonial.author_name,
+    role: [testimonial.author_title, testimonial.author_company].filter(Boolean).join(', ') || testimonial.author_title
+  };
+}
+
+function mapUserToUI(user: BackendUser) {
+  return {
+    id: user.id,
+    name: user.email,
+    role: user.role.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase()),
+    chapter: user.chapter_name || 'Global',
+    status: 'Active'
+  };
+}
+
 function mapChapterToCountryPage(chapter: BackendChapter, fallback?: CountryPageData): CountryPageData {
   return {
     slug: chapter.slug,
@@ -71,6 +114,30 @@ function mapChapterToCountryPage(chapter: BackendChapter, fallback?: CountryPage
     resources: fallback?.resources || [],
     testimonials: fallback?.testimonials || []
   };
+}
+
+async function getChapterRecord(slug: string) {
+  const chapterList = await safeFetch(async () => (await api.listChapters({ page_size: 100 })).data, [] as BackendChapter[]);
+  return chapterList.find((item) => item.slug === slug);
+}
+
+async function loadChapterPageData(chapter: BackendChapter, fallback?: CountryPageData) {
+  return safeFetch(async () => {
+    const [teamResponse, resourceResponse, testimonialResponse] = await Promise.all([
+      api.listTeamMembers({ chapter_id: chapter.id }),
+      api.listResources({ chapter_id: chapter.id }),
+      api.listTestimonials({ chapter_id: chapter.id })
+    ]);
+
+    const page = mapChapterToCountryPage(chapter, fallback);
+    return {
+      ...page,
+      team: teamResponse.data.length > 0 ? teamResponse.data.map(mapTeamMemberToUI) : page.team,
+      resources: resourceResponse.data.length > 0 ? resourceResponse.data.map(mapResourceToUI) : page.resources,
+      testimonials:
+        testimonialResponse.data.length > 0 ? testimonialResponse.data.map(mapTestimonialToUI) : page.testimonials
+    };
+  }, mapChapterToCountryPage(chapter, fallback));
 }
 
 function mapSessionFromMe(me: Awaited<ReturnType<typeof api.getMe>>) {
@@ -110,13 +177,14 @@ export async function getChapters() {
 }
 
 export async function getChapter(slug: string) {
-  const chapterList = await getChapters();
-  return chapterList.find((chapter) => chapter.slug === slug) || getCountryBySlug(slug);
+  const fallback = getCountryBySlug(slug);
+  const chapter = await getChapterRecord(slug);
+  if (!chapter) return fallback;
+  return loadChapterPageData(chapter, fallback);
 }
 
 export async function getCountryCoaches(slug: string) {
-  const chapterList = await safeFetch(async () => (await api.listChapters({ page_size: 100 })).data, [] as BackendChapter[]);
-  const chapter = chapterList.find((item) => item.slug === slug);
+  const chapter = await getChapterRecord(slug);
   if (!chapter) return getCountryBySlug(slug)?.coaches || [];
 
   return safeFetch(async () => {
@@ -133,8 +201,7 @@ export async function getCoachDirectory() {
 }
 
 export async function getCountryEvents(slug: string) {
-  const chapterList = await safeFetch(async () => (await api.listChapters({ page_size: 100 })).data, [] as BackendChapter[]);
-  const chapter = chapterList.find((item) => item.slug === slug);
+  const chapter = await getChapterRecord(slug);
   if (!chapter) return getCountryBySlug(slug)?.events || [];
 
   return safeFetch(async () => {
@@ -198,7 +265,10 @@ export async function getGlobalPages() {
 }
 
 export async function getUsers() {
-  return users;
+  const token = getServerAuthToken();
+  if (!token) return users;
+
+  return safeFetch(async () => (await api.listUsers(token)).data.map(mapUserToUI), users);
 }
 
 export async function getCoachAccount() {
@@ -223,5 +293,5 @@ export async function getCoachAccount() {
 }
 
 export async function getGlobalResources() {
-  return resources;
+  return safeFetch(async () => (await api.listResources()).data.map(mapResourceToUI), resources);
 }

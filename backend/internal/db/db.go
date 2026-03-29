@@ -692,6 +692,747 @@ func (s *Store) GetUserByEmail(ctx context.Context, email string) (models.User, 
 	return u, nil
 }
 
+func (s *Store) PatchCoach(ctx context.Context, id string, req models.CoachPatchRequest) (models.Coach, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.FirstName != nil {
+		set = append(set, fmt.Sprintf("first_name = $%d", argPos))
+		args = append(args, *req.FirstName)
+		argPos++
+	}
+	if req.LastName != nil {
+		set = append(set, fmt.Sprintf("last_name = $%d", argPos))
+		args = append(args, *req.LastName)
+		argPos++
+	}
+	if req.Email != nil {
+		set = append(set, fmt.Sprintf("email = $%d", argPos))
+		args = append(args, *req.Email)
+		argPos++
+	}
+	if req.Phone != nil {
+		set = append(set, fmt.Sprintf("phone = $%d", argPos))
+		args = append(args, *req.Phone)
+		argPos++
+	}
+	if req.ProfileImageURL != nil {
+		set = append(set, fmt.Sprintf("profile_image_url = $%d", argPos))
+		args = append(args, *req.ProfileImageURL)
+		argPos++
+	}
+	if req.Bio != nil {
+		set = append(set, fmt.Sprintf("bio = $%d", argPos))
+		args = append(args, *req.Bio)
+		argPos++
+	}
+	if req.Specializations != nil {
+		set = append(set, fmt.Sprintf("specializations = $%d", argPos))
+		args = append(args, req.Specializations)
+		argPos++
+	}
+	if req.Languages != nil {
+		set = append(set, fmt.Sprintf("languages = $%d", argPos))
+		args = append(args, req.Languages)
+		argPos++
+	}
+	if req.Country != nil {
+		set = append(set, fmt.Sprintf("country = $%d", argPos))
+		args = append(args, *req.Country)
+		argPos++
+	}
+	if req.City != nil {
+		set = append(set, fmt.Sprintf("city = $%d", argPos))
+		args = append(args, *req.City)
+		argPos++
+	}
+	if req.ChapterID != nil {
+		set = append(set, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *req.ChapterID)
+		argPos++
+	}
+	if req.CertificationLevel != nil {
+		set = append(set, fmt.Sprintf("certification_level = $%d", argPos))
+		args = append(args, *req.CertificationLevel)
+		argPos++
+	}
+	if req.CertificationDate != nil {
+		set = append(set, fmt.Sprintf("certification_date = $%d", argPos))
+		args = append(args, *req.CertificationDate)
+		argPos++
+	}
+	if req.IsActive != nil {
+		set = append(set, fmt.Sprintf("is_active = $%d", argPos))
+		args = append(args, *req.IsActive)
+		argPos++
+	}
+	if req.LinkedinURL != nil {
+		set = append(set, fmt.Sprintf("linkedin_url = $%d", argPos))
+		args = append(args, *req.LinkedinURL)
+		argPos++
+	}
+	if req.WebsiteURL != nil {
+		set = append(set, fmt.Sprintf("website_url = $%d", argPos))
+		args = append(args, *req.WebsiteURL)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.Coach{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE coaches SET %s WHERE id = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, id)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.Coach{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.Coach{}, pgx.ErrNoRows
+	}
+	return s.GetCoachByID(ctx, id)
+}
+
+func (s *Store) DeleteCoach(ctx context.Context, id string) error {
+	cmd, err := s.pool.Exec(ctx, `DELETE FROM coaches WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) GetEventByID(ctx context.Context, id string) (models.Event, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT e.id, e.title, e.title_local, e.description, e.description_local, e.event_type, e.start_date, e.end_date, e.timezone, e.location_type, e.venue_name, e.venue_address, e.online_meeting_url, e.chapter_id, ch.name as chapter_name, e.max_attendees, e.current_attendees, e.price_amount, e.price_currency, e.is_free, e.registration_deadline, e.status, e.image_url, e.created_at, e.updated_at
+		FROM events e
+		LEFT JOIN chapters ch ON e.chapter_id = ch.id
+		WHERE e.id = $1
+	`, id)
+
+	var e models.Event
+	if err := row.Scan(&e.ID, &e.Title, &e.TitleLocal, &e.Description, &e.DescriptionLocal, &e.EventType, &e.StartDate, &e.EndDate, &e.Timezone, &e.LocationType, &e.VenueName, &e.VenueAddress, &e.OnlineMeetingURL, &e.ChapterID, &e.ChapterName, &e.MaxAttendees, &e.CurrentAttendees, &e.PriceAmount, &e.PriceCurrency, &e.IsFree, &e.RegistrationDeadline, &e.Status, &e.ImageURL, &e.CreatedAt, &e.UpdatedAt); err != nil {
+		return models.Event{}, err
+	}
+	return e, nil
+}
+
+func (s *Store) PatchEvent(ctx context.Context, id string, req models.EventPatchRequest) (models.Event, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.Title != nil {
+		set = append(set, fmt.Sprintf("title = $%d", argPos))
+		args = append(args, *req.Title)
+		argPos++
+	}
+	if req.TitleLocal != nil {
+		set = append(set, fmt.Sprintf("title_local = $%d", argPos))
+		args = append(args, *req.TitleLocal)
+		argPos++
+	}
+	if req.Description != nil {
+		set = append(set, fmt.Sprintf("description = $%d", argPos))
+		args = append(args, *req.Description)
+		argPos++
+	}
+	if req.DescriptionLocal != nil {
+		set = append(set, fmt.Sprintf("description_local = $%d", argPos))
+		args = append(args, *req.DescriptionLocal)
+		argPos++
+	}
+	if req.EventType != nil {
+		set = append(set, fmt.Sprintf("event_type = $%d", argPos))
+		args = append(args, *req.EventType)
+		argPos++
+	}
+	if req.StartDate != nil {
+		set = append(set, fmt.Sprintf("start_date = $%d", argPos))
+		args = append(args, *req.StartDate)
+		argPos++
+	}
+	if req.EndDate != nil {
+		set = append(set, fmt.Sprintf("end_date = $%d", argPos))
+		args = append(args, *req.EndDate)
+		argPos++
+	}
+	if req.Timezone != nil {
+		set = append(set, fmt.Sprintf("timezone = $%d", argPos))
+		args = append(args, *req.Timezone)
+		argPos++
+	}
+	if req.LocationType != nil {
+		set = append(set, fmt.Sprintf("location_type = $%d", argPos))
+		args = append(args, *req.LocationType)
+		argPos++
+	}
+	if req.VenueName != nil {
+		set = append(set, fmt.Sprintf("venue_name = $%d", argPos))
+		args = append(args, *req.VenueName)
+		argPos++
+	}
+	if req.VenueAddress != nil {
+		set = append(set, fmt.Sprintf("venue_address = $%d", argPos))
+		args = append(args, *req.VenueAddress)
+		argPos++
+	}
+	if req.OnlineMeetingURL != nil {
+		set = append(set, fmt.Sprintf("online_meeting_url = $%d", argPos))
+		args = append(args, *req.OnlineMeetingURL)
+		argPos++
+	}
+	if req.ChapterID != nil {
+		set = append(set, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *req.ChapterID)
+		argPos++
+	}
+	if req.MaxAttendees != nil {
+		set = append(set, fmt.Sprintf("max_attendees = $%d", argPos))
+		args = append(args, *req.MaxAttendees)
+		argPos++
+	}
+	if req.PriceAmount != nil {
+		set = append(set, fmt.Sprintf("price_amount = $%d", argPos))
+		args = append(args, *req.PriceAmount)
+		argPos++
+	}
+	if req.PriceCurrency != nil {
+		set = append(set, fmt.Sprintf("price_currency = $%d", argPos))
+		args = append(args, *req.PriceCurrency)
+		argPos++
+	}
+	if req.IsFree != nil {
+		set = append(set, fmt.Sprintf("is_free = $%d", argPos))
+		args = append(args, *req.IsFree)
+		argPos++
+	}
+	if req.RegistrationDeadline != nil {
+		set = append(set, fmt.Sprintf("registration_deadline = $%d", argPos))
+		args = append(args, *req.RegistrationDeadline)
+		argPos++
+	}
+	if req.Status != nil {
+		set = append(set, fmt.Sprintf("status = $%d", argPos))
+		args = append(args, *req.Status)
+		argPos++
+	}
+	if req.ImageURL != nil {
+		set = append(set, fmt.Sprintf("image_url = $%d", argPos))
+		args = append(args, *req.ImageURL)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.Event{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE events SET %s WHERE id = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, id)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.Event{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.Event{}, pgx.ErrNoRows
+	}
+	return s.GetEventByID(ctx, id)
+}
+
+func (s *Store) DeleteEvent(ctx context.Context, id string) error {
+	cmd, err := s.pool.Exec(ctx, `DELETE FROM events WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) ListUsers(ctx context.Context, chapterID *string) ([]models.User, error) {
+	query := `
+		SELECT u.id, u.email, u.role, u.chapter_id, ch.name as chapter_name, u.created_at, u.updated_at
+		FROM users u
+		LEFT JOIN chapters ch ON u.chapter_id = ch.id
+	`
+	args := []any{}
+	if chapterID != nil {
+		query += ` WHERE u.chapter_id = $1 AND u.role <> '` + models.RoleSuperAdmin + `'`
+		args = append(args, *chapterID)
+	}
+	query += ` ORDER BY u.created_at DESC`
+
+	rows, err := s.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := []models.User{}
+	for rows.Next() {
+		var u models.User
+		if err := rows.Scan(&u.ID, &u.Email, &u.Role, &u.ChapterID, &u.ChapterName, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	return users, nil
+}
+
+func (s *Store) GetUserDetailByID(ctx context.Context, id string) (models.User, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT u.id, u.email, u.password_hash, u.role, u.chapter_id, ch.name as chapter_name, u.created_at, u.updated_at
+		FROM users u
+		LEFT JOIN chapters ch ON u.chapter_id = ch.id
+		WHERE u.id = $1
+	`, id)
+
+	var u models.User
+	if err := row.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Role, &u.ChapterID, &u.ChapterName, &u.CreatedAt, &u.UpdatedAt); err != nil {
+		return models.User{}, err
+	}
+	return u, nil
+}
+
+func (s *Store) PatchUser(ctx context.Context, id string, req models.UserPatchRequest, passwordHash *string) (models.User, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.Email != nil {
+		set = append(set, fmt.Sprintf("email = $%d", argPos))
+		args = append(args, *req.Email)
+		argPos++
+	}
+	if req.Role != nil {
+		set = append(set, fmt.Sprintf("role = $%d", argPos))
+		args = append(args, *req.Role)
+		argPos++
+	}
+	if req.ChapterID != nil {
+		set = append(set, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *req.ChapterID)
+		argPos++
+	}
+	if passwordHash != nil {
+		set = append(set, fmt.Sprintf("password_hash = $%d", argPos))
+		args = append(args, *passwordHash)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.User{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE users SET %s WHERE id = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, id)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.User{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.User{}, pgx.ErrNoRows
+	}
+	return s.GetUserDetailByID(ctx, id)
+}
+
+func (s *Store) DeleteUser(ctx context.Context, id string) error {
+	cmd, err := s.pool.Exec(ctx, `DELETE FROM users WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) CreateTeamMember(ctx context.Context, req models.TeamMemberCreateRequest) (models.TeamMember, error) {
+	row := s.pool.QueryRow(ctx, `
+		INSERT INTO team_members (chapter_id, name, role, blurb, sort_order)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, chapter_id, name, role, blurb, sort_order, created_at, updated_at
+	`, req.ChapterID, req.Name, req.Role, req.Blurb, req.SortOrder)
+
+	var member models.TeamMember
+	if err := row.Scan(&member.ID, &member.ChapterID, &member.Name, &member.Role, &member.Blurb, &member.SortOrder, &member.CreatedAt, &member.UpdatedAt); err != nil {
+		return models.TeamMember{}, err
+	}
+	return member, nil
+}
+
+func (s *Store) ListTeamMembers(ctx context.Context, chapterID *string) ([]models.TeamMember, error) {
+	query := `SELECT id, chapter_id, name, role, blurb, sort_order, created_at, updated_at FROM team_members`
+	args := []any{}
+	if chapterID != nil {
+		query += ` WHERE chapter_id = $1`
+		args = append(args, *chapterID)
+	}
+	query += ` ORDER BY sort_order ASC, created_at ASC`
+
+	rows, err := s.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	members := []models.TeamMember{}
+	for rows.Next() {
+		var member models.TeamMember
+		if err := rows.Scan(&member.ID, &member.ChapterID, &member.Name, &member.Role, &member.Blurb, &member.SortOrder, &member.CreatedAt, &member.UpdatedAt); err != nil {
+			return nil, err
+		}
+		members = append(members, member)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	return members, nil
+}
+
+func (s *Store) GetTeamMemberByID(ctx context.Context, id string) (models.TeamMember, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT id, chapter_id, name, role, blurb, sort_order, created_at, updated_at
+		FROM team_members
+		WHERE id = $1
+	`, id)
+
+	var member models.TeamMember
+	if err := row.Scan(&member.ID, &member.ChapterID, &member.Name, &member.Role, &member.Blurb, &member.SortOrder, &member.CreatedAt, &member.UpdatedAt); err != nil {
+		return models.TeamMember{}, err
+	}
+	return member, nil
+}
+
+func (s *Store) PatchTeamMember(ctx context.Context, id string, req models.TeamMemberPatchRequest) (models.TeamMember, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.ChapterID != nil {
+		set = append(set, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *req.ChapterID)
+		argPos++
+	}
+	if req.Name != nil {
+		set = append(set, fmt.Sprintf("name = $%d", argPos))
+		args = append(args, *req.Name)
+		argPos++
+	}
+	if req.Role != nil {
+		set = append(set, fmt.Sprintf("role = $%d", argPos))
+		args = append(args, *req.Role)
+		argPos++
+	}
+	if req.Blurb != nil {
+		set = append(set, fmt.Sprintf("blurb = $%d", argPos))
+		args = append(args, *req.Blurb)
+		argPos++
+	}
+	if req.SortOrder != nil {
+		set = append(set, fmt.Sprintf("sort_order = $%d", argPos))
+		args = append(args, *req.SortOrder)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.TeamMember{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE team_members SET %s WHERE id = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, id)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.TeamMember{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.TeamMember{}, pgx.ErrNoRows
+	}
+	return s.GetTeamMemberByID(ctx, id)
+}
+
+func (s *Store) DeleteTeamMember(ctx context.Context, id string) error {
+	cmd, err := s.pool.Exec(ctx, `DELETE FROM team_members WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) CreateResource(ctx context.Context, req models.ResourceCreateRequest) (models.Resource, error) {
+	row := s.pool.QueryRow(ctx, `
+		INSERT INTO resources (chapter_id, title, type, summary, url, sort_order)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, chapter_id, title, type, summary, url, sort_order, created_at, updated_at
+	`, req.ChapterID, req.Title, req.Type, req.Summary, req.URL, req.SortOrder)
+
+	var resource models.Resource
+	if err := row.Scan(&resource.ID, &resource.ChapterID, &resource.Title, &resource.Type, &resource.Summary, &resource.URL, &resource.SortOrder, &resource.CreatedAt, &resource.UpdatedAt); err != nil {
+		return models.Resource{}, err
+	}
+	return resource, nil
+}
+
+func (s *Store) ListResources(ctx context.Context, chapterID *string) ([]models.Resource, error) {
+	query := `SELECT id, chapter_id, title, type, summary, url, sort_order, created_at, updated_at FROM resources`
+	args := []any{}
+	if chapterID != nil {
+		query += ` WHERE chapter_id = $1`
+		args = append(args, *chapterID)
+	} else {
+		query += ` WHERE chapter_id IS NULL`
+	}
+	query += ` ORDER BY sort_order ASC, created_at ASC`
+
+	rows, err := s.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	resources := []models.Resource{}
+	for rows.Next() {
+		var resource models.Resource
+		if err := rows.Scan(&resource.ID, &resource.ChapterID, &resource.Title, &resource.Type, &resource.Summary, &resource.URL, &resource.SortOrder, &resource.CreatedAt, &resource.UpdatedAt); err != nil {
+			return nil, err
+		}
+		resources = append(resources, resource)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	return resources, nil
+}
+
+func (s *Store) GetResourceByID(ctx context.Context, id string) (models.Resource, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT id, chapter_id, title, type, summary, url, sort_order, created_at, updated_at
+		FROM resources
+		WHERE id = $1
+	`, id)
+
+	var resource models.Resource
+	if err := row.Scan(&resource.ID, &resource.ChapterID, &resource.Title, &resource.Type, &resource.Summary, &resource.URL, &resource.SortOrder, &resource.CreatedAt, &resource.UpdatedAt); err != nil {
+		return models.Resource{}, err
+	}
+	return resource, nil
+}
+
+func (s *Store) PatchResource(ctx context.Context, id string, req models.ResourcePatchRequest) (models.Resource, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.ChapterID != nil {
+		set = append(set, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *req.ChapterID)
+		argPos++
+	}
+	if req.Title != nil {
+		set = append(set, fmt.Sprintf("title = $%d", argPos))
+		args = append(args, *req.Title)
+		argPos++
+	}
+	if req.Type != nil {
+		set = append(set, fmt.Sprintf("type = $%d", argPos))
+		args = append(args, *req.Type)
+		argPos++
+	}
+	if req.Summary != nil {
+		set = append(set, fmt.Sprintf("summary = $%d", argPos))
+		args = append(args, *req.Summary)
+		argPos++
+	}
+	if req.URL != nil {
+		set = append(set, fmt.Sprintf("url = $%d", argPos))
+		args = append(args, *req.URL)
+		argPos++
+	}
+	if req.SortOrder != nil {
+		set = append(set, fmt.Sprintf("sort_order = $%d", argPos))
+		args = append(args, *req.SortOrder)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.Resource{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE resources SET %s WHERE id = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, id)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.Resource{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.Resource{}, pgx.ErrNoRows
+	}
+	return s.GetResourceByID(ctx, id)
+}
+
+func (s *Store) DeleteResource(ctx context.Context, id string) error {
+	cmd, err := s.pool.Exec(ctx, `DELETE FROM resources WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
+func (s *Store) CreateTestimonial(ctx context.Context, req models.TestimonialCreateRequest) (models.Testimonial, error) {
+	row := s.pool.QueryRow(ctx, `
+		INSERT INTO testimonials (author_name, author_title, author_company, author_image_url, content, rating, chapter_id, program_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id, author_name, author_title, author_company, author_image_url, content, rating, chapter_id, program_id, created_at, updated_at
+	`, req.AuthorName, req.AuthorTitle, req.AuthorCompany, req.AuthorImageURL, req.Content, req.Rating, req.ChapterID, req.ProgramID)
+
+	var testimonial models.Testimonial
+	if err := row.Scan(&testimonial.ID, &testimonial.AuthorName, &testimonial.AuthorTitle, &testimonial.AuthorCompany, &testimonial.AuthorImageURL, &testimonial.Content, &testimonial.Rating, &testimonial.ChapterID, &testimonial.ProgramID, &testimonial.CreatedAt, &testimonial.UpdatedAt); err != nil {
+		return models.Testimonial{}, err
+	}
+	return testimonial, nil
+}
+
+func (s *Store) ListTestimonials(ctx context.Context, chapterID, programID *string) ([]models.Testimonial, error) {
+	where := []string{}
+	args := []any{}
+	argPos := 1
+	if chapterID != nil {
+		where = append(where, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *chapterID)
+		argPos++
+	}
+	if programID != nil {
+		where = append(where, fmt.Sprintf("program_id = $%d", argPos))
+		args = append(args, *programID)
+		argPos++
+	}
+
+	query := `SELECT id, author_name, author_title, author_company, author_image_url, content, rating, chapter_id, program_id, created_at, updated_at FROM testimonials`
+	if len(where) > 0 {
+		query += ` WHERE ` + strings.Join(where, " AND ")
+	}
+	query += ` ORDER BY created_at DESC`
+
+	rows, err := s.pool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	testimonials := []models.Testimonial{}
+	for rows.Next() {
+		var testimonial models.Testimonial
+		if err := rows.Scan(&testimonial.ID, &testimonial.AuthorName, &testimonial.AuthorTitle, &testimonial.AuthorCompany, &testimonial.AuthorImageURL, &testimonial.Content, &testimonial.Rating, &testimonial.ChapterID, &testimonial.ProgramID, &testimonial.CreatedAt, &testimonial.UpdatedAt); err != nil {
+			return nil, err
+		}
+		testimonials = append(testimonials, testimonial)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	return testimonials, nil
+}
+
+func (s *Store) GetTestimonialByID(ctx context.Context, id string) (models.Testimonial, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT id, author_name, author_title, author_company, author_image_url, content, rating, chapter_id, program_id, created_at, updated_at
+		FROM testimonials
+		WHERE id = $1
+	`, id)
+
+	var testimonial models.Testimonial
+	if err := row.Scan(&testimonial.ID, &testimonial.AuthorName, &testimonial.AuthorTitle, &testimonial.AuthorCompany, &testimonial.AuthorImageURL, &testimonial.Content, &testimonial.Rating, &testimonial.ChapterID, &testimonial.ProgramID, &testimonial.CreatedAt, &testimonial.UpdatedAt); err != nil {
+		return models.Testimonial{}, err
+	}
+	return testimonial, nil
+}
+
+func (s *Store) PatchTestimonial(ctx context.Context, id string, req models.TestimonialPatchRequest) (models.Testimonial, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.AuthorName != nil {
+		set = append(set, fmt.Sprintf("author_name = $%d", argPos))
+		args = append(args, *req.AuthorName)
+		argPos++
+	}
+	if req.AuthorTitle != nil {
+		set = append(set, fmt.Sprintf("author_title = $%d", argPos))
+		args = append(args, *req.AuthorTitle)
+		argPos++
+	}
+	if req.AuthorCompany != nil {
+		set = append(set, fmt.Sprintf("author_company = $%d", argPos))
+		args = append(args, *req.AuthorCompany)
+		argPos++
+	}
+	if req.AuthorImageURL != nil {
+		set = append(set, fmt.Sprintf("author_image_url = $%d", argPos))
+		args = append(args, *req.AuthorImageURL)
+		argPos++
+	}
+	if req.Content != nil {
+		set = append(set, fmt.Sprintf("content = $%d", argPos))
+		args = append(args, *req.Content)
+		argPos++
+	}
+	if req.Rating != nil {
+		set = append(set, fmt.Sprintf("rating = $%d", argPos))
+		args = append(args, *req.Rating)
+		argPos++
+	}
+	if req.ChapterID != nil {
+		set = append(set, fmt.Sprintf("chapter_id = $%d", argPos))
+		args = append(args, *req.ChapterID)
+		argPos++
+	}
+	if req.ProgramID != nil {
+		set = append(set, fmt.Sprintf("program_id = $%d", argPos))
+		args = append(args, *req.ProgramID)
+		argPos++
+	}
+	if len(set) == 0 {
+		return models.Testimonial{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`UPDATE testimonials SET %s WHERE id = $%d`, strings.Join(set, ", "), argPos)
+	args = append(args, id)
+	cmd, err := s.pool.Exec(ctx, query, args...)
+	if err != nil {
+		return models.Testimonial{}, err
+	}
+	if cmd.RowsAffected() == 0 {
+		return models.Testimonial{}, pgx.ErrNoRows
+	}
+	return s.GetTestimonialByID(ctx, id)
+}
+
+func (s *Store) DeleteTestimonial(ctx context.Context, id string) error {
+	cmd, err := s.pool.Exec(ctx, `DELETE FROM testimonials WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	if cmd.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
 func IsUniqueViolation(err error) bool {
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {

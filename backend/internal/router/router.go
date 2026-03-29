@@ -17,6 +17,9 @@ func New(
 	meH *handlers.MeHandlers,
 	portalH *handlers.PortalHandlers,
 	userH *handlers.UserHandlers,
+	teamMemberH *handlers.TeamMemberHandlers,
+	resourceH *handlers.ResourceHandlers,
+	testimonialH *handlers.TestimonialHandlers,
 	payH *handlers.PaymentHandlers,
 	aiH *handlers.AIHandlers,
 	allowedOrigins []string,
@@ -44,6 +47,18 @@ func New(
 		// Events (Public)
 		api.GET("/events", eventH.ListEvents)
 
+		// Team Members (Public)
+		api.GET("/team-members", teamMemberH.ListTeamMembers)
+		api.GET("/team-members/:id", teamMemberH.GetTeamMember)
+
+		// Resources (Public)
+		api.GET("/resources", resourceH.ListResources)
+		api.GET("/resources/:id", resourceH.GetResource)
+
+		// Testimonials (Public)
+		api.GET("/testimonials", testimonialH.ListTestimonials)
+		api.GET("/testimonials/:id", testimonialH.GetTestimonial)
+
 		// AI Features
 		api.GET("/ai/coach-search", aiH.CoachSearch)
 		api.POST("/ai/generate-chapter", aiH.GenerateChapter)
@@ -60,7 +75,11 @@ func New(
 			userAdmin := protected.Group("/users")
 			userAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
 			{
+				userAdmin.GET("", userH.ListUsers)
 				userAdmin.POST("", userH.CreateUser)
+				userAdmin.GET("/:id", userH.GetUser)
+				userAdmin.PATCH("/:id", userH.PatchUser)
+				userAdmin.DELETE("/:id", userH.DeleteUser)
 			}
 
 			portal := protected.Group("/portal")
@@ -96,6 +115,8 @@ func New(
 			coachAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
 			{
 				coachAdmin.POST("", coachH.CreateCoach)
+				coachAdmin.PATCH("/:id", coachH.PatchCoach)
+				coachAdmin.DELETE("/:id", coachH.DeleteCoach)
 			}
 
 			// Event Management
@@ -103,6 +124,32 @@ func New(
 			eventAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
 			{
 				eventAdmin.POST("", eventH.CreateEvent)
+				eventAdmin.PATCH("/:id", eventH.PatchEvent)
+				eventAdmin.DELETE("/:id", eventH.DeleteEvent)
+			}
+
+			teamAdmin := protected.Group("/team-members")
+			teamAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				teamAdmin.POST("", teamMemberH.CreateTeamMember)
+				teamAdmin.PATCH("/:id", teamMemberH.PatchTeamMember)
+				teamAdmin.DELETE("/:id", teamMemberH.DeleteTeamMember)
+			}
+
+			resourceAdmin := protected.Group("/resources")
+			resourceAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				resourceAdmin.POST("", resourceH.CreateResource)
+				resourceAdmin.PATCH("/:id", resourceH.PatchResource)
+				resourceAdmin.DELETE("/:id", resourceH.DeleteResource)
+			}
+
+			testimonialAdmin := protected.Group("/testimonials")
+			testimonialAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				testimonialAdmin.POST("", testimonialH.CreateTestimonial)
+				testimonialAdmin.PATCH("/:id", testimonialH.PatchTestimonial)
+				testimonialAdmin.DELETE("/:id", testimonialH.DeleteTestimonial)
 			}
 		}
 	}

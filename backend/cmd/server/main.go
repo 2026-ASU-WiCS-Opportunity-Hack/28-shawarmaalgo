@@ -40,6 +40,9 @@ func main() {
 	meHandlers := handlers.NewMeHandlers(store)
 	portalHandlers := handlers.NewPortalHandlers(store)
 	userHandlers := handlers.NewUserHandlers(store)
+	teamMemberHandlers := handlers.NewTeamMemberHandlers(store)
+	resourceHandlers := handlers.NewResourceHandlers(store)
+	testimonialHandlers := handlers.NewTestimonialHandlers(store)
 	payHandlers := handlers.NewPaymentHandlers()
 	aiHandlers := handlers.NewAIHandlers(store)
 
@@ -55,6 +58,9 @@ func main() {
 		meHandlers,
 		portalHandlers,
 		userHandlers,
+		teamMemberHandlers,
+		resourceHandlers,
+		testimonialHandlers,
 		payHandlers,
 		aiHandlers,
 		cfg.AllowedOrigins,

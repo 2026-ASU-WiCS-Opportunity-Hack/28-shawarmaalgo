@@ -44,6 +44,25 @@ type CoachCreateRequest struct {
 	WebsiteURL         *string   `json:"website_url"`
 }
 
+type CoachPatchRequest struct {
+	FirstName          *string    `json:"first_name"`
+	LastName           *string    `json:"last_name"`
+	Email              *string    `json:"email"`
+	Phone              *string    `json:"phone"`
+	ProfileImageURL    *string    `json:"profile_image_url"`
+	Bio                *string    `json:"bio"`
+	Specializations    []string   `json:"specializations"`
+	Languages          []string   `json:"languages"`
+	Country            *string    `json:"country"`
+	City               *string    `json:"city"`
+	ChapterID          *string    `json:"chapter_id"`
+	CertificationLevel *string    `json:"certification_level"`
+	CertificationDate  *time.Time `json:"certification_date"`
+	IsActive           *bool      `json:"is_active"`
+	LinkedinURL        *string    `json:"linkedin_url"`
+	WebsiteURL         *string    `json:"website_url"`
+}
+
 type CoachListResponse struct {
 	Data     []Coach `json:"data"`
 	Page     int     `json:"page"`

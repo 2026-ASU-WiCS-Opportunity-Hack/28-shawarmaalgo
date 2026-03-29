@@ -15,6 +15,7 @@ type User struct {
 	PasswordHash string    `json:"-"`
 	Role         string    `json:"role"`
 	ChapterID    *string   `json:"chapter_id,omitempty"`
+	ChapterName  *string   `json:"chapter_name,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -31,6 +32,17 @@ type UserCreateRequest struct {
 	Password  string  `json:"password" binding:"required,min=8"`
 	Role      string  `json:"role" binding:"required"`
 	ChapterID *string `json:"chapter_id"`
+}
+
+type UserPatchRequest struct {
+	Email     *string `json:"email"`
+	Password  *string `json:"password"`
+	Role      *string `json:"role"`
+	ChapterID *string `json:"chapter_id"`
+}
+
+type UserListResponse struct {
+	Data []User `json:"data"`
 }
 
 type UserLoginRequest struct {

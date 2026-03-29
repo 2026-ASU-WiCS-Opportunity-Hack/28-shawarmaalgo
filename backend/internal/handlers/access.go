@@ -50,3 +50,29 @@ func requireChapterResourceAccess(c *gin.Context, user models.User, chapterID st
 	}
 	return true
 }
+
+func requireOptionalChapterResourceAccess(c *gin.Context, user models.User, chapterID *string) bool {
+	if chapterID == nil {
+		if user.Role == models.RoleSuperAdmin {
+			return true
+		}
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+		return false
+	}
+	return requireChapterResourceAccess(c, user, *chapterID)
+}
+
+func requireManagedUserAccess(c *gin.Context, acting models.User, target models.User) bool {
+	if acting.Role == models.RoleSuperAdmin {
+		return true
+	}
+	if target.Role == models.RoleSuperAdmin {
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+		return false
+	}
+	if acting.ChapterID == nil || target.ChapterID == nil || *acting.ChapterID != *target.ChapterID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+		return false
+	}
+	return true
+}

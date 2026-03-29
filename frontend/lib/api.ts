@@ -16,6 +16,7 @@ export type BackendUser = {
   email: string;
   role: 'super_admin' | 'chapter_lead' | 'coach' | 'content_creator' | string;
   chapter_id?: string | null;
+  chapter_name?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -96,6 +97,43 @@ export type BackendEvent = {
   updated_at: string;
 };
 
+export type BackendTeamMember = {
+  id: string;
+  chapter_id: string;
+  name: string;
+  role: string;
+  blurb: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BackendResource = {
+  id: string;
+  chapter_id?: string | null;
+  title: string;
+  type: string;
+  summary: string;
+  url?: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BackendTestimonial = {
+  id: string;
+  author_name: string;
+  author_title: string;
+  author_company?: string | null;
+  author_image_url?: string | null;
+  content: string;
+  rating?: number | null;
+  chapter_id?: string | null;
+  program_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type LoginPayload = {
   email: string;
   password: string;
@@ -166,6 +204,106 @@ export type EventListQuery = {
   chapter_id?: string;
   event_type?: string;
 };
+
+export type UserListQuery = {
+  chapter_id?: string;
+};
+
+export type TeamMemberListQuery = {
+  chapter_id?: string;
+};
+
+export type ResourceListQuery = {
+  chapter_id?: string;
+};
+
+export type TestimonialListQuery = {
+  chapter_id?: string;
+  program_id?: string;
+};
+
+export type UserPatchPayload = {
+  email?: string;
+  password?: string;
+  role?: string;
+  chapter_id?: string;
+};
+
+export type CoachPatchPayload = Partial<{
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  profile_image_url: string;
+  bio: string;
+  specializations: string[];
+  languages: string[];
+  country: string;
+  city: string;
+  chapter_id: string;
+  certification_level: string;
+  certification_date: string;
+  is_active: boolean;
+  linkedin_url: string;
+  website_url: string;
+}>;
+
+export type EventPatchPayload = Partial<{
+  title: string;
+  title_local: string;
+  description: string;
+  description_local: string;
+  event_type: string;
+  start_date: string;
+  end_date: string;
+  timezone: string;
+  location_type: string;
+  venue_name: string;
+  venue_address: string;
+  online_meeting_url: string;
+  chapter_id: string;
+  max_attendees: number;
+  price_amount: number;
+  price_currency: string;
+  is_free: boolean;
+  registration_deadline: string;
+  status: string;
+  image_url: string;
+}>;
+
+export type TeamMemberCreatePayload = {
+  chapter_id: string;
+  name: string;
+  role: string;
+  blurb: string;
+  sort_order?: number;
+};
+
+export type TeamMemberPatchPayload = Partial<TeamMemberCreatePayload>;
+
+export type ResourceCreatePayload = {
+  chapter_id?: string;
+  title: string;
+  type: string;
+  summary: string;
+  url?: string;
+  sort_order?: number;
+};
+
+export type ResourcePatchPayload = Partial<ResourceCreatePayload>;
+
+export type TestimonialCreatePayload = {
+  author_name: string;
+  author_title: string;
+  author_company?: string;
+  author_image_url?: string;
+  content: string;
+  rating?: number;
+  chapter_id?: string;
+  program_id?: string;
+};
+
+export type TestimonialPatchPayload = Partial<TestimonialCreatePayload>;
 
 export type AICoachSearchResponse = {
   data: BackendCoach[];
@@ -271,6 +409,11 @@ export const api = {
     payload: { email: string; password: string; role: string; chapter_id: string },
     token: string
   ) => request<BackendUser>('/users', { method: 'POST', body: payload, token }),
+  listUsers: (token: string, query?: UserListQuery) => request<{ data: BackendUser[] }>('/users', { token, query }),
+  getUser: (id: string, token: string) => request<BackendUser>(`/users/${id}`, { token }),
+  patchUser: (id: string, payload: UserPatchPayload, token: string) =>
+    request<BackendUser>(`/users/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteUser: (id: string, token: string) => request<void>(`/users/${id}`, { method: 'DELETE', token }),
 
   listChapters: (query?: ChapterListQuery) => request<PaginatedResponse<BackendChapter>>('/chapters', { query }),
   getChapter: (id: string) => request<BackendChapter>(`/chapters/${id}`),
@@ -285,9 +428,40 @@ export const api = {
   listCoaches: (query?: CoachListQuery) => request<PaginatedResponse<BackendCoach>>('/coaches', { query }),
   getCoach: (id: string) => request<BackendCoach>(`/coaches/${id}`),
   createCoach: (payload: unknown, token: string) => request<BackendCoach>('/coaches', { method: 'POST', body: payload, token }),
+  patchCoach: (id: string, payload: CoachPatchPayload, token: string) =>
+    request<BackendCoach>(`/coaches/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteCoach: (id: string, token: string) => request<void>(`/coaches/${id}`, { method: 'DELETE', token }),
 
   listEvents: (query?: EventListQuery) => request<PaginatedResponse<BackendEvent>>('/events', { query }),
   createEvent: (payload: unknown, token: string) => request<BackendEvent>('/events', { method: 'POST', body: payload, token }),
+  patchEvent: (id: string, payload: EventPatchPayload, token: string) =>
+    request<BackendEvent>(`/events/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteEvent: (id: string, token: string) => request<void>(`/events/${id}`, { method: 'DELETE', token }),
+
+  listTeamMembers: (query?: TeamMemberListQuery) => request<{ data: BackendTeamMember[] }>('/team-members', { query }),
+  getTeamMember: (id: string) => request<BackendTeamMember>(`/team-members/${id}`),
+  createTeamMember: (payload: TeamMemberCreatePayload, token: string) =>
+    request<BackendTeamMember>('/team-members', { method: 'POST', body: payload, token }),
+  patchTeamMember: (id: string, payload: TeamMemberPatchPayload, token: string) =>
+    request<BackendTeamMember>(`/team-members/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteTeamMember: (id: string, token: string) => request<void>(`/team-members/${id}`, { method: 'DELETE', token }),
+
+  listResources: (query?: ResourceListQuery) => request<{ data: BackendResource[] }>('/resources', { query }),
+  getResource: (id: string) => request<BackendResource>(`/resources/${id}`),
+  createResource: (payload: ResourceCreatePayload, token: string) =>
+    request<BackendResource>('/resources', { method: 'POST', body: payload, token }),
+  patchResource: (id: string, payload: ResourcePatchPayload, token: string) =>
+    request<BackendResource>(`/resources/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteResource: (id: string, token: string) => request<void>(`/resources/${id}`, { method: 'DELETE', token }),
+
+  listTestimonials: (query?: TestimonialListQuery) =>
+    request<{ data: BackendTestimonial[] }>('/testimonials', { query }),
+  getTestimonial: (id: string) => request<BackendTestimonial>(`/testimonials/${id}`),
+  createTestimonial: (payload: TestimonialCreatePayload, token: string) =>
+    request<BackendTestimonial>('/testimonials', { method: 'POST', body: payload, token }),
+  patchTestimonial: (id: string, payload: TestimonialPatchPayload, token: string) =>
+    request<BackendTestimonial>(`/testimonials/${id}`, { method: 'PATCH', body: payload, token }),
+  deleteTestimonial: (id: string, token: string) => request<void>(`/testimonials/${id}`, { method: 'DELETE', token }),
 
   getPortalOverview: (token: string, chapterId?: string) =>
     request<PortalOverviewResponse>('/portal/overview', { token, query: { chapter_id: chapterId } }),

@@ -1,9 +1,11 @@
 import { PageShell } from "@/components/layout/PageShell";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { resources } from "@/data/content";
 import { InfoCard } from "@/components/cards/InfoCard";
+import { getGlobalResources } from "@/lib/server-data";
 
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
+  const resources = await getGlobalResources();
+
   return (
     <PageShell>
       <SectionHeading

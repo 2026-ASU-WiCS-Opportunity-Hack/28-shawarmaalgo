@@ -18,6 +18,9 @@ tags:
   - name: Chapters
   - name: Coaches
   - name: Events
+  - name: Team Members
+  - name: Resources
+  - name: Testimonials
   - name: AI
   - name: Payments
 paths:
@@ -64,6 +67,31 @@ paths:
         '500':
           $ref: '#/components/responses/InternalError'
   /api/v1/users:
+    get:
+      tags: [Users]
+      summary: List managed users
+      description: Chapter leads are scoped to their assigned chapter. Super-admins can optionally filter by `chapter_id`.
+      operationId: listUsers
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
     post:
       tags: [Users]
       summary: Create a managed user
@@ -104,6 +132,92 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: email already exists
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/users/{id}:
+    get:
+      tags: [Users]
+      summary: Get a managed user
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Users]
+      summary: Patch a managed user
+      operationId: patchUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatchRequest'
+      responses:
+        '200':
+          description: User patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request, invalid role, or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: email already exists
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Users]
+      summary: Delete a managed user
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: User deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
   /api/v1/me:
@@ -498,6 +612,60 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Coaches]
+      summary: Patch a coach profile
+      operationId: patchCoach
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoachPatchRequest'
+      responses:
+        '200':
+          description: Coach patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+        '400':
+          description: Invalid request or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Coaches]
+      summary: Delete a coach profile
+      operationId: deleteCoach
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Coach deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
   /api/v1/events:
     get:
       tags: [Events]
@@ -549,6 +717,421 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/events/{id}:
+    patch:
+      tags: [Events]
+      summary: Patch an event
+      operationId: patchEvent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventPatchRequest'
+      responses:
+        '200':
+          description: Event patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          description: Invalid request or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Events]
+      summary: Delete an event
+      operationId: deleteEvent
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Event deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/team-members:
+    get:
+      tags: [Team Members]
+      summary: List chapter team members
+      operationId: listTeamMembers
+      parameters:
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team member list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMemberListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Team Members]
+      summary: Create a chapter team member
+      operationId: createTeamMember
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamMemberCreateRequest'
+      responses:
+        '201':
+          description: Team member created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/team-members/{id}:
+    get:
+      tags: [Team Members]
+      summary: Get a chapter team member
+      operationId: getTeamMember
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Team member found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Team Members]
+      summary: Patch a chapter team member
+      operationId: patchTeamMember
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamMemberPatchRequest'
+      responses:
+        '200':
+          description: Team member patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+        '400':
+          description: Invalid request or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Team Members]
+      summary: Delete a chapter team member
+      operationId: deleteTeamMember
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Team member deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/resources:
+    get:
+      tags: [Resources]
+      summary: List resources
+      description: Omitting `chapter_id` returns global resources only.
+      operationId: listResources
+      parameters:
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Resources]
+      summary: Create a resource
+      description: Super-admins can create global or chapter resources. Chapter leads can create resources only for their chapter.
+      operationId: createResource
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceCreateRequest'
+      responses:
+        '201':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/resources/{id}:
+    get:
+      tags: [Resources]
+      summary: Get a resource
+      operationId: getResource
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Resource found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Resources]
+      summary: Patch a resource
+      operationId: patchResource
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourcePatchRequest'
+      responses:
+        '200':
+          description: Resource patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '400':
+          description: Invalid request or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Resources]
+      summary: Delete a resource
+      operationId: deleteResource
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Resource deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/testimonials:
+    get:
+      tags: [Testimonials]
+      summary: List testimonials
+      operationId: listTestimonials
+      parameters:
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+        - in: query
+          name: program_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Testimonial list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestimonialListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Testimonials]
+      summary: Create a testimonial
+      operationId: createTestimonial
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestimonialCreateRequest'
+      responses:
+        '201':
+          description: Testimonial created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Testimonial'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/testimonials/{id}:
+    get:
+      tags: [Testimonials]
+      summary: Get a testimonial
+      operationId: getTestimonial
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Testimonial found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Testimonial'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Testimonials]
+      summary: Patch a testimonial
+      operationId: patchTestimonial
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestimonialPatchRequest'
+      responses:
+        '200':
+          description: Testimonial patched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Testimonial'
+        '400':
+          description: Invalid request or no fields to update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    delete:
+      tags: [Testimonials]
+      summary: Delete a testimonial
+      operationId: deleteTestimonial
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Testimonial deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
   /api/v1/ai/coach-search:
@@ -706,6 +1289,9 @@ components:
         chapter_id:
           type: string
           nullable: true
+        chapter_name:
+          type: string
+          nullable: true
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
       required: [id, email, role, created_at, updated_at]
@@ -724,6 +1310,28 @@ components:
         chapter_id:
           type: string
       required: [email, password, role, chapter_id]
+    UserPatchRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        role:
+          type: string
+          enum: [super_admin, chapter_lead, coach, content_creator]
+        chapter_id:
+          type: string
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+      required: [data]
     UserLoginRequest:
       type: object
       properties:
@@ -958,6 +1566,31 @@ components:
         page_size: { type: integer }
         total: { type: integer }
       required: [data, page, page_size, total]
+    CoachPatchRequest:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email:
+          type: string
+          format: email
+        phone: { type: string }
+        profile_image_url: { type: string }
+        bio: { type: string }
+        specializations:
+          type: array
+          items: { type: string }
+        languages:
+          type: array
+          items: { type: string }
+        country: { type: string }
+        city: { type: string }
+        chapter_id: { type: string }
+        certification_level: { type: string }
+        certification_date: { type: string, format: date-time }
+        is_active: { type: boolean }
+        linkedin_url: { type: string }
+        website_url: { type: string }
     Event:
       type: object
       properties:
@@ -1022,6 +1655,152 @@ components:
         page_size: { type: integer }
         total: { type: integer }
       required: [data, page, page_size, total]
+    EventPatchRequest:
+      type: object
+      properties:
+        title: { type: string }
+        title_local: { type: string }
+        description: { type: string }
+        description_local: { type: string }
+        event_type: { type: string }
+        start_date: { type: string, format: date-time }
+        end_date: { type: string, format: date-time }
+        timezone: { type: string }
+        location_type: { type: string }
+        venue_name: { type: string }
+        venue_address: { type: string }
+        online_meeting_url: { type: string }
+        chapter_id: { type: string }
+        max_attendees: { type: integer }
+        price_amount: { type: number, format: double }
+        price_currency: { type: string }
+        is_free: { type: boolean }
+        registration_deadline: { type: string, format: date-time }
+        status: { type: string }
+        image_url: { type: string }
+    TeamMember:
+      type: object
+      properties:
+        id: { type: string }
+        chapter_id: { type: string }
+        name: { type: string }
+        role: { type: string }
+        blurb: { type: string }
+        sort_order: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required: [id, chapter_id, name, role, blurb, sort_order, created_at, updated_at]
+    TeamMemberCreateRequest:
+      type: object
+      properties:
+        chapter_id: { type: string }
+        name: { type: string }
+        role: { type: string }
+        blurb: { type: string }
+        sort_order: { type: integer, default: 0 }
+      required: [chapter_id, name, role, blurb]
+    TeamMemberPatchRequest:
+      type: object
+      properties:
+        chapter_id: { type: string }
+        name: { type: string }
+        role: { type: string }
+        blurb: { type: string }
+        sort_order: { type: integer }
+    TeamMemberListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+      required: [data]
+    Resource:
+      type: object
+      properties:
+        id: { type: string }
+        chapter_id: { type: string, nullable: true }
+        title: { type: string }
+        type: { type: string }
+        summary: { type: string }
+        url: { type: string, nullable: true }
+        sort_order: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required: [id, title, type, summary, sort_order, created_at, updated_at]
+    ResourceCreateRequest:
+      type: object
+      properties:
+        chapter_id: { type: string, nullable: true }
+        title: { type: string }
+        type: { type: string }
+        summary: { type: string }
+        url: { type: string, nullable: true }
+        sort_order: { type: integer, default: 0 }
+      required: [title, type, summary]
+    ResourcePatchRequest:
+      type: object
+      properties:
+        chapter_id: { type: string }
+        title: { type: string }
+        type: { type: string }
+        summary: { type: string }
+        url: { type: string }
+        sort_order: { type: integer }
+    ResourceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+      required: [data]
+    Testimonial:
+      type: object
+      properties:
+        id: { type: string }
+        author_name: { type: string }
+        author_title: { type: string }
+        author_company: { type: string, nullable: true }
+        author_image_url: { type: string, nullable: true }
+        content: { type: string }
+        rating: { type: integer, nullable: true }
+        chapter_id: { type: string, nullable: true }
+        program_id: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required: [id, author_name, author_title, content, created_at, updated_at]
+    TestimonialCreateRequest:
+      type: object
+      properties:
+        author_name: { type: string }
+        author_title: { type: string }
+        author_company: { type: string, nullable: true }
+        author_image_url: { type: string, nullable: true }
+        content: { type: string }
+        rating: { type: integer, nullable: true }
+        chapter_id: { type: string, nullable: true }
+        program_id: { type: string, nullable: true }
+      required: [author_name, author_title, content]
+    TestimonialPatchRequest:
+      type: object
+      properties:
+        author_name: { type: string }
+        author_title: { type: string }
+        author_company: { type: string }
+        author_image_url: { type: string }
+        content: { type: string }
+        rating: { type: integer }
+        chapter_id: { type: string }
+        program_id: { type: string }
+    TestimonialListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Testimonial'
+      required: [data]
     AICoachSearchResponse:
       type: object
       properties:
