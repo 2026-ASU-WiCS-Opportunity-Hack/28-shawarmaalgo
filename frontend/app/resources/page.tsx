@@ -2,7 +2,11 @@ import { PageShell } from '@/components/layout/PageShell';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { InfoCard } from '@/components/cards/InfoCard';
 import { RichContent } from '@/components/content/RichContent';
+import { buttonClassName } from '@/components/ui/button';
 import { getGlobalPageContent, getGlobalResources } from '@/lib/server-data';
+
+const GLOBAL_CHAPTER_DUES_URL = 'https://buy.stripe.com/test_4gM3co8HN6vqa4AaMy2cg02';
+const GLOBAL_COACH_DUES_URL = 'https://buy.stripe.com/test_14A4gs0bh8DyekQ5se2cg00';
 
 export default async function ResourcesPage() {
   const [resources, page] = await Promise.all([getGlobalResources(), getGlobalPageContent('resources')]);
@@ -35,6 +39,14 @@ export default async function ResourcesPage() {
             ) : null}
           </InfoCard>
         ))}
+      </div>
+      <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a href={GLOBAL_CHAPTER_DUES_URL} target="_blank" rel="noreferrer" className={buttonClassName()}>
+          Pay Global Chapter Dues
+        </a>
+        <a href={GLOBAL_COACH_DUES_URL} target="_blank" rel="noreferrer" className={buttonClassName()}>
+          Pay Global Coach Dues
+        </a>
       </div>
     </PageShell>
   );
