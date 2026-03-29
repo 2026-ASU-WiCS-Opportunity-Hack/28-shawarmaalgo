@@ -1,32 +1,51 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 
-const sections = [
-  {
-    title: 'Admin',
-    links: [
-      { label: 'Overview', href: '/portal/admin' },
-      { label: 'Chapters', href: '/portal/admin/chapters' },
-      { label: 'Global pages', href: '/portal/admin/pages' },
-      { label: 'Users', href: '/portal/admin/users' }
-    ]
-  },
-  {
-    title: 'Chapter leader',
-    links: [
-      { label: 'Workspace', href: '/portal/chapter' },
-      { label: 'Nigeria content', href: '/portal/chapter/nigeria/content' },
-      { label: 'Nigeria events', href: '/portal/chapter/nigeria/events' },
-      { label: 'Nigeria coaches', href: '/portal/chapter/nigeria/coaches' }
-    ]
-  },
-  {
-    title: 'Coach',
-    links: [{ label: 'My account', href: '/portal/coach' }]
-  }
-];
+export function PortalShell({
+  eyebrow,
+  title,
+  description,
+  chapterSlug,
+  children
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  chapterSlug?: string | null;
+  children: ReactNode;
+}) {
+  const sections = [
+    {
+      title: 'Admin',
+      links: [
+        { label: 'Overview', href: '/portal/admin' },
+        { label: 'Chapters', href: '/portal/admin/chapters' },
+        { label: 'Global pages', href: '/portal/admin/pages' },
+        { label: 'Users', href: '/portal/admin/users' }
+      ]
+    },
+    {
+      title: 'Chapter leader',
+      links: [
+        { label: 'Workspace', href: '/portal/chapter' },
+        ...(chapterSlug
+          ? [
+              { label: 'Content', href: `/portal/chapter/${chapterSlug}/content` },
+              { label: 'Team', href: `/portal/chapter/${chapterSlug}/team` },
+              { label: 'Coaches', href: `/portal/chapter/${chapterSlug}/coaches` },
+              { label: 'Events', href: `/portal/chapter/${chapterSlug}/events` },
+              { label: 'Resources', href: `/portal/chapter/${chapterSlug}/resources` },
+              { label: 'Contact', href: `/portal/chapter/${chapterSlug}/contact` }
+            ]
+          : [])
+      ]
+    },
+    {
+      title: 'Coach',
+      links: [{ label: 'My account', href: '/portal/coach' }]
+    }
+  ];
 
-export function PortalShell({ eyebrow, title, description, children }: { eyebrow: string; title: string; description: string; children: ReactNode }) {
   return (
     <div className="container-shell py-10 sm:py-12">
       <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">

@@ -15,6 +15,8 @@ type Chapter struct {
 	Timezone           string    `json:"timezone"`
 	Currency           string    `json:"currency"`
 	ContactEmail       string    `json:"contact_email"`
+	ContactPhone       *string   `json:"contact_phone,omitempty"`
+	ContactCity        *string   `json:"contact_city,omitempty"`
 	WebsiteURL         *string   `json:"website_url,omitempty"`
 	LogoURL            *string   `json:"logo_url,omitempty"`
 	HeroImageURL       *string   `json:"hero_image_url,omitempty"`
@@ -37,6 +39,8 @@ type ChapterCreateRequest struct {
 	Timezone           string   `json:"timezone" binding:"required"`
 	Currency           string   `json:"currency" binding:"required"`
 	ContactEmail       string   `json:"contact_email" binding:"required"`
+	ContactPhone       *string  `json:"contact_phone"`
+	ContactCity        *string  `json:"contact_city"`
 	WebsiteURL         *string  `json:"website_url"`
 	LogoURL            *string  `json:"logo_url"`
 	HeroImageURL       *string  `json:"hero_image_url"`
@@ -57,6 +61,8 @@ type ChapterUpdateRequest struct {
 	Timezone           string   `json:"timezone" binding:"required"`
 	Currency           string   `json:"currency" binding:"required"`
 	ContactEmail       string   `json:"contact_email" binding:"required"`
+	ContactPhone       *string  `json:"contact_phone"`
+	ContactCity        *string  `json:"contact_city"`
 	WebsiteURL         *string  `json:"website_url"`
 	LogoURL            *string  `json:"logo_url"`
 	HeroImageURL       *string  `json:"hero_image_url"`
@@ -77,6 +83,8 @@ type ChapterPatchRequest struct {
 	Timezone           *string  `json:"timezone"`
 	Currency           *string  `json:"currency"`
 	ContactEmail       *string  `json:"contact_email"`
+	ContactPhone       *string  `json:"contact_phone"`
+	ContactCity        *string  `json:"contact_city"`
 	WebsiteURL         *string  `json:"website_url"`
 	LogoURL            *string  `json:"logo_url"`
 	HeroImageURL       *string  `json:"hero_image_url"`
@@ -100,6 +108,8 @@ type ChapterContentUpdateRequest struct {
 	SupportedLanguages []string `json:"supported_languages"`
 	Timezone           *string  `json:"timezone"`
 	Currency           *string  `json:"currency"`
+	ContactPhone       *string  `json:"contact_phone"`
+	ContactCity        *string  `json:"contact_city"`
 	WebsiteURL         *string  `json:"website_url"`
 	LogoURL            *string  `json:"logo_url"`
 	HeroImageURL       *string  `json:"hero_image_url"`

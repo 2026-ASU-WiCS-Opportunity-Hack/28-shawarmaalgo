@@ -9,7 +9,7 @@ export default async function ChapterResourcesPage({ params }: { params: { count
   const chapter = await getChapter(params.country);
   if (!chapter) notFound();
   return (
-    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} resources`} description="Manage local chapter guides, downloads, and supporting materials displayed on the chapter resources page.">
+    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} resources`} description="Manage local chapter guides, downloads, and supporting materials displayed on the chapter resources page." chapterSlug={chapter.slug}>
       <div className="grid gap-6 xl:grid-cols-2">
         {chapter.resources.map((resource) => (
           <Panel key={resource.title} title={resource.title} description={resource.type}>

@@ -14,6 +14,7 @@ export default async function ChapterContentPage({ params }: { params: { country
       eyebrow="Chapter leader console"
       title={`${chapter.name} content editor`}
       description="Adjust the chapter homepage copy, local introduction, and featured messaging from structured fields that map directly to the public chapter pages."
+      chapterSlug={chapter.slug}
     >
       <Panel title="Chapter homepage content">
         <form className="grid gap-4">

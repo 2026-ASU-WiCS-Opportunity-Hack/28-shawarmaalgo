@@ -62,14 +62,43 @@ function mapChapterToCountryPage(chapter: BackendChapter, fallback?: CountryPage
       `${chapter.name} is part of the WIAL network serving ${chapter.country}.`,
     contact: {
       email: chapter.contact_email,
-      phone: fallback?.contact.phone || 'Contact chapter directly',
-      city: fallback?.contact.city || chapter.country
+      phone: chapter.contact_phone || fallback?.contact.phone || 'Contact chapter directly',
+      city: chapter.contact_city || fallback?.contact.city || chapter.country
     },
     team: fallback?.team || [],
     coaches: fallback?.coaches || [],
     events: fallback?.events || [],
     resources: fallback?.resources || [],
     testimonials: fallback?.testimonials || []
+  };
+}
+
+function mapSessionFromMe(me: Awaited<ReturnType<typeof api.getMe>>) {
+  return {
+    isAuthenticated: true,
+    user: {
+      id: me.user.id,
+      name: me.user.email,
+      email: me.user.email,
+      role: me.user.role,
+      chapterSlug: me.chapter?.slug || null
+    }
+  };
+}
+
+function buildFallbackPortalWorkspace() {
+  const fallbackSlug = mockSession.user.chapterSlug;
+  const fallbackChapter = (fallbackSlug && getCountryBySlug(fallbackSlug)) || countries[0];
+
+  return {
+    session: mockSession,
+    chapter: fallbackChapter,
+    stats: {
+      coachCount: fallbackChapter?.coaches.length || 0,
+      eventCount: fallbackChapter?.events.length || 0
+    },
+    recentCoaches: fallbackChapter?.coaches.slice(0, 5) || [],
+    recentEvents: fallbackChapter?.events.slice(0, 5) || []
   };
 }
 
@@ -125,19 +154,39 @@ export async function getPortalSession() {
   const token = getServerAuthToken();
   if (!token) return mockSession;
 
+  return safeFetch(async () => mapSessionFromMe(await api.getMe(token)), mockSession);
+}
+
+export async function getPortalChapterWorkspace() {
+  const token = getServerAuthToken();
+  const fallback = buildFallbackPortalWorkspace();
+
+  if (!token) return fallback;
+
   return safeFetch(async () => {
     const me = await api.getMe(token);
+    const chapterId = me.user.role === 'super_admin' ? me.chapter?.id : undefined;
+
+    if (me.user.role === 'super_admin' && !chapterId) {
+      throw new Error('chapter_id is required');
+    }
+
+    const [chapterResponse, overview] = await Promise.all([
+      api.getPortalChapter(token, chapterId),
+      api.getPortalOverview(token, chapterId)
+    ]);
+
     return {
-      isAuthenticated: true,
-      user: {
-        id: me.user.id,
-        name: me.user.email,
-        email: me.user.email,
-        role: me.user.role,
-        chapterSlug: me.chapter?.slug || null
-      }
+      session: mapSessionFromMe(me),
+      chapter: mapChapterToCountryPage(chapterResponse, getCountryBySlug(chapterResponse.slug)),
+      stats: {
+        coachCount: overview.stats.coach_count,
+        eventCount: overview.stats.event_count
+      },
+      recentCoaches: overview.recent_coaches.map(mapCoachToUI),
+      recentEvents: overview.recent_events.map(mapEventToUI)
     };
-  }, mockSession);
+  }, fallback);
 }
 
 export async function getAdminOverview() {

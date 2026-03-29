@@ -9,7 +9,7 @@ export default async function ChapterContactPage({ params }: { params: { country
   const chapter = await getChapter(params.country);
   if (!chapter) notFound();
   return (
-    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} contact details`} description="Update the local email, phone number, city, and any additional chapter-specific contact messaging shown to visitors.">
+    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} contact details`} description="Update the local email, phone number, city, and any additional chapter-specific contact messaging shown to visitors." chapterSlug={chapter.slug}>
       <Panel title="Chapter contact information">
         <form className="grid gap-4 md:grid-cols-2">
           <Field label="Email" defaultValue={chapter.contact.email} />

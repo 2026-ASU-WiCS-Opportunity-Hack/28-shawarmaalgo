@@ -19,3 +19,4 @@ node_modules
 .DS_Store
 .gocache
 frontend/.DS_Store
+frontend/tsconfig.tsbuildinfo

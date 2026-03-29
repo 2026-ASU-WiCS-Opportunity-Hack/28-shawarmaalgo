@@ -1,0 +1,3 @@
+ALTER TABLE chapters
+  ADD COLUMN IF NOT EXISTS contact_phone TEXT NULL,
+  ADD COLUMN IF NOT EXISTS contact_city TEXT NULL;

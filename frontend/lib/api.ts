@@ -33,6 +33,8 @@ export type BackendChapter = {
   timezone: string;
   currency: string;
   contact_email: string;
+  contact_phone?: string | null;
+  contact_city?: string | null;
   website_url?: string | null;
   logo_url?: string | null;
   hero_image_url?: string | null;
@@ -120,6 +122,58 @@ export type PortalOverviewResponse = {
   recent_events: BackendEvent[];
 };
 
+export type ChapterListQuery = {
+  page?: number;
+  page_size?: number;
+  region?: string;
+  language?: string;
+};
+
+export type CoachListQuery = {
+  page?: number;
+  page_size?: number;
+  chapter_id?: string;
+  certification_level?: string;
+  language?: string;
+  specialization?: string;
+};
+
+export type EventListQuery = {
+  page?: number;
+  page_size?: number;
+  chapter_id?: string;
+  event_type?: string;
+};
+
+export type AICoachSearchResponse = {
+  data: BackendCoach[];
+  total: number;
+  note: string;
+};
+
+export type AIGenerateChapterPayload = {
+  name: string;
+  country: string;
+};
+
+export type AIGenerateChapterResponse = {
+  description: string;
+  description_local: string;
+  suggested_region: string;
+  primary_language: string;
+  timezone: string;
+};
+
+export type CheckoutSessionPayload = {
+  program_id: string;
+  email: string;
+};
+
+export type CheckoutSessionResponse = {
+  checkout_url: string;
+  session_id: string;
+};
+
 function getApiBaseUrl() {
   if (typeof window === 'undefined') {
     return (
@@ -196,8 +250,7 @@ export const api = {
     token: string
   ) => request<BackendUser>('/users', { method: 'POST', body: payload, token }),
 
-  listChapters: (query?: { page?: number; page_size?: number; country?: string; region?: string; is_active?: boolean }) =>
-    request<PaginatedResponse<BackendChapter>>('/chapters', { query }),
+  listChapters: (query?: ChapterListQuery) => request<PaginatedResponse<BackendChapter>>('/chapters', { query }),
   getChapter: (id: string) => request<BackendChapter>(`/chapters/${id}`),
   createChapter: (payload: unknown, token: string) => request<BackendChapter>('/chapters', { method: 'POST', body: payload, token }),
   updateChapter: (id: string, payload: unknown, token: string) => request<BackendChapter>(`/chapters/${id}`, { method: 'PUT', body: payload, token }),
@@ -206,19 +259,11 @@ export const api = {
     request<BackendChapter>(`/chapters/${id}/content`, { method: 'PATCH', body: payload, token }),
   deleteChapter: (id: string, token: string) => request<void>(`/chapters/${id}`, { method: 'DELETE', token }),
 
-  listCoaches: (query?: {
-    page?: number;
-    page_size?: number;
-    chapter_id?: string;
-    certification_level?: string;
-    language?: string;
-    specialization?: string;
-  }) => request<PaginatedResponse<BackendCoach>>('/coaches', { query }),
+  listCoaches: (query?: CoachListQuery) => request<PaginatedResponse<BackendCoach>>('/coaches', { query }),
   getCoach: (id: string) => request<BackendCoach>(`/coaches/${id}`),
   createCoach: (payload: unknown, token: string) => request<BackendCoach>('/coaches', { method: 'POST', body: payload, token }),
 
-  listEvents: (query?: { page?: number; page_size?: number; chapter_id?: string; event_type?: string }) =>
-    request<PaginatedResponse<BackendEvent>>('/events', { query }),
+  listEvents: (query?: EventListQuery) => request<PaginatedResponse<BackendEvent>>('/events', { query }),
   createEvent: (payload: unknown, token: string) => request<BackendEvent>('/events', { method: 'POST', body: payload, token }),
 
   getPortalOverview: (token: string, chapterId?: string) =>
@@ -226,10 +271,10 @@ export const api = {
   getPortalChapter: (token: string, chapterId?: string) =>
     request<BackendChapter>('/portal/chapter', { token, query: { chapter_id: chapterId } }),
 
-  coachSearch: (query: string) => request<{ query: string; results: BackendCoach[] }>('/ai/coach-search', { query: { query } }),
-  generateChapter: (payload: { country: string; region?: string; primary_language?: string }) =>
-    request<Record<string, unknown>>('/ai/generate-chapter', { method: 'POST', body: payload }),
+  coachSearch: (query: string) => request<AICoachSearchResponse>('/ai/coach-search', { query: { query } }),
+  generateChapter: (payload: AIGenerateChapterPayload) =>
+    request<AIGenerateChapterResponse>('/ai/generate-chapter', { method: 'POST', body: payload }),
 
-  createCheckoutSession: (payload: { price_id?: string; success_url?: string; cancel_url?: string; quantity?: number }) =>
-    request<{ url: string; session_id: string }>('/payments/create-session', { method: 'POST', body: payload })
+  createCheckoutSession: (payload: CheckoutSessionPayload) =>
+    request<CheckoutSessionResponse>('/payments/create-session', { method: 'POST', body: payload })
 };

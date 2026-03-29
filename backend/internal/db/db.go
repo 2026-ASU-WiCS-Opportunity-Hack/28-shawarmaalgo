@@ -36,14 +36,14 @@ func NewStore(pool *pgxpool.Pool) *Store {
 func (s *Store) CreateChapter(ctx context.Context, req models.ChapterCreateRequest) (models.Chapter, error) {
 	row := s.pool.QueryRow(ctx, `
 		INSERT INTO chapters
-			(name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count)
+			(name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count)
 		VALUES
-			($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
-	`, req.Name, req.Slug, req.Country, req.Region, req.Description, req.DescriptionLocal, req.PrimaryLanguage, req.SupportedLanguages, req.Timezone, req.Currency, req.ContactEmail, req.WebsiteURL, req.LogoURL, req.HeroImageURL, req.IsActive, req.FoundedYear, req.MemberCount)
+			($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+	`, req.Name, req.Slug, req.Country, req.Region, req.Description, req.DescriptionLocal, req.PrimaryLanguage, req.SupportedLanguages, req.Timezone, req.Currency, req.ContactEmail, req.ContactPhone, req.ContactCity, req.WebsiteURL, req.LogoURL, req.HeroImageURL, req.IsActive, req.FoundedYear, req.MemberCount)
 
 	var ch models.Chapter
-	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.ContactPhone, &ch.ContactCity, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
 		return models.Chapter{}, err
 	}
 	return ch, nil
@@ -51,12 +51,12 @@ func (s *Store) CreateChapter(ctx context.Context, req models.ChapterCreateReque
 
 func (s *Store) GetChapter(ctx context.Context, id string) (models.Chapter, error) {
 	row := s.pool.QueryRow(ctx, `
-		SELECT id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+		SELECT id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
 		FROM chapters
 		WHERE id = $1
 	`, id)
 	var ch models.Chapter
-	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.ContactPhone, &ch.ContactCity, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
 		return models.Chapter{}, err
 	}
 	return ch, nil
@@ -91,7 +91,7 @@ func (s *Store) ListChapters(ctx context.Context, page, pageSize int, region, la
 	}
 
 	querySQL := fmt.Sprintf(`
-		SELECT id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+		SELECT id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
 		FROM chapters
 		%s
 		ORDER BY created_at DESC
@@ -108,7 +108,7 @@ func (s *Store) ListChapters(ctx context.Context, page, pageSize int, region, la
 	chapters := []models.Chapter{}
 	for rows.Next() {
 		var ch models.Chapter
-		if err := rows.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+		if err := rows.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.ContactPhone, &ch.ContactCity, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
 			return nil, 0, err
 		}
 		chapters = append(chapters, ch)
@@ -134,19 +134,21 @@ func (s *Store) UpdateChapter(ctx context.Context, id string, req models.Chapter
 			timezone = $9,
 			currency = $10,
 			contact_email = $11,
-			website_url = $12,
-			logo_url = $13,
-			hero_image_url = $14,
-			is_active = $15,
-			founded_year = $16,
-			member_count = $17,
+			contact_phone = $12,
+			contact_city = $13,
+			website_url = $14,
+			logo_url = $15,
+			hero_image_url = $16,
+			is_active = $17,
+			founded_year = $18,
+			member_count = $19,
 			updated_at = now()
-		WHERE id = $18
-		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
-	`, req.Name, req.Slug, req.Country, req.Region, req.Description, req.DescriptionLocal, req.PrimaryLanguage, req.SupportedLanguages, req.Timezone, req.Currency, req.ContactEmail, req.WebsiteURL, req.LogoURL, req.HeroImageURL, req.IsActive, req.FoundedYear, req.MemberCount, id)
+		WHERE id = $20
+		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+	`, req.Name, req.Slug, req.Country, req.Region, req.Description, req.DescriptionLocal, req.PrimaryLanguage, req.SupportedLanguages, req.Timezone, req.Currency, req.ContactEmail, req.ContactPhone, req.ContactCity, req.WebsiteURL, req.LogoURL, req.HeroImageURL, req.IsActive, req.FoundedYear, req.MemberCount, id)
 
 	var ch models.Chapter
-	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.ContactPhone, &ch.ContactCity, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
 		return models.Chapter{}, err
 	}
 	return ch, nil
@@ -212,6 +214,16 @@ func (s *Store) PatchChapter(ctx context.Context, id string, req models.ChapterP
 		args = append(args, *req.ContactEmail)
 		argPos++
 	}
+	if req.ContactPhone != nil {
+		set = append(set, fmt.Sprintf("contact_phone = $%d", argPos))
+		args = append(args, *req.ContactPhone)
+		argPos++
+	}
+	if req.ContactCity != nil {
+		set = append(set, fmt.Sprintf("contact_city = $%d", argPos))
+		args = append(args, *req.ContactCity)
+		argPos++
+	}
 	if req.WebsiteURL != nil {
 		set = append(set, fmt.Sprintf("website_url = $%d", argPos))
 		args = append(args, *req.WebsiteURL)
@@ -252,14 +264,14 @@ func (s *Store) PatchChapter(ctx context.Context, id string, req models.ChapterP
 		UPDATE chapters
 		SET %s
 		WHERE id = $%d
-		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
 	`, strings.Join(set, ", "), argPos)
 
 	args = append(args, id)
 	row := s.pool.QueryRow(ctx, query, args...)
 
 	var ch models.Chapter
-	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.ContactPhone, &ch.ContactCity, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
 		return models.Chapter{}, err
 	}
 	return ch, nil
@@ -305,6 +317,16 @@ func (s *Store) PatchChapterContent(ctx context.Context, id string, req models.C
 		args = append(args, *req.Currency)
 		argPos++
 	}
+	if req.ContactPhone != nil {
+		set = append(set, fmt.Sprintf("contact_phone = $%d", argPos))
+		args = append(args, *req.ContactPhone)
+		argPos++
+	}
+	if req.ContactCity != nil {
+		set = append(set, fmt.Sprintf("contact_city = $%d", argPos))
+		args = append(args, *req.ContactCity)
+		argPos++
+	}
 	if req.WebsiteURL != nil {
 		set = append(set, fmt.Sprintf("website_url = $%d", argPos))
 		args = append(args, *req.WebsiteURL)
@@ -345,14 +367,14 @@ func (s *Store) PatchChapterContent(ctx context.Context, id string, req models.C
 		UPDATE chapters
 		SET %s
 		WHERE id = $%d
-		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, contact_phone, contact_city, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
 	`, strings.Join(set, ", "), argPos)
 
 	args = append(args, id)
 	row := s.pool.QueryRow(ctx, query, args...)
 
 	var ch models.Chapter
-	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.ContactPhone, &ch.ContactCity, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
 		return models.Chapter{}, err
 	}
 	return ch, nil

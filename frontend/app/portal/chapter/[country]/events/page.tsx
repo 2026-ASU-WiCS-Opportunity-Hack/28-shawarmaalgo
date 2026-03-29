@@ -9,7 +9,7 @@ export default async function ChapterEventsPage({ params }: { params: { country:
   const chapter = await getChapter(params.country);
   if (!chapter) notFound();
   return (
-    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} events`} description="Create new chapter events, revise schedules, and publish local chapter sessions to the public site and the wider WIAL event experience.">
+    <PortalShell eyebrow="Chapter leader console" title={`${chapter.name} events`} description="Create new chapter events, revise schedules, and publish local chapter sessions to the public site and the wider WIAL event experience." chapterSlug={chapter.slug}>
       <div className="grid gap-6 xl:grid-cols-2">
         {chapter.events.map((event) => (
           <Panel key={event.title} title={event.title} description={`${event.date} • ${event.location}`}>

@@ -451,25 +451,6 @@ paths:
                 $ref: '#/components/schemas/CoachListResponse'
         '500':
           $ref: '#/components/responses/InternalError'
-  /api/v1/coaches/{id}:
-    get:
-      tags: [Coaches]
-      summary: Get a coach by ID
-      description: Public coach profile endpoint.
-      operationId: getCoach
-      parameters:
-        - $ref: '#/components/parameters/IdPath'
-      responses:
-        '200':
-          description: Coach found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Coach'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
     post:
       tags: [Coaches]
       summary: Create a coach profile
@@ -496,6 +477,25 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/coaches/{id}:
+    get:
+      tags: [Coaches]
+      summary: Get a coach by ID
+      description: Public coach profile endpoint.
+      operationId: getCoach
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Coach found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Coach'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
   /api/v1/events:
@@ -793,6 +793,8 @@ components:
         contact_email:
           type: string
           format: email
+        contact_phone: { type: string, nullable: true }
+        contact_city: { type: string, nullable: true }
         website_url: { type: string, nullable: true }
         logo_url: { type: string, nullable: true }
         hero_image_url: { type: string, nullable: true }
@@ -820,6 +822,8 @@ components:
         contact_email:
           type: string
           format: email
+        contact_phone: { type: string, nullable: true }
+        contact_city: { type: string, nullable: true }
         website_url: { type: string, nullable: true }
         logo_url: { type: string, nullable: true }
         hero_image_url: { type: string, nullable: true }
@@ -848,6 +852,8 @@ components:
         contact_email:
           type: string
           format: email
+        contact_phone: { type: string }
+        contact_city: { type: string }
         website_url: { type: string }
         logo_url: { type: string }
         hero_image_url: { type: string }
@@ -866,6 +872,8 @@ components:
           items: { type: string }
         timezone: { type: string }
         currency: { type: string }
+        contact_phone: { type: string }
+        contact_city: { type: string }
         website_url: { type: string }
         logo_url: { type: string }
         hero_image_url: { type: string }

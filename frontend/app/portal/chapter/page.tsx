@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel, StatCard } from '@/components/portal/PortalCards';
-import { getChapter } from '@/lib/server-data';
+import { getPortalChapterWorkspace } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ChapterPortalPage() {
-  const chapter = await getChapter('nigeria');
+  const { chapter, stats } = await getPortalChapterWorkspace();
   if (!chapter) return null;
 
   return (
@@ -14,21 +14,22 @@ export default async function ChapterPortalPage() {
       eyebrow="Chapter leader console"
       title={`${chapter.name} workspace`}
       description="Edit local content, manage team members and coaches, publish events and resources, and keep chapter contact information current without touching code."
+      chapterSlug={chapter.slug}
     >
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Team members" value={chapter.team.length} />
-        <StatCard label="Visible coaches" value={chapter.coaches.length} />
-        <StatCard label="Upcoming events" value={chapter.events.length} />
+        <StatCard label="Visible coaches" value={stats.coachCount} />
+        <StatCard label="Upcoming events" value={stats.eventCount} />
       </div>
       <div className="mt-8 grid gap-8 xl:grid-cols-2">
         <Panel title="Quick actions">
           <div className="grid gap-3 sm:grid-cols-2">
-            <Link href="/portal/chapter/nigeria/content" className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Edit chapter content</Link>
-            <Link href="/portal/chapter/nigeria/team" className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage team</Link>
-            <Link href="/portal/chapter/nigeria/coaches" className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage coaches</Link>
-            <Link href="/portal/chapter/nigeria/events" className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage events</Link>
-            <Link href="/portal/chapter/nigeria/resources" className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage resources</Link>
-            <Link href="/portal/chapter/nigeria/contact" className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Update contact details</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/content`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Edit chapter content</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/team`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage team</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/coaches`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage coaches</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/events`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage events</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/resources`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Manage resources</Link>
+            <Link href={`/portal/chapter/${chapter.slug}/contact`} className="rounded-[1.25rem] border border-slate-200 p-4 text-sm font-semibold text-brand-navy">Update contact details</Link>
           </div>
         </Panel>
         <Panel title="Publishing controls" description="Chapter leaders should be able to save drafts, preview updates, and publish when changes are ready.">
