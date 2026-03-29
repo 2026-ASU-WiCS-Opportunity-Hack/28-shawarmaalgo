@@ -129,6 +129,28 @@ export type ChapterListQuery = {
   language?: string;
 };
 
+export type ChapterCreatePayload = {
+  name: string;
+  slug: string;
+  country: string;
+  region: string;
+  description?: string;
+  description_local?: string;
+  primary_language: string;
+  supported_languages: string[];
+  timezone: string;
+  currency: string;
+  contact_email: string;
+  contact_phone?: string;
+  contact_city?: string;
+  website_url?: string;
+  logo_url?: string;
+  hero_image_url?: string;
+  is_active: boolean;
+  founded_year?: number;
+  member_count?: number;
+};
+
 export type CoachListQuery = {
   page?: number;
   page_size?: number;
@@ -252,7 +274,8 @@ export const api = {
 
   listChapters: (query?: ChapterListQuery) => request<PaginatedResponse<BackendChapter>>('/chapters', { query }),
   getChapter: (id: string) => request<BackendChapter>(`/chapters/${id}`),
-  createChapter: (payload: unknown, token: string) => request<BackendChapter>('/chapters', { method: 'POST', body: payload, token }),
+  createChapter: (payload: ChapterCreatePayload, token: string) =>
+    request<BackendChapter>('/chapters', { method: 'POST', body: payload, token }),
   updateChapter: (id: string, payload: unknown, token: string) => request<BackendChapter>(`/chapters/${id}`, { method: 'PUT', body: payload, token }),
   patchChapter: (id: string, payload: unknown, token: string) => request<BackendChapter>(`/chapters/${id}`, { method: 'PATCH', body: payload, token }),
   patchChapterContent: (id: string, payload: unknown, token: string) =>
