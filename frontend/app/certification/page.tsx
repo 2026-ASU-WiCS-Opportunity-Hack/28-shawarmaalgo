@@ -14,6 +14,8 @@ export default async function CertificationPage() {
         page?.introContent ||
         'WIAL brings Action Learning methodology and coach certification into one pathway, from understanding the foundations to progressing through CALC, PALC, SALC, and MALC.'
       }
+      heroImageUrl={page?.heroImageUrl}
+      bodyContent={page?.bodyContent}
       sections={[
         {
           title: 'What Action Learning is',

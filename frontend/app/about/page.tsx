@@ -12,6 +12,8 @@ export default async function AboutPage() {
         page?.introContent ||
         'WIAL describes its community as a global network of coaches, affiliates, partners, and chapter leaders brought together by a shared commitment to Action Learning.'
       }
+      heroImageUrl={page?.heroImageUrl}
+      bodyContent={page?.bodyContent}
       sections={[
         {
           title: 'Who WIAL is',
@@ -32,7 +34,7 @@ export default async function AboutPage() {
       ]}
       cta={{
         title: 'Explore the WIAL network',
-        description: 'Move from the global story into Action Learning, certification, coach search, and chapter-level experiences.',
+        description: 'Move from the global story into certification, coach search, and chapter-level experiences.',
         primary: { label: 'View chapters', href: '/chapters' },
         secondary: { label: 'Explore certification', href: '/certification' }
       }}

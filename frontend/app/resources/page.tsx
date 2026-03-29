@@ -1,6 +1,7 @@
 import { PageShell } from '@/components/layout/PageShell';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { InfoCard } from '@/components/cards/InfoCard';
+import { RichContent } from '@/components/content/RichContent';
 import { getGlobalPageContent, getGlobalResources } from '@/lib/server-data';
 
 export default async function ResourcesPage() {
@@ -16,6 +17,12 @@ export default async function ResourcesPage() {
           'WIAL points visitors to certification information, WIAL Talk, directory search, and other learning materials that help people explore Action Learning and connect with the community.'
         }
       />
+      {page?.heroImageUrl ? (
+        <div className="mt-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-950">
+          <img src={page.heroImageUrl} alt={page.title} className="max-h-[28rem] w-full object-cover" />
+        </div>
+      ) : null}
+      {page?.bodyContent ? <RichContent content={page.bodyContent} className="mt-8" /> : null}
       <div className="mt-8 grid gap-6 md:grid-cols-3">
         {resources.map((resource) => (
           <InfoCard key={resource.title} title={resource.title}>

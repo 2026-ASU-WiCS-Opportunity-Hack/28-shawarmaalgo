@@ -26,7 +26,8 @@ export function PortalShell({
         links: [
           { label: 'Overview', href: '/portal/admin' },
           { label: 'Chapters', href: '/portal/admin/chapters' },
-          { label: 'Users', href: '/portal/admin/users' }
+          { label: 'Users', href: '/portal/admin/users' },
+          { label: 'Pages', href: '/portal/admin/pages' }
         ]
       }
     ],

@@ -50,6 +50,8 @@ function mapGlobalPageToUI(page: BackendGlobalPage) {
     title: page.title,
     heroHeading: page.hero_heading,
     introContent: page.intro_content,
+    bodyContent: page.body_content,
+    heroImageUrl: page.hero_image_url || '',
     status: formatPageStatus(page.status),
     lastUpdated: formatAdminDate(page.updated_at)
   };
@@ -354,6 +356,8 @@ export async function getGlobalPages() {
     title: page.title,
     heroHeading: page.heroHeading,
     introContent: page.introContent,
+    bodyContent: page.bodyContent,
+    heroImageUrl: page.heroImageUrl || '',
     status: page.status,
     lastUpdated: 'Static content'
   }));
@@ -371,6 +375,8 @@ export async function getGlobalPages() {
             title: page.title,
             heroHeading: page.heroHeading,
             introContent: page.introContent,
+            bodyContent: page.bodyContent,
+            heroImageUrl: page.heroImageUrl || '',
             status: page.status,
             lastUpdated: 'Static content'
           };
@@ -389,6 +395,8 @@ export async function getGlobalPageContent(slug: string) {
       title: page.title,
       heroHeading: page.hero_heading,
       introContent: page.intro_content,
+      bodyContent: page.body_content,
+      heroImageUrl: page.hero_image_url || '',
       status: formatPageStatus(page.status),
       lastUpdated: formatAdminDate(page.updated_at)
     };
@@ -397,6 +405,8 @@ export async function getGlobalPageContent(slug: string) {
     title: fallback.title,
     heroHeading: fallback.heroHeading,
     introContent: fallback.introContent,
+    bodyContent: fallback.bodyContent,
+    heroImageUrl: fallback.heroImageUrl || '',
     status: fallback.status,
     lastUpdated: 'Static content'
   });

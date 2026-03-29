@@ -1,12 +1,13 @@
-import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
-import { Hero } from "@/components/sections/Hero";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { InfoCard } from "@/components/cards/InfoCard";
-import { CoachCard } from "@/components/cards/CoachCard";
-import { EventCard } from "@/components/cards/EventCard";
-import { TestimonialCard } from "@/components/cards/TestimonialCard";
-import { getChapter, getCountryCoaches, getCountryEvents } from "@/lib/server-data";
+import { notFound } from 'next/navigation';
+import { PageShell } from '@/components/layout/PageShell';
+import { Hero } from '@/components/sections/Hero';
+import { SectionHeading } from '@/components/ui/SectionHeading';
+import { InfoCard } from '@/components/cards/InfoCard';
+import { CoachCard } from '@/components/cards/CoachCard';
+import { EventCard } from '@/components/cards/EventCard';
+import { TestimonialCard } from '@/components/cards/TestimonialCard';
+import { EmptyState } from '@/components/content/EmptyState';
+import { getChapter, getCountryCoaches, getCountryEvents } from '@/lib/server-data';
 
 export default async function CountryOverviewPage({ params }: { params: { country: string } }) {
   const [country, coaches, events] = await Promise.all([
@@ -22,8 +23,8 @@ export default async function CountryOverviewPage({ params }: { params: { countr
         eyebrow={country.hero.eyebrow}
         title={country.hero.title}
         description={country.hero.description}
-        primaryCta={{ label: "See local coaches", href: `/${country.slug}/coaches` }}
-        secondaryCta={{ label: "See local events", href: `/${country.slug}/events` }}
+        primaryCta={{ label: 'See local coaches', href: `/${country.slug}/coaches` }}
+        secondaryCta={{ label: 'See local events', href: `/${country.slug}/events` }}
       />
 
       <section className="mt-16 grid gap-6 md:grid-cols-3">
@@ -51,11 +52,15 @@ export default async function CountryOverviewPage({ params }: { params: { countr
 
       <section className="mt-20">
         <SectionHeading eyebrow="Local events" title={`Upcoming events in ${country.shortName}`} />
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {events.map((event) => (
-            <EventCard key={`${event.title}-${event.date}`} event={event} />
-          ))}
-        </div>
+        {events.length > 0 ? (
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {events.map((event) => (
+              <EventCard key={`${event.title}-${event.date}`} event={event} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState className="mt-8" title="No events at this time" description={`There are no published events for ${country.shortName} right now.`} />
+        )}
       </section>
 
       <section className="mt-20">

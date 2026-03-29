@@ -17,7 +17,7 @@ export default async function AdminOverviewPage() {
       roleScope="admin"
       eyebrow="Admin console"
       title="Global network administration"
-      description="Create and configure chapters, assign leadership, review coach visibility, and keep the entire WIAL network aligned from one place."
+      description="Create and configure chapters, assign leadership, review coach visibility, manage shared site content, and keep the entire WIAL network aligned from one place."
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard label="Chapters" value={overview.chapters} />
@@ -35,6 +35,11 @@ export default async function AdminOverviewPage() {
           <Panel title="User access management" description="Open the user management workspace to create and delete managed users through the API-connected admin console.">
             <Link href="/portal/admin/users" className={buttonClassName()}>
               Manage users
+            </Link>
+          </Panel>
+          <Panel title="Global page content" description="Update the public Home, About, Certification, and Resources pages from one shared editor.">
+            <Link href="/portal/admin/pages" className={buttonClassName()}>
+              Manage global pages
             </Link>
           </Panel>
         </div>

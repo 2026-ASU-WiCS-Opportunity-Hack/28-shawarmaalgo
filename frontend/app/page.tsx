@@ -6,6 +6,8 @@ import { homeStats, featuredBenefits, homeHighlights } from '@/data/content';
 import { InfoCard } from '@/components/cards/InfoCard';
 import { EventCard } from '@/components/cards/EventCard';
 import { CtaBlock } from '@/components/sections/CtaBlock';
+import { EmptyState } from '@/components/content/EmptyState';
+import { RichContent } from '@/components/content/RichContent';
 import { getChapters, getGlobalEvents, getGlobalPageContent, getGlobalResources } from '@/lib/server-data';
 
 export const revalidate = 3600;
@@ -30,6 +32,13 @@ export default async function HomePage() {
         primaryCta={{ label: 'Explore chapters', href: '/chapters' }}
         secondaryCta={{ label: 'Find a coach', href: '/coaches' }}
       />
+
+      {page?.heroImageUrl ? (
+        <div className="mt-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-950">
+          <img src={page.heroImageUrl} alt={page.title} className="max-h-[28rem] w-full object-cover" />
+        </div>
+      ) : null}
+      {page?.bodyContent ? <RichContent content={page.bodyContent} className="mt-8" /> : null}
 
       <section className="mt-16 grid gap-6 md:grid-cols-3">
         {homeStats.map((stat) => (
@@ -77,15 +86,15 @@ export default async function HomePage() {
         />
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {countries.map((country) => (
-            <article key={country.slug} className="rounded-[1.5rem] border border-slate-200 p-6 shadow-soft">
+            <article key={country.slug} className="rounded-[1.5rem] border border-slate-200 p-6 shadow-soft dark:border-slate-800 dark:bg-slate-950">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-teal">{country.hero.eyebrow}</p>
-              <h3 className="mt-3 text-2xl font-semibold text-brand-navy">{country.name}</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-700">{country.overview}</p>
+              <h3 className="mt-3 text-2xl font-semibold text-brand-navy dark:text-white">{country.name}</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-300">{country.overview}</p>
               <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold">
-                <Link href={`/${country.slug}`} className="text-brand-navy hover:text-brand-teal">
+                <Link href={`/${country.slug}`} className="text-brand-navy hover:text-brand-teal dark:text-slate-100">
                   Visit chapter →
                 </Link>
-                <Link href={`/${country.slug}/coaches`} className="text-brand-navy hover:text-brand-teal">
+                <Link href={`/${country.slug}/coaches`} className="text-brand-navy hover:text-brand-teal dark:text-slate-100">
                   Local coaches →
                 </Link>
               </div>
@@ -96,11 +105,15 @@ export default async function HomePage() {
 
       <section className="mt-20">
         <SectionHeading eyebrow="Events" title="Programming at both the global and chapter level" description="From introductory sessions to certification-related programming, WIAL pages can showcase both global and chapter activity in one place." />
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          {globalEvents.map((event) => (
-            <EventCard key={event.title} event={event} />
-          ))}
-        </div>
+        {globalEvents.length > 0 ? (
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {globalEvents.map((event) => (
+              <EventCard key={event.title} event={event} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState className="mt-8" title="No events at this time" description="Check back soon for upcoming WIAL and chapter programming." />
+        )}
       </section>
 
       <section className="mt-20">

@@ -52,7 +52,7 @@ const defaultForm = (chapterId = ''): CreateUserForm => ({
 });
 
 function formatRole(role: string) {
-  return role.replace(/_/g, ' ').replace(/\w/g, (char) => char.toUpperCase());
+  return role.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function formatDate(value: string) {

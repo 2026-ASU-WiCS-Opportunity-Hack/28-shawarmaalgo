@@ -985,6 +985,16 @@ func (s *Store) PatchEvent(ctx context.Context, id string, req models.EventPatch
 		args = append(args, *req.RegistrationDeadline)
 		argPos++
 	}
+	if req.BodyContent != nil {
+		set = append(set, fmt.Sprintf("body_content = $%d", argPos))
+		args = append(args, *req.BodyContent)
+		argPos++
+	}
+	if req.HeroImageURL != nil {
+		set = append(set, fmt.Sprintf("hero_image_url = $%d", argPos))
+		args = append(args, *req.HeroImageURL)
+		argPos++
+	}
 	if req.Status != nil {
 		set = append(set, fmt.Sprintf("status = $%d", argPos))
 		args = append(args, *req.Status)
@@ -1523,7 +1533,7 @@ func UniqueConstraintName(err error) string {
 
 func (s *Store) ListGlobalPages(ctx context.Context) ([]models.GlobalPage, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, slug, title, hero_heading, intro_content, status, sort_order, created_at, updated_at
+		SELECT id, slug, title, hero_heading, intro_content, body_content, hero_image_url, status, sort_order, created_at, updated_at
 		FROM global_pages
 		ORDER BY sort_order ASC, created_at ASC
 	`)
@@ -1535,7 +1545,7 @@ func (s *Store) ListGlobalPages(ctx context.Context) ([]models.GlobalPage, error
 	pages := []models.GlobalPage{}
 	for rows.Next() {
 		var page models.GlobalPage
-		if err := rows.Scan(&page.ID, &page.Slug, &page.Title, &page.HeroHeading, &page.IntroContent, &page.Status, &page.SortOrder, &page.CreatedAt, &page.UpdatedAt); err != nil {
+		if err := rows.Scan(&page.ID, &page.Slug, &page.Title, &page.HeroHeading, &page.IntroContent, &page.BodyContent, &page.HeroImageURL, &page.Status, &page.SortOrder, &page.CreatedAt, &page.UpdatedAt); err != nil {
 			return nil, err
 		}
 		pages = append(pages, page)
@@ -1549,13 +1559,13 @@ func (s *Store) ListGlobalPages(ctx context.Context) ([]models.GlobalPage, error
 
 func (s *Store) GetGlobalPageBySlug(ctx context.Context, slug string) (models.GlobalPage, error) {
 	row := s.pool.QueryRow(ctx, `
-		SELECT id, slug, title, hero_heading, intro_content, status, sort_order, created_at, updated_at
+		SELECT id, slug, title, hero_heading, intro_content, body_content, hero_image_url, status, sort_order, created_at, updated_at
 		FROM global_pages
 		WHERE slug = $1
 	`, slug)
 
 	var page models.GlobalPage
-	if err := row.Scan(&page.ID, &page.Slug, &page.Title, &page.HeroHeading, &page.IntroContent, &page.Status, &page.SortOrder, &page.CreatedAt, &page.UpdatedAt); err != nil {
+	if err := row.Scan(&page.ID, &page.Slug, &page.Title, &page.HeroHeading, &page.IntroContent, &page.BodyContent, &page.HeroImageURL, &page.Status, &page.SortOrder, &page.CreatedAt, &page.UpdatedAt); err != nil {
 		return models.GlobalPage{}, err
 	}
 
@@ -1580,6 +1590,16 @@ func (s *Store) PatchGlobalPageBySlug(ctx context.Context, slug string, req mode
 	if req.IntroContent != nil {
 		set = append(set, fmt.Sprintf("intro_content = $%d", argPos))
 		args = append(args, *req.IntroContent)
+		argPos++
+	}
+	if req.BodyContent != nil {
+		set = append(set, fmt.Sprintf("body_content = $%d", argPos))
+		args = append(args, *req.BodyContent)
+		argPos++
+	}
+	if req.HeroImageURL != nil {
+		set = append(set, fmt.Sprintf("hero_image_url = $%d", argPos))
+		args = append(args, *req.HeroImageURL)
 		argPos++
 	}
 	if req.Status != nil {

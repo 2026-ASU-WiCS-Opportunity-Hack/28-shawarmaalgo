@@ -128,6 +128,8 @@ export type BackendGlobalPage = {
   title: string;
   hero_heading: string;
   intro_content: string;
+  body_content: string;
+  hero_image_url?: string | null;
   status: string;
   sort_order: number;
   created_at: string;
@@ -501,7 +503,7 @@ export const api = {
   getGlobalPage: (slug: string) => request<BackendGlobalPage>(`/global-pages/${slug}`),
   patchGlobalPage: (
     slug: string,
-    payload: Partial<Pick<BackendGlobalPage, 'title' | 'hero_heading' | 'intro_content' | 'status'>>,
+    payload: Partial<Pick<BackendGlobalPage, 'title' | 'hero_heading' | 'intro_content' | 'body_content' | 'hero_image_url' | 'status'>>,
     token: string
   ) => request<BackendGlobalPage>(`/global-pages/${slug}`, { method: 'PATCH', body: payload, token }),
 

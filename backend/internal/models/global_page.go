@@ -8,6 +8,8 @@ type GlobalPage struct {
 	Title        string    `json:"title"`
 	HeroHeading  string    `json:"hero_heading"`
 	IntroContent string    `json:"intro_content"`
+	BodyContent  string    `json:"body_content"`
+	HeroImageURL *string   `json:"hero_image_url"`
 	Status       string    `json:"status"`
 	SortOrder    int       `json:"sort_order"`
 	CreatedAt    time.Time `json:"created_at"`
@@ -22,5 +24,7 @@ type GlobalPagePatchRequest struct {
 	Title        *string `json:"title"`
 	HeroHeading  *string `json:"hero_heading"`
 	IntroContent *string `json:"intro_content"`
+	BodyContent  *string `json:"body_content"`
+	HeroImageURL *string `json:"hero_image_url"`
 	Status       *string `json:"status"`
 }
