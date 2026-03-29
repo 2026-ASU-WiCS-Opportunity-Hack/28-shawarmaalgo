@@ -9,9 +9,11 @@ import (
 )
 
 type Config struct {
-	Port     string
-	DatabaseURL string
-	Env      string
+	Port               string
+	DatabaseURL        string
+	Env                string
+	SuperAdminEmail    string
+	SuperAdminPassword string
 }
 
 func Load() Config {
@@ -20,11 +22,15 @@ func Load() Config {
 	port := getEnv("PORT", "8080")
 	dbURL := getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/wial?sslmode=disable")
 	env := getEnv("APP_ENV", "development")
+	superAdminEmail := getEnv("SUPER_ADMIN_EMAIL", "")
+	superAdminPassword := getEnv("SUPER_ADMIN_PASSWORD", "")
 
 	return Config{
-		Port: port,
-		DatabaseURL: dbURL,
-		Env: env,
+		Port:               port,
+		DatabaseURL:        dbURL,
+		Env:                env,
+		SuperAdminEmail:    superAdminEmail,
+		SuperAdminPassword: superAdminPassword,
 	}
 }
 

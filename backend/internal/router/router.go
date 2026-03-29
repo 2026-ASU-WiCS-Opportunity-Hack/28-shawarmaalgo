@@ -14,6 +14,7 @@ func New(
 	coachH *handlers.CoachHandlers,
 	eventH *handlers.EventHandlers,
 	authH *handlers.AuthHandlers,
+	userH *handlers.UserHandlers,
 	payH *handlers.PaymentHandlers,
 	aiH *handlers.AIHandlers,
 ) *gin.Engine {
@@ -26,7 +27,6 @@ func New(
 	api := r.Group("/api/v1")
 	{
 		// Auth
-		api.POST("/auth/register", authH.Register)
 		api.POST("/auth/login", authH.Login)
 
 		// Chapters (Public)
@@ -50,6 +50,12 @@ func New(
 		protected := api.Group("")
 		protected.Use(handlers.AuthMiddleware())
 		{
+			userAdmin := protected.Group("/users")
+			userAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				userAdmin.POST("", userH.CreateUser)
+			}
+
 			// Chapter Management (Chapter Lead or Super Admin)
 			chapterAdmin := protected.Group("/chapters")
 			chapterAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))

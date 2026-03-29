@@ -3,12 +3,13 @@ package handlers
 import (
 	"net/http"
 	"strings"
-	"wial-backend/internal/db"
-	"wial-backend/internal/models"
-	"wial-backend/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+
+	"wial-backend/internal/db"
+	"wial-backend/internal/models"
+	"wial-backend/internal/utils"
 )
 
 type AuthHandlers struct {
@@ -17,49 +18,6 @@ type AuthHandlers struct {
 
 func NewAuthHandlers(store *db.Store) *AuthHandlers {
 	return &AuthHandlers{store: store}
-}
-
-func (h *AuthHandlers) Register(c *gin.Context) {
-	var req models.UserRegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		logRequestError(c, "invalid register request", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-		return
-	}
-
-	if req.ChapterID != nil && strings.TrimSpace(*req.ChapterID) == "" {
-		req.ChapterID = nil
-	}
-
-	hashed, err := utils.HashPassword(req.Password)
-	if err != nil {
-		logRequestError(c, "failed to hash password", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
-		return
-	}
-
-	user, err := h.store.CreateUser(c.Request.Context(), req, hashed)
-	if err != nil {
-		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "email already exists"})
-			return
-		}
-		logRequestError(c, "failed to register user", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register user"})
-		return
-	}
-
-	token, err := utils.GenerateToken(user.ID, user.Role)
-	if err != nil {
-		logRequestError(c, "failed to generate register token", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
-		return
-	}
-
-	c.JSON(http.StatusCreated, models.AuthResponse{
-		Token: token,
-		User:  user,
-	})
 }
 
 func (h *AuthHandlers) Login(c *gin.Context) {
@@ -137,4 +95,15 @@ func RoleMiddleware(roles ...string) gin.HandlerFunc {
 
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 	}
+}
+
+func normalizeChapterID(chapterID *string) *string {
+	if chapterID == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*chapterID)
+	if trimmed == "" {
+		return nil
+	}
+	return &trimmed
 }

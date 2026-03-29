@@ -12,6 +12,7 @@ import (
 	"wial-backend/internal/db"
 	"wial-backend/internal/handlers"
 	"wial-backend/internal/router"
+	"wial-backend/internal/utils"
 )
 
 func main() {
@@ -36,10 +37,15 @@ func main() {
 	coachHandlers := handlers.NewCoachHandlers(store)
 	eventHandlers := handlers.NewEventHandlers(store)
 	authHandlers := handlers.NewAuthHandlers(store)
+	userHandlers := handlers.NewUserHandlers(store)
 	payHandlers := handlers.NewPaymentHandlers()
 	aiHandlers := handlers.NewAIHandlers(store)
 
-	r := router.New(chapterHandlers, coachHandlers, eventHandlers, authHandlers, payHandlers, aiHandlers)
+	if err := bootstrapSuperAdmin(ctx, cfg, store); err != nil {
+		log.Fatalf("failed to bootstrap super admin: %v", err)
+	}
+
+	r := router.New(chapterHandlers, coachHandlers, eventHandlers, authHandlers, userHandlers, payHandlers, aiHandlers)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -51,4 +57,38 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("server error: %v", err)
 	}
+}
+
+func bootstrapSuperAdmin(ctx context.Context, cfg config.Config, store *db.Store) error {
+	userCount, err := store.CountUsers(ctx)
+	if err != nil {
+		return err
+	}
+	if userCount > 0 {
+		return nil
+	}
+
+	if cfg.SuperAdminEmail == "" || cfg.SuperAdminPassword == "" {
+		return errMissingBootstrapEnv
+	}
+
+	hashed, err := utils.HashPassword(cfg.SuperAdminPassword)
+	if err != nil {
+		return err
+	}
+
+	if _, err := store.CreateBootstrapSuperAdmin(ctx, cfg.SuperAdminEmail, hashed); err != nil {
+		return err
+	}
+
+	log.Printf("bootstrapped initial super admin: %s", cfg.SuperAdminEmail)
+	return nil
+}
+
+var errMissingBootstrapEnv = bootstrapError("SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD must be set when no users exist")
+
+type bootstrapError string
+
+func (e bootstrapError) Error() string {
+	return string(e)
 }
