@@ -75,7 +75,6 @@ The current hackathon build includes real content management, uploads, and CRUD 
 - [`frontend/`](./frontend) contains the Next.js app, route handlers, shared UI, and API client helpers
 - [`backend/`](./backend) contains the Go API, handlers, router, storage integration, and SQL migrations
 - [`project_description.md`](./project_description.md) captures the product brief and stakeholder context
-- [`FIXES_APPLIED.md`](./FIXES_APPLIED.md) summarizes notable implementation fixes already completed
 
 ## Getting Started
 ### Prerequisites
