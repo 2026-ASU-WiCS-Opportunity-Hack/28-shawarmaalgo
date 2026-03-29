@@ -1,6 +1,12 @@
-name="test"
-main="app/page.tsx"
-
-compatibility_date = "2024-09-23"
+name = "wial-country-platform"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-29"
 compatibility_flags = ["nodejs_compat"]
-nodejs_compat=true
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "wial-country-platform"
