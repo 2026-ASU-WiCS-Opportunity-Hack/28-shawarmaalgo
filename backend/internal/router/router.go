@@ -14,6 +14,8 @@ func New(
 	coachH *handlers.CoachHandlers,
 	eventH *handlers.EventHandlers,
 	authH *handlers.AuthHandlers,
+	meH *handlers.MeHandlers,
+	portalH *handlers.PortalHandlers,
 	userH *handlers.UserHandlers,
 	payH *handlers.PaymentHandlers,
 	aiH *handlers.AIHandlers,
@@ -51,10 +53,19 @@ func New(
 		protected := api.Group("")
 		protected.Use(handlers.AuthMiddleware())
 		{
+			protected.GET("/me", meH.GetMe)
+
 			userAdmin := protected.Group("/users")
 			userAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
 			{
 				userAdmin.POST("", userH.CreateUser)
+			}
+
+			portal := protected.Group("/portal")
+			portal.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				portal.GET("/overview", portalH.GetOverview)
+				portal.GET("/chapter", portalH.GetChapter)
 			}
 
 			chapterContent := protected.Group("/chapters")

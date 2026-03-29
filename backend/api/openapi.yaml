@@ -14,6 +14,7 @@ tags:
   - name: Health
   - name: Auth
   - name: Users
+  - name: Portal
   - name: Chapters
   - name: Coaches
   - name: Events
@@ -103,6 +104,98 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 error: email already exists
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/me:
+    get:
+      tags: [Auth]
+      summary: Get the current authenticated user
+      operationId: getMe
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/portal/overview:
+    get:
+      tags: [Portal]
+      summary: Get leader portal overview
+      description: Chapter leads are scoped to their assigned chapter. Super-admins must pass `chapter_id`.
+      operationId: getPortalOverview
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+          description: Required for `super_admin`; ignored for `chapter_lead`.
+      responses:
+        '200':
+          description: Portal overview for the scoped chapter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalOverviewResponse'
+        '400':
+          description: Missing required chapter_id for super-admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: chapter_id is required
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/portal/chapter:
+    get:
+      tags: [Portal]
+      summary: Get the scoped portal chapter
+      description: Chapter leads are scoped to their assigned chapter. Super-admins must pass `chapter_id`.
+      operationId: getPortalChapter
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: chapter_id
+          schema:
+            type: string
+          description: Required for `super_admin`; ignored for `chapter_lead`.
+      responses:
+        '200':
+          description: Scoped chapter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '400':
+          description: Missing required chapter_id for super-admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: chapter_id is required
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalError'
   /api/v1/chapters:
@@ -647,6 +740,40 @@ components:
         user:
           $ref: '#/components/schemas/User'
       required: [token, user]
+    MeResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        chapter:
+          allOf:
+            - $ref: '#/components/schemas/Chapter'
+          nullable: true
+      required: [user]
+    PortalOverviewStats:
+      type: object
+      properties:
+        coach_count: { type: integer }
+        event_count: { type: integer }
+      required: [coach_count, event_count]
+    PortalOverviewResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        chapter:
+          $ref: '#/components/schemas/Chapter'
+        stats:
+          $ref: '#/components/schemas/PortalOverviewStats'
+        recent_coaches:
+          type: array
+          items:
+            $ref: '#/components/schemas/Coach'
+        recent_events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+      required: [user, chapter, stats, recent_coaches, recent_events]
     Chapter:
       type: object
       properties:

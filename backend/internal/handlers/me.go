@@ -1,0 +1,44 @@
+package handlers
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
+
+	"wial-backend/internal/db"
+	"wial-backend/internal/models"
+)
+
+type MeHandlers struct {
+	store *db.Store
+}
+
+func NewMeHandlers(store *db.Store) *MeHandlers {
+	return &MeHandlers{store: store}
+}
+
+func (h *MeHandlers) GetMe(c *gin.Context) {
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+
+	var chapter *models.Chapter
+	if user.ChapterID != nil {
+		ch, err := h.store.GetChapter(c.Request.Context(), *user.ChapterID)
+		if err != nil && err != pgx.ErrNoRows {
+			logRequestError(c, "failed to load chapter for me response", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch profile"})
+			return
+		}
+		if err == nil {
+			chapter = &ch
+		}
+	}
+
+	c.JSON(http.StatusOK, models.MeResponse{
+		User:    user,
+		Chapter: chapter,
+	})
+}

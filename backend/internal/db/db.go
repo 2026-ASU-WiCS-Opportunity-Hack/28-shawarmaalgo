@@ -464,6 +464,43 @@ func (s *Store) ListCoaches(ctx context.Context, page, pageSize int, chapterID, 
 	return coaches, total, nil
 }
 
+func (s *Store) CountCoachesByChapter(ctx context.Context, chapterID string) (int, error) {
+	var total int
+	if err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM coaches WHERE chapter_id = $1`, chapterID).Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (s *Store) ListRecentCoachesByChapter(ctx context.Context, chapterID string, limit int) ([]models.Coach, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT c.id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
+		FROM coaches c
+		LEFT JOIN chapters ch ON c.chapter_id = ch.id
+		WHERE c.chapter_id = $1
+		ORDER BY c.created_at DESC
+		LIMIT $2
+	`, chapterID, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	coaches := []models.Coach{}
+	for rows.Next() {
+		var c models.Coach
+		if err := rows.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		coaches = append(coaches, c)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return coaches, nil
+}
+
 func (s *Store) CreateEvent(ctx context.Context, req models.EventCreateRequest) (models.Event, error) {
 	row := s.pool.QueryRow(ctx, `
 		INSERT INTO events
@@ -532,6 +569,43 @@ func (s *Store) ListEvents(ctx context.Context, page, pageSize int, chapterID, e
 		events = append(events, e)
 	}
 	return events, total, nil
+}
+
+func (s *Store) CountEventsByChapter(ctx context.Context, chapterID string) (int, error) {
+	var total int
+	if err := s.pool.QueryRow(ctx, `SELECT COUNT(*) FROM events WHERE chapter_id = $1`, chapterID).Scan(&total); err != nil {
+		return 0, err
+	}
+	return total, nil
+}
+
+func (s *Store) ListRecentEventsByChapter(ctx context.Context, chapterID string, limit int) ([]models.Event, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT e.id, e.title, e.title_local, e.description, e.description_local, e.event_type, e.start_date, e.end_date, e.timezone, e.location_type, e.venue_name, e.venue_address, e.online_meeting_url, e.chapter_id, ch.name as chapter_name, e.max_attendees, e.current_attendees, e.price_amount, e.price_currency, e.is_free, e.registration_deadline, e.status, e.image_url, e.created_at, e.updated_at
+		FROM events e
+		LEFT JOIN chapters ch ON e.chapter_id = ch.id
+		WHERE e.chapter_id = $1
+		ORDER BY e.start_date DESC
+		LIMIT $2
+	`, chapterID, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	events := []models.Event{}
+	for rows.Next() {
+		var e models.Event
+		if err := rows.Scan(&e.ID, &e.Title, &e.TitleLocal, &e.Description, &e.DescriptionLocal, &e.EventType, &e.StartDate, &e.EndDate, &e.Timezone, &e.LocationType, &e.VenueName, &e.VenueAddress, &e.OnlineMeetingURL, &e.ChapterID, &e.ChapterName, &e.MaxAttendees, &e.CurrentAttendees, &e.PriceAmount, &e.PriceCurrency, &e.IsFree, &e.RegistrationDeadline, &e.Status, &e.ImageURL, &e.CreatedAt, &e.UpdatedAt); err != nil {
+			return nil, err
+		}
+		events = append(events, e)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return events, nil
 }
 
 func (s *Store) CreateUser(ctx context.Context, req models.UserRegisterRequest, passwordHash string) (models.User, error) {

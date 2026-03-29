@@ -37,6 +37,8 @@ func main() {
 	coachHandlers := handlers.NewCoachHandlers(store)
 	eventHandlers := handlers.NewEventHandlers(store)
 	authHandlers := handlers.NewAuthHandlers(store)
+	meHandlers := handlers.NewMeHandlers(store)
+	portalHandlers := handlers.NewPortalHandlers(store)
 	userHandlers := handlers.NewUserHandlers(store)
 	payHandlers := handlers.NewPaymentHandlers()
 	aiHandlers := handlers.NewAIHandlers(store)
@@ -45,7 +47,7 @@ func main() {
 		log.Fatalf("failed to bootstrap super admin: %v", err)
 	}
 
-	r := router.New(chapterHandlers, coachHandlers, eventHandlers, authHandlers, userHandlers, payHandlers, aiHandlers)
+	r := router.New(chapterHandlers, coachHandlers, eventHandlers, authHandlers, meHandlers, portalHandlers, userHandlers, payHandlers, aiHandlers)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
