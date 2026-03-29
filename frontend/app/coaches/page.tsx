@@ -33,7 +33,7 @@ export default async function CoachesPage() {
             <option key={level}>{level}</option>
           ))}
         </select>
-        <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-ink">Search</button>
+        <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Search</button>
       </section>
 
       <div className="mt-8 rounded-[1.5rem] border border-dashed border-brand-teal bg-brand-sand p-5 text-sm text-brand-ink">

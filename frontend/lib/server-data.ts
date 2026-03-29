@@ -332,3 +332,22 @@ export async function getCoachAccount() {
 export async function getGlobalResources() {
   return safeFetch(async () => (await api.listResources()).data.map(mapResourceToUI), resources);
 }
+
+export async function getManagedUsersRaw() {
+  const token = getServerAuthToken();
+  if (!token) return [] as BackendUser[];
+
+  return safeFetch(async () => (await api.listUsers(token)).data, [] as BackendUser[]);
+}
+
+export async function getChapterOptions() {
+  return safeFetch(
+    async () =>
+      (await api.listChapters({ page_size: 100 })).data.map((chapter) => ({
+        id: chapter.id,
+        name: chapter.name,
+        slug: chapter.slug
+      })),
+    [] as Array<{ id: string; name: string; slug: string }>
+  );
+}

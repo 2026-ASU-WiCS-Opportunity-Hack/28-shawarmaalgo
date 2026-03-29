@@ -27,7 +27,7 @@ export default async function CoachPortalPage() {
             <Field label="Location" defaultValue={profile.location} />
             <Field label="Certification" defaultValue={profile.certification} />
             <Field label="Bio" textarea defaultValue={profile.bio} />
-            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save profile</button>
+            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save profile</button>
           </form>
         </Panel>
         <Panel title="Certification status" description={certification.status}>

@@ -318,7 +318,7 @@ export default function NewChapterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
+              className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink disabled:opacity-70"
             >
               {loading ? 'Creating chapter...' : 'Create chapter'}
             </button>

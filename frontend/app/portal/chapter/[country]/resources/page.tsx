@@ -18,8 +18,8 @@ export default async function ChapterResourcesPage({ params }: { params: { count
               <Field label="Type" defaultValue={resource.type} />
               <Field label="Summary" textarea defaultValue={resource.summary} />
               <div className="flex gap-3">
-                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save resource</button>
-                <button className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700">Delete</button>
+                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save resource</button>
+                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Delete</button>
               </div>
             </div>
           </Panel>
@@ -29,7 +29,7 @@ export default async function ChapterResourcesPage({ params }: { params: { count
             <Field label="Resource title" placeholder="Canada chapter guide" />
             <Field label="Type" placeholder="Guide" />
             <Field label="Summary" textarea placeholder="Describe the resource." />
-            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Add resource</button>
+            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Add resource</button>
           </div>
         </Panel>
       </div>

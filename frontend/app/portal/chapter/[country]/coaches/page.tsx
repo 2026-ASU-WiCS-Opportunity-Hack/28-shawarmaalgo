@@ -19,8 +19,8 @@ export default async function ChapterCoachesPage({ params }: { params: { country
               <Field label="Focus" defaultValue={coach.focus} />
               <Field label="Bio" textarea defaultValue={coach.bio} />
               <div className="flex gap-3">
-                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save coach</button>
-                <button className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700">Archive</button>
+                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save coach</button>
+                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Archive</button>
               </div>
             </div>
           </Panel>

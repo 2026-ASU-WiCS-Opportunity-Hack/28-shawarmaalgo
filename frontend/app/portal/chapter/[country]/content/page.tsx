@@ -23,8 +23,8 @@ export default async function ChapterContentPage({ params }: { params: { country
           <Field label="Hero description" textarea defaultValue={chapter.hero.description} />
           <Field label="Overview" textarea defaultValue={chapter.overview} />
           <div className="flex flex-wrap gap-3">
-            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save draft</button>
-            <button className="rounded-full border border-brand-navy px-5 py-3 text-sm font-semibold text-brand-navy">Publish changes</button>
+            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save draft</button>
+            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Publish changes</button>
           </div>
         </form>
       </Panel>

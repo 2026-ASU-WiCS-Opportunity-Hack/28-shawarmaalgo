@@ -16,7 +16,7 @@ export default async function AdminChaptersPage() {
     >
       <Panel title="All chapters" description="Each chapter inherits the core global template while retaining local content areas for leadership, coaches, events, resources, and contact information.">
         <div className="mb-5 flex justify-end">
-          <Link href="/portal/admin/chapters/new" className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Create new chapter</Link>
+          <Link href="/portal/admin/chapters/new" className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Create new chapter</Link>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">

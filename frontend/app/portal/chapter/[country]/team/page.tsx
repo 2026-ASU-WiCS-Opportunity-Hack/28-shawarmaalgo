@@ -17,7 +17,7 @@ export default async function ChapterTeamPage({ params }: { params: { country: s
               <Field label="Name" defaultValue={member.name} />
               <Field label="Role" defaultValue={member.role} />
               <Field label="Profile summary" textarea defaultValue={member.blurb} />
-              <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save member</button>
+              <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save member</button>
             </div>
           </Panel>
         ))}

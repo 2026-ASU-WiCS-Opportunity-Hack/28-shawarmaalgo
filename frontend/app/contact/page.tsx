@@ -24,7 +24,7 @@ export default function ContactPage() {
             <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Your name" />
             <input className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Your email" />
             <textarea className="min-h-32 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="How can we help?" />
-            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-ink">Send message</button>
+            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Send message</button>
           </form>
         </section>
       </div>

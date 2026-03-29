@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 type HeroProps = {
   eyebrow: string;
@@ -18,7 +18,7 @@ export function Hero({ eyebrow, title, description, primaryCta, secondaryCta }: 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-100/90">{description}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button href={primaryCta.href}>{primaryCta.label}</Button>
-            {secondaryCta ? <Button href={secondaryCta.href} variant="secondary">{secondaryCta.label}</Button> : null}
+            {secondaryCta ? <Button href={secondaryCta.href}>{secondaryCta.label}</Button> : null}
           </div>
         </div>
         <div className="rounded-[1.5rem] border border-white/10 bg-white/10 p-6 backdrop-blur">

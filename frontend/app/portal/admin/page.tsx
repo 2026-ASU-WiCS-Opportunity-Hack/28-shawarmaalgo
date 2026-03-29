@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PortalShell } from '@/components/portal/PortalShell';
 import { Panel, StatCard } from '@/components/portal/PortalCards';
+import { buttonClassName } from '@/components/ui/button';
 import { getAdminOverview, getGlobalPages, getChapters } from '@/lib/server-data';
 
 export const dynamic = 'force-dynamic';
@@ -37,22 +38,30 @@ export default async function AdminOverviewPage() {
               </div>
             ))}
           </div>
-          <Link href="/portal/admin/chapters/new" className="mt-5 inline-flex rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Create new chapter</Link>
+          <Link href="/portal/admin/chapters/new" className={buttonClassName({ className: 'mt-5' })}>Create new chapter</Link>
         </Panel>
 
-        <Panel title="Global pages" description="Shared pages are centrally managed and inherited across the platform where appropriate.">
-          <div className="space-y-3">
-            {pages.map((page) => (
-              <div key={page.slug} className="flex items-center justify-between rounded-[1.25rem] border border-slate-200 p-4">
-                <div>
-                  <p className="font-semibold text-brand-navy">{page.title}</p>
-                  <p className="text-sm text-slate-600">{page.status} • Updated {page.lastUpdated}</p>
+        <div className="grid gap-8">
+          <Panel title="Global pages" description="Shared pages are centrally managed and inherited across the platform where appropriate.">
+            <div className="space-y-3">
+              {pages.map((page) => (
+                <div key={page.slug} className="flex items-center justify-between rounded-[1.25rem] border border-slate-200 p-4">
+                  <div>
+                    <p className="font-semibold text-brand-navy">{page.title}</p>
+                    <p className="text-sm text-slate-600">{page.status} • Updated {page.lastUpdated}</p>
+                  </div>
+                  <Link href="/portal/admin/pages" className="text-sm font-semibold text-brand-navy hover:text-brand-teal">Edit</Link>
                 </div>
-                <Link href="/portal/admin/pages" className="text-sm font-semibold text-brand-navy hover:text-brand-teal">Edit</Link>
-              </div>
-            ))}
-          </div>
-        </Panel>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel title="User access management" description="Open the user management workspace to create and delete managed users through the API-connected admin console.">
+            <Link href="/portal/admin/users" className={buttonClassName()}>
+              Manage users
+            </Link>
+          </Panel>
+        </div>
       </div>
     </PortalShell>
   );

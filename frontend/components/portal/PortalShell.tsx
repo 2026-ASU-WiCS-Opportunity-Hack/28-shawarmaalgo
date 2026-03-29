@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 
 export function PortalShell({
   eyebrow,
@@ -66,12 +67,17 @@ export function PortalShell({
               </div>
             ))}
           </div>
+          <LogoutButton fullWidth className="mt-6" />
         </aside>
         <section>
           <div className="rounded-[1.75rem] bg-brand-navy px-6 py-8 text-white shadow-soft sm:px-8">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-brand-gold">{eyebrow}</p>
-            <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{title}</h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-100 sm:text-base">{description}</p>
+            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h1 className="text-3xl font-semibold sm:text-4xl">{title}</h1>
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-100 sm:text-base">{description}</p>
+              </div>
+            </div>
           </div>
           <div className="mt-8">{children}</div>
         </section>

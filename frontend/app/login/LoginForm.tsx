@@ -5,9 +5,16 @@ import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { PageShell } from '@/components/layout/PageShell';
 import { SectionHeading } from '@/components/ui/SectionHeading';
+import { Button } from '@/components/ui/button';
+import { LogoutButton } from '@/components/auth/LogoutButton';
 import { api } from '@/lib/api';
 import { AUTH_COOKIE_NAME, ROLE_COOKIE_NAME } from '@/lib/auth-cookies';
 import { getRoleDestination } from '@/lib/auth-routing';
+
+type LoginFormProps = {
+  isLoggedIn: boolean;
+  portalHref: string | null;
+};
 
 const roles = [
   {
@@ -27,7 +34,7 @@ const roles = [
   }
 ];
 
-export default function LoginForm() {
+export default function LoginForm({ isLoggedIn, portalHref }: LoginFormProps) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,32 +66,54 @@ export default function LoginForm() {
     <PageShell>
       <SectionHeading
         eyebrow="Account access"
-        title="Sign in to the WIAL platform"
-        description="Use your WIAL account to access the global admin console, chapter leader tools, or your coach profile and certification information."
+        title={isLoggedIn ? 'You are signed in to the WIAL platform' : 'Log in to the WIAL platform'}
+        description={
+          isLoggedIn
+            ? 'Open your portal to manage WIAL content and access, or log out when you are finished.'
+            : 'Use your WIAL account to access the global admin console, chapter leader tools, or your coach profile and certification information.'
+        }
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.95fr]">
         <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
-          <h2 className="text-2xl font-semibold text-brand-navy">Welcome back</h2>
-          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Email address</label>
-              <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="you@wial.org" />
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
-              <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Enter your password" />
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-slate-600">
-                <input type="checkbox" /> Keep me signed in
-              </label>
-              <Link href="/contact" className="font-medium text-brand-navy hover:text-brand-teal">Need help?</Link>
-            </div>
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
-            <button disabled={loading} className="w-full rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-ink disabled:opacity-70">{loading ? 'Signing in...' : 'Sign in'}</button>
-            <button type="button" className="w-full rounded-full border border-brand-navy px-5 py-3 text-sm font-semibold text-brand-navy hover:bg-brand-sand">Continue with single sign-on</button>
-          </form>
+          {isLoggedIn ? (
+            <>
+              <h2 className="text-2xl font-semibold text-brand-navy">You are already logged in</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-700">
+                Use the portal button below to continue to your workspace. When you are done, you can log out from here or from inside the portal.
+              </p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <Button href={portalHref || '/portal'} fullWidth>
+                  Portal
+                </Button>
+                <LogoutButton fullWidth />
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-semibold text-brand-navy">Welcome back</h2>
+              <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Email address</label>
+                  <input value={email} onChange={(event) => setEmail(event.target.value)} type="email" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="you@wial.org" />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Password</label>
+                  <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" placeholder="Enter your password" />
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-2 text-slate-600">
+                    <input type="checkbox" /> Keep me signed in
+                  </label>
+                  <Link href="/contact" className="font-medium text-brand-navy hover:text-brand-teal">Need help?</Link>
+                </div>
+                {error ? <p className="text-sm text-red-600">{error}</p> : null}
+                <Button type="submit" disabled={loading} fullWidth>
+                  {loading ? 'Logging in...' : 'Log in'}
+                </Button>
+              </form>
+            </>
+          )}
         </section>
 
         <section className="rounded-[1.75rem] bg-brand-sand p-6 sm:p-8">
@@ -94,9 +123,13 @@ export default function LoginForm() {
               <article key={role.title} className="rounded-[1.25rem] border border-white bg-white p-5 shadow-soft">
                 <h3 className="text-lg font-semibold text-brand-navy">{role.title}</h3>
                 <p className="mt-2 text-sm leading-7 text-slate-700">{role.body}</p>
-                <Link href={role.href} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
-                  Open {role.title} console →
-                </Link>
+                {isLoggedIn ? (
+                  <Link href={role.href} className="mt-4 inline-flex text-sm font-semibold text-brand-navy hover:text-brand-teal">
+                    Open {role.title} console →
+                  </Link>
+                ) : (
+                  <p className="mt-4 text-sm font-medium text-slate-500">Log in to view console links.</p>
+                )}
               </article>
             ))}
           </div>

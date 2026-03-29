@@ -29,7 +29,7 @@ export default async function AdminPagesPage() {
             <Field label="Page title" defaultValue="About WIAL" />
             <Field label="Hero heading" defaultValue="Developing leaders and organizations through Action Learning" />
             <Field label="Introductory content" textarea defaultValue="WIAL is a global nonprofit organization dedicated to advancing Action Learning and supporting certified coaches, organizations, and chapters around the world." />
-            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save page content</button>
+            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save page content</button>
           </form>
         </Panel>
       </div>

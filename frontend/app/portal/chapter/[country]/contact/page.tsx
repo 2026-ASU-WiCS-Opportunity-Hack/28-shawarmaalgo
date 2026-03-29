@@ -17,7 +17,7 @@ export default async function ChapterContactPage({ params }: { params: { country
           <Field label="City" defaultValue={chapter.contact.city} />
           <Field label="Office hours" defaultValue="Mon-Fri, 9:00 AM-5:00 PM" />
           <div className="md:col-span-2">
-            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save contact details</button>
+            <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save contact details</button>
           </div>
         </form>
       </Panel>

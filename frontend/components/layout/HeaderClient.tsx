@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { site } from "@/data/site";
+import Link from 'next/link';
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import { site } from '@/data/site';
+import { buttonClassName } from '@/components/ui/button';
 
 type HeaderClientProps = {
   portalHref: string | null;
@@ -11,11 +12,8 @@ type HeaderClientProps = {
 
 export function HeaderClient({ portalHref }: HeaderClientProps) {
   const [open, setOpen] = useState(false);
-  const accountLabel = portalHref ? "Portal" : "Login";
-  const accountHref = portalHref || "/login";
-  const mobileAccountClassName = portalHref
-    ? "mt-2 inline-flex items-center justify-center rounded-full border border-brand-navy px-5 py-3 text-sm font-semibold text-brand-navy hover:bg-brand-sand"
-    : "mt-2 inline-flex items-center justify-center rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white";
+  const accountLabel = portalHref ? 'Portal' : 'Login';
+  const accountHref = portalHref || '/login';
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -34,17 +32,14 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
               {item.label}
             </Link>
           ))}
-          <Link
-            href={accountHref}
-            className="inline-flex items-center rounded-full border border-brand-navy px-4 py-2 text-sm font-semibold text-brand-navy hover:bg-brand-sand"
-          >
+          <Link href={accountHref} className={buttonClassName()}>
             {accountLabel}
           </Link>
         </nav>
 
         <button
           type="button"
-          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={open}
           className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2 text-brand-navy lg:hidden"
           onClick={() => setOpen((value) => !value)}
@@ -66,11 +61,7 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href={accountHref}
-              onClick={() => setOpen(false)}
-              className={mobileAccountClassName}
-            >
+            <Link href={accountHref} onClick={() => setOpen(false)} className={buttonClassName({ fullWidth: true, className: 'mt-2' })}>
               {accountLabel}
             </Link>
           </div>

@@ -19,8 +19,8 @@ export default async function ChapterEventsPage({ params }: { params: { country:
               <Field label="Location" defaultValue={event.location} />
               <Field label="Summary" textarea defaultValue={event.summary} />
               <div className="flex gap-3">
-                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Save event</button>
-                <button className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700">Delete</button>
+                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Save event</button>
+                <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Delete</button>
               </div>
             </div>
           </Panel>
@@ -31,7 +31,7 @@ export default async function ChapterEventsPage({ params }: { params: { country:
             <Field label="Date" placeholder="August 24, 2026" />
             <Field label="Location" placeholder="Toronto, Canada" />
             <Field label="Summary" textarea placeholder="Describe the event." />
-            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white">Add event</button>
+            <button className="w-fit rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Add event</button>
           </div>
         </Panel>
       </div>
