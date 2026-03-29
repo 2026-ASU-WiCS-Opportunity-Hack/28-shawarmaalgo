@@ -1,14 +1,20 @@
 import Link from "next/link";
-import { Hero } from "@/components/sections/Hero";
 import { PageShell } from "@/components/layout/PageShell";
+import { Hero } from "@/components/sections/Hero";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { featuredBenefits, globalEvents, homeHighlights, homeStats, resources } from "@/data/content";
-import { countries } from "@/data/countries";
+import { homeStats, featuredBenefits, homeHighlights } from "@/data/content";
 import { InfoCard } from "@/components/cards/InfoCard";
 import { EventCard } from "@/components/cards/EventCard";
 import { CtaBlock } from "@/components/sections/CtaBlock";
+import { getChapters, getGlobalEvents, getGlobalResources } from "@/lib/server-data";
 
-export default function HomePage() {
+export const revalidate = 3600;
+
+export default async function HomePage() {
+  const countries = await getChapters();
+  const globalEvents = await getGlobalEvents();
+  const resources = await getGlobalResources();
+
   return (
     <PageShell>
       <Hero
@@ -105,8 +111,8 @@ export default function HomePage() {
 
       <div className="mt-20">
         <CtaBlock
-          title="Ready for chapter management and coach access"
-          description="The frontend includes sign-in and portal routes so your backend teammate can connect authentication, profile management, and chapter content editing next."
+          title="Explore chapters, coaches, and certification pathways"
+          description="WIAL connects Action Learning practice, coach development, and chapter activity in one globally aligned experience."
           primary={{ label: "Sign in", href: "/login" }}
           secondary={{ label: "Explore chapters", href: "/chapters" }}
         />

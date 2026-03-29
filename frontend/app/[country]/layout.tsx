@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
 import { notFound } from "next/navigation";
-import { countries, getCountryBySlug } from "@/data/countries";
+import { getCountryBySlug } from "@/data/countries";
 import { CountrySubnav } from "@/components/layout/CountrySubnav";
+
+export const revalidate = 3600;
 
 export default function CountryLayout({ children, params }: { children: ReactNode; params: { country: string } }) {
   const country = getCountryBySlug(params.country);
@@ -15,10 +17,4 @@ export default function CountryLayout({ children, params }: { children: ReactNod
       {children}
     </>
   );
-}
-
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return countries.map((country) => ({ country: country.slug }));
 }

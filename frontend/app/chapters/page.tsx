@@ -2,9 +2,13 @@ import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { chapterBenefits } from "@/data/content";
-import { countries } from "@/data/countries";
+import { getChapters } from "@/lib/server-data";
 
-export default function ChaptersPage() {
+export const revalidate = 3600;
+
+export default async function ChaptersPage() {
+  const countries = await getChapters();
+
   return (
     <PageShell>
       <SectionHeading

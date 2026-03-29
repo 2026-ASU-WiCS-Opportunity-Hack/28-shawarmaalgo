@@ -1,6 +1,8 @@
-import { PageShell } from "@/components/layout/PageShell";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { site } from "@/data/site";
+import { PageShell } from '@/components/layout/PageShell';
+import { SectionHeading } from '@/components/ui/SectionHeading';
+import { site } from '@/data/site';
+
+export const revalidate = 3600;
 
 export default function ContactPage() {
   return (
@@ -8,7 +10,7 @@ export default function ContactPage() {
       <SectionHeading
         eyebrow="Contact"
         title="Get in touch with WIAL"
-        description="The current WIAL site provides a clear global contact path. This page keeps that simple while leaving room for chapter routing and form handling through the backend."
+        description="Connect with the World Institute for Action Learning for chapter inquiries, Action Learning questions, certification information, and general organizational contact."
       />
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         <section className="rounded-[1.5rem] border border-slate-200 p-6 shadow-soft">
