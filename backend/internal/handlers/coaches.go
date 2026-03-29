@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"wial-backend/internal/db"
 	"wial-backend/internal/models"
 )
@@ -17,10 +18,20 @@ func NewCoachHandlers(store *db.Store) *CoachHandlers {
 }
 
 func (h *CoachHandlers) CreateCoach(c *gin.Context) {
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+
 	var req models.CoachCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logRequestError(c, "invalid create coach request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	req.ChapterID = normalizeChapterID(req.ChapterID)
+	if !requireSameChapter(c, user, req.ChapterID) {
 		return
 	}
 
@@ -32,6 +43,21 @@ func (h *CoachHandlers) CreateCoach(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, coach)
+}
+
+func (h *CoachHandlers) GetCoach(c *gin.Context) {
+	coach, err := h.store.GetCoachByID(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "coach not found"})
+			return
+		}
+		logRequestError(c, "failed to fetch coach", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch coach"})
+		return
+	}
+
+	c.JSON(http.StatusOK, coach)
 }
 
 func (h *CoachHandlers) ListCoaches(c *gin.Context) {

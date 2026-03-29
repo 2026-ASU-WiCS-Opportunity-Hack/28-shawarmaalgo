@@ -91,3 +91,19 @@ type ChapterListResponse struct {
 	PageSize int       `json:"page_size"`
 	Total    int       `json:"total"`
 }
+
+type ChapterContentUpdateRequest struct {
+	Name               *string  `json:"name"`
+	Description        *string  `json:"description"`
+	DescriptionLocal   *string  `json:"description_local"`
+	PrimaryLanguage    *string  `json:"primary_language"`
+	SupportedLanguages []string `json:"supported_languages"`
+	Timezone           *string  `json:"timezone"`
+	Currency           *string  `json:"currency"`
+	WebsiteURL         *string  `json:"website_url"`
+	LogoURL            *string  `json:"logo_url"`
+	HeroImageURL       *string  `json:"hero_image_url"`
+	IsActive           *bool    `json:"is_active"`
+	FoundedYear        *int     `json:"founded_year"`
+	MemberCount        *int     `json:"member_count"`
+}

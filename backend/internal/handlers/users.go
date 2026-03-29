@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
 
 	"wial-backend/internal/db"
 	"wial-backend/internal/models"
@@ -37,30 +36,12 @@ func (h *UserHandlers) CreateUser(c *gin.Context) {
 		return
 	}
 
-	currentUserID, ok := c.Get("user_id")
+	currentUser, ok := actingUser(c, h.store)
 	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
-
-	currentUser, err := h.store.GetUserByID(c.Request.Context(), currentUserID.(string))
-	if err != nil {
-		if err != pgx.ErrNoRows {
-			logRequestError(c, "failed to load acting user", err)
-		}
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+	if !requireSameChapter(c, currentUser, req.ChapterID) {
 		return
-	}
-
-	if currentUser.Role == models.RoleChapterLead {
-		if currentUser.ChapterID == nil {
-			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-			return
-		}
-		if *req.ChapterID != *currentUser.ChapterID {
-			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-			return
-		}
 	}
 
 	hashed, err := utils.HashPassword(req.Password)

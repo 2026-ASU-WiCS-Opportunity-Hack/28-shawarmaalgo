@@ -17,10 +17,19 @@ func NewEventHandlers(store *db.Store) *EventHandlers {
 }
 
 func (h *EventHandlers) CreateEvent(c *gin.Context) {
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+
 	var req models.EventCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logRequestError(c, "invalid create event request", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	if !requireSameChapter(c, user, &req.ChapterID) {
 		return
 	}
 

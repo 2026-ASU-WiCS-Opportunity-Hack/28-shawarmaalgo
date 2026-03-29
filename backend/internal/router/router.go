@@ -35,6 +35,7 @@ func New(
 
 		// Coaches (Public)
 		api.GET("/coaches", coachH.ListCoaches)
+		api.GET("/coaches/:id", coachH.GetCoach)
 
 		// Events (Public)
 		api.GET("/events", eventH.ListEvents)
@@ -56,14 +57,25 @@ func New(
 				userAdmin.POST("", userH.CreateUser)
 			}
 
-			// Chapter Management (Chapter Lead or Super Admin)
+			chapterContent := protected.Group("/chapters")
+			chapterContent.Use(handlers.RoleMiddleware("super_admin", "content_creator"))
+			{
+				chapterContent.PATCH("/:id/content", chapterH.PatchChapterContent)
+			}
+
+			// Chapter Management (Super Admin only for create, scoped update/delete elsewhere)
 			chapterAdmin := protected.Group("/chapters")
-			chapterAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			chapterAdmin.Use(handlers.RoleMiddleware("super_admin"))
 			{
 				chapterAdmin.POST("", chapterH.CreateChapter)
-				chapterAdmin.PUT("/:id", chapterH.UpdateChapter)
-				chapterAdmin.PATCH("/:id", chapterH.PatchChapter)
-				chapterAdmin.DELETE("/:id", chapterH.DeleteChapter)
+			}
+
+			chapterScopedAdmin := protected.Group("/chapters")
+			chapterScopedAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
+			{
+				chapterScopedAdmin.PUT("/:id", chapterH.UpdateChapter)
+				chapterScopedAdmin.PATCH("/:id", chapterH.PatchChapter)
+				chapterScopedAdmin.DELETE("/:id", chapterH.DeleteChapter)
 			}
 
 			// Coach Management

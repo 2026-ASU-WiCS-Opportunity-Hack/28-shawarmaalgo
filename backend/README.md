@@ -34,6 +34,13 @@ Notes:
 - `chapter_lead` can create `chapter_lead`, `coach`, and `content_creator` only for their own chapter.
 - No API route can create another `super_admin`.
 
+## Role Access
+- `super_admin` has global access across chapter, coach, event, and managed-user endpoints.
+- `chapter_lead` can create users, coaches, and events only for their own chapter, and can update/delete only their own chapter.
+- Coach profiles are public through `GET /api/v1/coaches/:id`.
+- Public coach discovery is available through `GET /api/v1/coaches` with filters such as `chapter_id`, `certification_level`, `language`, and `specialization`.
+- `content_creator` can access `PATCH /api/v1/chapters/:id/content` only for their own chapter.
+
 ## Migrations
 This scaffold uses SQL migrations compatible with `golang-migrate`.
 

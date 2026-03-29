@@ -265,6 +265,99 @@ func (s *Store) PatchChapter(ctx context.Context, id string, req models.ChapterP
 	return ch, nil
 }
 
+func (s *Store) PatchChapterContent(ctx context.Context, id string, req models.ChapterContentUpdateRequest) (models.Chapter, error) {
+	set := []string{}
+	args := []any{}
+	argPos := 1
+
+	if req.Name != nil {
+		set = append(set, fmt.Sprintf("name = $%d", argPos))
+		args = append(args, *req.Name)
+		argPos++
+	}
+	if req.Description != nil {
+		set = append(set, fmt.Sprintf("description = $%d", argPos))
+		args = append(args, *req.Description)
+		argPos++
+	}
+	if req.DescriptionLocal != nil {
+		set = append(set, fmt.Sprintf("description_local = $%d", argPos))
+		args = append(args, *req.DescriptionLocal)
+		argPos++
+	}
+	if req.PrimaryLanguage != nil {
+		set = append(set, fmt.Sprintf("primary_language = $%d", argPos))
+		args = append(args, *req.PrimaryLanguage)
+		argPos++
+	}
+	if req.SupportedLanguages != nil && len(req.SupportedLanguages) > 0 {
+		set = append(set, fmt.Sprintf("supported_languages = $%d", argPos))
+		args = append(args, req.SupportedLanguages)
+		argPos++
+	}
+	if req.Timezone != nil {
+		set = append(set, fmt.Sprintf("timezone = $%d", argPos))
+		args = append(args, *req.Timezone)
+		argPos++
+	}
+	if req.Currency != nil {
+		set = append(set, fmt.Sprintf("currency = $%d", argPos))
+		args = append(args, *req.Currency)
+		argPos++
+	}
+	if req.WebsiteURL != nil {
+		set = append(set, fmt.Sprintf("website_url = $%d", argPos))
+		args = append(args, *req.WebsiteURL)
+		argPos++
+	}
+	if req.LogoURL != nil {
+		set = append(set, fmt.Sprintf("logo_url = $%d", argPos))
+		args = append(args, *req.LogoURL)
+		argPos++
+	}
+	if req.HeroImageURL != nil {
+		set = append(set, fmt.Sprintf("hero_image_url = $%d", argPos))
+		args = append(args, *req.HeroImageURL)
+		argPos++
+	}
+	if req.IsActive != nil {
+		set = append(set, fmt.Sprintf("is_active = $%d", argPos))
+		args = append(args, *req.IsActive)
+		argPos++
+	}
+	if req.FoundedYear != nil {
+		set = append(set, fmt.Sprintf("founded_year = $%d", argPos))
+		args = append(args, *req.FoundedYear)
+		argPos++
+	}
+	if req.MemberCount != nil {
+		set = append(set, fmt.Sprintf("member_count = $%d", argPos))
+		args = append(args, *req.MemberCount)
+		argPos++
+	}
+
+	if len(set) == 0 {
+		return models.Chapter{}, errors.New("no fields to update")
+	}
+
+	set = append(set, "updated_at = now()")
+	query := fmt.Sprintf(`
+		UPDATE chapters
+		SET %s
+		WHERE id = $%d
+		RETURNING id, name, slug, country, region, description, description_local, primary_language, supported_languages, timezone, currency, contact_email, website_url, logo_url, hero_image_url, is_active, founded_year, member_count, created_at, updated_at
+	`, strings.Join(set, ", "), argPos)
+
+	args = append(args, id)
+	row := s.pool.QueryRow(ctx, query, args...)
+
+	var ch models.Chapter
+	if err := row.Scan(&ch.ID, &ch.Name, &ch.Slug, &ch.Country, &ch.Region, &ch.Description, &ch.DescriptionLocal, &ch.PrimaryLanguage, &ch.SupportedLanguages, &ch.Timezone, &ch.Currency, &ch.ContactEmail, &ch.WebsiteURL, &ch.LogoURL, &ch.HeroImageURL, &ch.IsActive, &ch.FoundedYear, &ch.MemberCount, &ch.CreatedAt, &ch.UpdatedAt); err != nil {
+		return models.Chapter{}, err
+	}
+	return ch, nil
+}
+
 func (s *Store) DeleteChapter(ctx context.Context, id string) error {
 	cmd, err := s.pool.Exec(ctx, "DELETE FROM chapters WHERE id = $1", id)
 	if err != nil {
@@ -287,6 +380,21 @@ func (s *Store) CreateCoach(ctx context.Context, req models.CoachCreateRequest) 
 
 	var c models.Coach
 	if err := row.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+		return models.Coach{}, err
+	}
+	return c, nil
+}
+
+func (s *Store) GetCoachByID(ctx context.Context, id string) (models.Coach, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT c.id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
+		FROM coaches c
+		LEFT JOIN chapters ch ON c.chapter_id = ch.id
+		WHERE c.id = $1
+	`, id)
+
+	var c models.Coach
+	if err := row.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
 		return models.Coach{}, err
 	}
 	return c, nil

@@ -98,6 +98,14 @@ func (h *ChapterHandlers) ListChapters(c *gin.Context) {
 
 func (h *ChapterHandlers) UpdateChapter(c *gin.Context) {
 	id := c.Param("id")
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+	if !requireChapterResourceAccess(c, user, id) {
+		return
+	}
+
 	var req models.ChapterUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logRequestError(c, "invalid update chapter request", err)
@@ -125,6 +133,14 @@ func (h *ChapterHandlers) UpdateChapter(c *gin.Context) {
 
 func (h *ChapterHandlers) PatchChapter(c *gin.Context) {
 	id := c.Param("id")
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+	if !requireChapterResourceAccess(c, user, id) {
+		return
+	}
+
 	var req models.ChapterPatchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logRequestError(c, "invalid patch chapter request", err)
@@ -156,6 +172,14 @@ func (h *ChapterHandlers) PatchChapter(c *gin.Context) {
 
 func (h *ChapterHandlers) DeleteChapter(c *gin.Context) {
 	id := c.Param("id")
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+	if !requireChapterResourceAccess(c, user, id) {
+		return
+	}
+
 	if err := h.store.DeleteChapter(c.Request.Context(), id); err != nil {
 		if err == pgx.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "chapter not found"})
@@ -166,6 +190,41 @@ func (h *ChapterHandlers) DeleteChapter(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+func (h *ChapterHandlers) PatchChapterContent(c *gin.Context) {
+	id := c.Param("id")
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+	if !requireChapterResourceAccess(c, user, id) {
+		return
+	}
+
+	var req models.ChapterContentUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid patch chapter content request", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	chapter, err := h.store.PatchChapterContent(c.Request.Context(), id, req)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "chapter not found"})
+			return
+		}
+		if err.Error() == "no fields to update" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"})
+			return
+		}
+		logRequestError(c, "failed to patch chapter content", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch chapter content"})
+		return
+	}
+
+	c.JSON(http.StatusOK, chapter)
 }
 
 func parseIntWithDefault(val string, fallback int) int {
