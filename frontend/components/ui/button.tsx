@@ -10,8 +10,8 @@ type ButtonProps = {
 export function Button({ href, children, variant = "primary" }: ButtonProps) {
   const className =
     variant === "primary"
-      ? "inline-flex items-center rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-ink"
-      : "inline-flex items-center rounded-full border border-white px-5 py-3 text-sm font-semibold text-white hover:bg-brand-navy hover:text-white";
+      ? "inline-flex items-center rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-white"
+      : "inline-flex items-center rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white hover:bg-brand-white"
 
   if (href) {
     return (
