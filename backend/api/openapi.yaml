@@ -133,7 +133,7 @@ paths:
     post:
       tags: [Chapters]
       summary: Create a chapter
-      description: Super-admin only.
+      description: Super-admin only. Each country can have only one chapter.
       operationId: createChapter
       security:
         - bearerAuth: []
@@ -157,13 +157,13 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
         '409':
-          description: Chapter slug already exists
+          description: Chapter slug or country already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: slug already exists
+                error: country already exists
         '500':
           $ref: '#/components/responses/InternalError'
   /api/v1/chapters/{id}:
@@ -187,6 +187,7 @@ paths:
     put:
       tags: [Chapters]
       summary: Replace a chapter
+      description: Each country can have only one chapter.
       operationId: updateChapter
       security:
         - bearerAuth: []
@@ -214,19 +215,19 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          description: Chapter slug already exists
+          description: Chapter slug or country already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: slug already exists
+                error: country already exists
         '500':
           $ref: '#/components/responses/InternalError'
     patch:
       tags: [Chapters]
       summary: Patch a chapter
-      description: Super-admin global access; chapter leads are limited to their own chapter.
+      description: Super-admin global access; chapter leads are limited to their own chapter. Each country can have only one chapter.
       operationId: patchChapter
       security:
         - bearerAuth: []
@@ -258,13 +259,13 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
-          description: Chapter slug already exists
+          description: Chapter slug or country already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: slug already exists
+                error: country already exists
         '500':
           $ref: '#/components/responses/InternalError'
     delete:

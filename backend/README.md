@@ -41,6 +41,11 @@ Notes:
 - Public coach discovery is available through `GET /api/v1/coaches` with filters such as `chapter_id`, `certification_level`, `language`, and `specialization`.
 - `content_creator` can access `PATCH /api/v1/chapters/:id/content` only for their own chapter.
 
+## Chapter Rules
+- Each chapter must belong to a country.
+- Each country can have only one chapter.
+- Chapter create/update/patch requests return `409 Conflict` when either `slug` or `country` is already in use.
+
 ## Migrations
 This scaffold uses SQL migrations compatible with `golang-migrate`.
 

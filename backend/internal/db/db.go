@@ -605,3 +605,11 @@ func IsUniqueViolation(err error) bool {
 	}
 	return false
 }
+
+func UniqueConstraintName(err error) string {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.ConstraintName
+	}
+	return ""
+}

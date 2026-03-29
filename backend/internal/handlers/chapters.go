@@ -19,6 +19,15 @@ func NewChapterHandlers(store *db.Store) *ChapterHandlers {
 	return &ChapterHandlers{store: store}
 }
 
+func chapterConflictMessage(err error) string {
+	switch db.UniqueConstraintName(err) {
+	case "idx_chapters_country_unique":
+		return "country already exists"
+	default:
+		return "slug already exists"
+	}
+}
+
 func (h *ChapterHandlers) CreateChapter(c *gin.Context) {
 	var req models.ChapterCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -30,7 +39,7 @@ func (h *ChapterHandlers) CreateChapter(c *gin.Context) {
 	chapter, err := h.store.CreateChapter(c.Request.Context(), req)
 	if err != nil {
 		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": chapterConflictMessage(err)})
 			return
 		}
 		logRequestError(c, "failed to create chapter", err)
@@ -120,7 +129,7 @@ func (h *ChapterHandlers) UpdateChapter(c *gin.Context) {
 			return
 		}
 		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": chapterConflictMessage(err)})
 			return
 		}
 		logRequestError(c, "failed to update chapter", err)
@@ -159,7 +168,7 @@ func (h *ChapterHandlers) PatchChapter(c *gin.Context) {
 			return
 		}
 		if db.IsUniqueViolation(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "slug already exists"})
+			c.JSON(http.StatusConflict, gin.H{"error": chapterConflictMessage(err)})
 			return
 		}
 		logRequestError(c, "failed to patch chapter", err)
