@@ -312,9 +312,10 @@ export default function ChapterTeamManager({
       setCoachForm(defaultCoachForm(chapter.country));
       setCoachSuccess(`Created coach profile for ${createdCoach.first_name} ${createdCoach.last_name}.`);
     } catch (error) {
-      if (createdUserId) {
+      const rollbackUserId = createdUserId;
+      if (rollbackUserId) {
         try {
-          await withToken((token) => api.deleteUser(createdUserId, token));
+          await withToken((token) => api.deleteUser(rollbackUserId, token));
         } catch {
           // Ignore rollback failures and show the original error below.
         }

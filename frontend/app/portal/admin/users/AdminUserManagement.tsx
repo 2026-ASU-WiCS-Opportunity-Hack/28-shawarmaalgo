@@ -150,11 +150,12 @@ export default function AdminUserManagement({ initialUsers, initialCoaches, chap
       }
       setForm(defaultForm(form.chapter_id || chapters[0]?.id || ''));
     } catch (error) {
-      if (createdUserId) {
+      const rollbackUserId = createdUserId;
+      if (rollbackUserId) {
         try {
           const token = getClientAuthToken();
           if (token) {
-            await api.deleteUser(createdUserId, token);
+            await api.deleteUser(rollbackUserId, token);
           }
         } catch {
           // Ignore rollback failures and show the original error.
