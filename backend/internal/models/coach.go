@@ -4,6 +4,7 @@ import "time"
 
 type Coach struct {
 	ID                 string    `json:"id"`
+	UserID             string    `json:"user_id"`
 	FirstName          string    `json:"first_name"`
 	LastName           string    `json:"last_name"`
 	Email              string    `json:"email"`
@@ -26,6 +27,7 @@ type Coach struct {
 }
 
 type CoachCreateRequest struct {
+	UserID             string    `json:"user_id" binding:"required"`
 	FirstName          string    `json:"first_name" binding:"required"`
 	LastName           string    `json:"last_name" binding:"required"`
 	Email              string    `json:"email" binding:"required"`
@@ -45,6 +47,7 @@ type CoachCreateRequest struct {
 }
 
 type CoachPatchRequest struct {
+	UserID             *string    `json:"user_id"`
 	FirstName          *string    `json:"first_name"`
 	LastName           *string    `json:"last_name"`
 	Email              *string    `json:"email"`

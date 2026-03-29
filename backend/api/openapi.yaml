@@ -1503,6 +1503,7 @@ components:
       type: object
       properties:
         id: { type: string }
+        user_id: { type: string }
         first_name: { type: string }
         last_name: { type: string }
         email:
@@ -1528,10 +1529,11 @@ components:
         website_url: { type: string, nullable: true }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
-      required: [id, first_name, last_name, email, specializations, languages, country, certification_level, certification_date, is_active, created_at, updated_at]
+      required: [id, user_id, first_name, last_name, email, specializations, languages, country, certification_level, certification_date, is_active, created_at, updated_at]
     CoachCreateRequest:
       type: object
       properties:
+        user_id: { type: string }
         first_name: { type: string }
         last_name: { type: string }
         email:
@@ -1554,7 +1556,7 @@ components:
         is_active: { type: boolean, default: false }
         linkedin_url: { type: string, nullable: true }
         website_url: { type: string, nullable: true }
-      required: [first_name, last_name, email, country, certification_level, certification_date]
+      required: [user_id, first_name, last_name, email, country, certification_level, certification_date]
     CoachListResponse:
       type: object
       properties:
@@ -1569,6 +1571,7 @@ components:
     CoachPatchRequest:
       type: object
       properties:
+        user_id: { type: string }
         first_name: { type: string }
         last_name: { type: string }
         email:

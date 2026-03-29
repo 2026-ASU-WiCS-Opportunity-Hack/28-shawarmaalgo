@@ -48,6 +48,7 @@ export type BackendChapter = {
 
 export type BackendCoach = {
   id: string;
+  user_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -147,6 +148,7 @@ export type AuthResponse = {
 export type MeResponse = {
   user: BackendUser;
   chapter?: BackendChapter | null;
+  coach?: BackendCoach | null;
 };
 
 export type PortalOverviewResponse = {
@@ -232,6 +234,7 @@ export type UserPatchPayload = {
 };
 
 export type CoachPatchPayload = Partial<{
+  user_id: string;
   first_name: string;
   last_name: string;
   email: string;

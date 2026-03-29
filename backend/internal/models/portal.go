@@ -3,6 +3,7 @@ package models
 type MeResponse struct {
 	User    User     `json:"user"`
 	Chapter *Chapter `json:"chapter,omitempty"`
+	Coach   *Coach   `json:"coach,omitempty"`
 }
 
 type PortalOverviewStats struct {

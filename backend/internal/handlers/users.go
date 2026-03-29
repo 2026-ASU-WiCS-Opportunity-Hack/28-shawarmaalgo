@@ -150,6 +150,14 @@ func (h *UserHandlers) PatchUser(c *gin.Context) {
 		return
 	}
 
+	existingCoach, coachErr := h.store.GetCoachByUserID(c.Request.Context(), existing.ID)
+	if coachErr != nil && coachErr != pgx.ErrNoRows {
+		logRequestError(c, "failed to check linked coach profile", coachErr)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch user"})
+		return
+	}
+	hasCoachProfile := coachErr == nil
+
 	var req models.UserPatchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logRequestError(c, "invalid patch user request", err)
@@ -174,6 +182,18 @@ func (h *UserHandlers) PatchUser(c *gin.Context) {
 		targetChapterID = req.ChapterID
 	}
 	if currentUser.Role == models.RoleChapterLead && !requireSameChapter(c, currentUser, targetChapterID) {
+		return
+	}
+	if req.Role != nil && *req.Role == models.RoleCoach && targetChapterID == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "coach users must belong to a chapter"})
+		return
+	}
+	if req.Role != nil && *req.Role != models.RoleCoach && hasCoachProfile {
+		c.JSON(http.StatusConflict, gin.H{"error": "user has a linked coach profile"})
+		return
+	}
+	if hasCoachProfile && targetChapterID == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "linked coach users must belong to a chapter"})
 		return
 	}
 
@@ -205,6 +225,14 @@ func (h *UserHandlers) PatchUser(c *gin.Context) {
 		logRequestError(c, "failed to patch user", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch user"})
 		return
+	}
+
+	if hasCoachProfile && (req.Email != nil || req.ChapterID != nil) {
+		if err := h.store.SyncCoachIdentityFromUser(c.Request.Context(), existingCoach.UserID, user.Email, user.ChapterID); err != nil {
+			logRequestError(c, "failed to sync linked coach profile", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch user"})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, user)

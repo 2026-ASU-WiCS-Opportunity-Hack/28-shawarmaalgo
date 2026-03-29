@@ -25,6 +25,7 @@ func (h *MeHandlers) GetMe(c *gin.Context) {
 	}
 
 	var chapter *models.Chapter
+	var coach *models.Coach
 	if user.ChapterID != nil {
 		ch, err := h.store.GetChapter(c.Request.Context(), *user.ChapterID)
 		if err != nil && err != pgx.ErrNoRows {
@@ -36,9 +37,21 @@ func (h *MeHandlers) GetMe(c *gin.Context) {
 			chapter = &ch
 		}
 	}
+	if user.Role == models.RoleCoach {
+		linkedCoach, err := h.store.GetCoachByUserID(c.Request.Context(), user.ID)
+		if err != nil && err != pgx.ErrNoRows {
+			logRequestError(c, "failed to load coach for me response", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch profile"})
+			return
+		}
+		if err == nil {
+			coach = &linkedCoach
+		}
+	}
 
 	c.JSON(http.StatusOK, models.MeResponse{
 		User:    user,
 		Chapter: chapter,
+		Coach:   coach,
 	})
 }

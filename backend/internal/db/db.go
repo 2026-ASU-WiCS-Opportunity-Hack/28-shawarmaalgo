@@ -394,14 +394,14 @@ func (s *Store) DeleteChapter(ctx context.Context, id string) error {
 func (s *Store) CreateCoach(ctx context.Context, req models.CoachCreateRequest) (models.Coach, error) {
 	row := s.pool.QueryRow(ctx, `
 		INSERT INTO coaches
-			(first_name, last_name, email, phone, profile_image_url, bio, specializations, languages, country, city, chapter_id, certification_level, certification_date, is_active, linkedin_url, website_url)
+			(user_id, first_name, last_name, email, phone, profile_image_url, bio, specializations, languages, country, city, chapter_id, certification_level, certification_date, is_active, linkedin_url, website_url)
 		VALUES
-			($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-		RETURNING id, first_name, last_name, email, phone, profile_image_url, bio, specializations, languages, country, city, chapter_id, certification_level, certification_date, is_active, linkedin_url, website_url, created_at, updated_at
-	`, req.FirstName, req.LastName, req.Email, req.Phone, req.ProfileImageURL, req.Bio, req.Specializations, req.Languages, req.Country, req.City, req.ChapterID, req.CertificationLevel, req.CertificationDate, req.IsActive, req.LinkedinURL, req.WebsiteURL)
+			($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+		RETURNING id, user_id, first_name, last_name, email, phone, profile_image_url, bio, specializations, languages, country, city, chapter_id, certification_level, certification_date, is_active, linkedin_url, website_url, created_at, updated_at
+	`, req.UserID, req.FirstName, req.LastName, req.Email, req.Phone, req.ProfileImageURL, req.Bio, req.Specializations, req.Languages, req.Country, req.City, req.ChapterID, req.CertificationLevel, req.CertificationDate, req.IsActive, req.LinkedinURL, req.WebsiteURL)
 
 	var c models.Coach
-	if err := row.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+	if err := row.Scan(&c.ID, &c.UserID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
 		return models.Coach{}, err
 	}
 	return c, nil
@@ -409,17 +409,43 @@ func (s *Store) CreateCoach(ctx context.Context, req models.CoachCreateRequest) 
 
 func (s *Store) GetCoachByID(ctx context.Context, id string) (models.Coach, error) {
 	row := s.pool.QueryRow(ctx, `
-		SELECT c.id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
+		SELECT c.id, c.user_id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
 		FROM coaches c
 		LEFT JOIN chapters ch ON c.chapter_id = ch.id
 		WHERE c.id = $1
 	`, id)
 
 	var c models.Coach
-	if err := row.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+	if err := row.Scan(&c.ID, &c.UserID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
 		return models.Coach{}, err
 	}
 	return c, nil
+}
+
+func (s *Store) GetCoachByUserID(ctx context.Context, userID string) (models.Coach, error) {
+	row := s.pool.QueryRow(ctx, `
+		SELECT c.id, c.user_id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
+		FROM coaches c
+		LEFT JOIN chapters ch ON c.chapter_id = ch.id
+		WHERE c.user_id = $1
+	`, userID)
+
+	var c models.Coach
+	if err := row.Scan(&c.ID, &c.UserID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+		return models.Coach{}, err
+	}
+	return c, nil
+}
+
+func (s *Store) SyncCoachIdentityFromUser(ctx context.Context, userID, email string, chapterID *string) error {
+	_, err := s.pool.Exec(ctx, `
+		UPDATE coaches
+		SET email = $2,
+			chapter_id = $3,
+			updated_at = now()
+		WHERE user_id = $1
+	`, userID, email, chapterID)
+	return err
 }
 
 func (s *Store) ListCoaches(ctx context.Context, page, pageSize int, chapterID, certificationLevel, language, specialization *string) ([]models.Coach, int, error) {
@@ -460,7 +486,7 @@ func (s *Store) ListCoaches(ctx context.Context, page, pageSize int, chapterID, 
 	}
 
 	query := fmt.Sprintf(`
-		SELECT c.id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
+		SELECT c.id, c.user_id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
 		FROM coaches c
 		LEFT JOIN chapters ch ON c.chapter_id = ch.id
 		%s
@@ -478,7 +504,7 @@ func (s *Store) ListCoaches(ctx context.Context, page, pageSize int, chapterID, 
 	coaches := []models.Coach{}
 	for rows.Next() {
 		var c models.Coach
-		if err := rows.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+		if err := rows.Scan(&c.ID, &c.UserID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
 			return nil, 0, err
 		}
 		coaches = append(coaches, c)
@@ -496,7 +522,7 @@ func (s *Store) CountCoachesByChapter(ctx context.Context, chapterID string) (in
 
 func (s *Store) ListRecentCoachesByChapter(ctx context.Context, chapterID string, limit int) ([]models.Coach, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT c.id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
+		SELECT c.id, c.user_id, c.first_name, c.last_name, c.email, c.phone, c.profile_image_url, c.bio, c.specializations, c.languages, c.country, c.city, c.chapter_id, ch.name as chapter_name, c.certification_level, c.certification_date, c.is_active, c.linkedin_url, c.website_url, c.created_at, c.updated_at
 		FROM coaches c
 		LEFT JOIN chapters ch ON c.chapter_id = ch.id
 		WHERE c.chapter_id = $1
@@ -511,7 +537,7 @@ func (s *Store) ListRecentCoachesByChapter(ctx context.Context, chapterID string
 	coaches := []models.Coach{}
 	for rows.Next() {
 		var c models.Coach
-		if err := rows.Scan(&c.ID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
+		if err := rows.Scan(&c.ID, &c.UserID, &c.FirstName, &c.LastName, &c.Email, &c.Phone, &c.ProfileImageURL, &c.Bio, &c.Specializations, &c.Languages, &c.Country, &c.City, &c.ChapterID, &c.ChapterName, &c.CertificationLevel, &c.CertificationDate, &c.IsActive, &c.LinkedinURL, &c.WebsiteURL, &c.CreatedAt, &c.UpdatedAt); err != nil {
 			return nil, err
 		}
 		coaches = append(coaches, c)
@@ -697,6 +723,11 @@ func (s *Store) PatchCoach(ctx context.Context, id string, req models.CoachPatch
 	args := []any{}
 	argPos := 1
 
+	if req.UserID != nil {
+		set = append(set, fmt.Sprintf("user_id = $%d", argPos))
+		args = append(args, *req.UserID)
+		argPos++
+	}
 	if req.FirstName != nil {
 		set = append(set, fmt.Sprintf("first_name = $%d", argPos))
 		args = append(args, *req.FirstName)
