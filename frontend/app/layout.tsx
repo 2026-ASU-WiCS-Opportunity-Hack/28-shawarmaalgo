@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { site } from '@/data/site';
 
+export const runtime = 'edge';
+
 export const metadata: Metadata = {
   title: `${site.fullName}`,
   description: site.description
