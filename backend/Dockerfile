@@ -13,8 +13,12 @@ FROM alpine:3.22
 
 WORKDIR /app
 
+RUN apk add --no-cache ca-certificates
+
 COPY --from=builder /bin/server /app/server
 COPY --from=builder /app/api /app/api
+COPY --from=migrate/migrate:v4.18.3 /usr/local/bin/migrate /app/migrate
+COPY --from=builder /app/migrations /app/migrations
 
 EXPOSE 8080
 
