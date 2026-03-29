@@ -23,7 +23,6 @@ export function HeaderClient({ portalHref }: HeaderClientProps) {
           <img src="/wial-logo.png" alt="WIAL logo" width="100" height="52" className="h-12 w-auto" />
           <div className="min-w-0">
             <div className="text-[11px] font-semibold uppercase tracking-[0.25em] text-brand-teal">World Institute for Action Learning</div>
-            <div className="truncate text-sm text-brand-navy dark:text-slate-100">Certification, coaches, chapters, and resources</div>
           </div>
         </Link>
 
