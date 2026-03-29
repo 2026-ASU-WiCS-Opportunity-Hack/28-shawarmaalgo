@@ -42,6 +42,7 @@ type CoachCreateForm = {
 
 const inputClassName = 'w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm';
 const labelClassName = 'mb-2 block text-sm font-medium text-slate-700';
+const certificationLevels = ['CALC', 'PALC', 'SALC', 'MALC'];
 
 function optionalString(value: string) {
   const trimmed = value.trim();
@@ -485,7 +486,13 @@ export default function ChapterTeamManager({
               </label>
               <label className="block">
                 <span className={labelClassName}>Certification level</span>
-                <input className={inputClassName} value={coachForm.certification_level} onChange={(event) => setCoachForm((current) => ({ ...current, certification_level: event.target.value }))} required />
+                <select className={inputClassName} value={coachForm.certification_level} onChange={(event) => setCoachForm((current) => ({ ...current, certification_level: event.target.value }))} required>
+                  {certificationLevels.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="block">
                 <span className={labelClassName}>Certification date</span>

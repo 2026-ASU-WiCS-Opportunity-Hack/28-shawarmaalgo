@@ -13,7 +13,7 @@ export default async function CoachesPage() {
       <SectionHeading
         eyebrow="Coach Directory"
         title="Search WIAL certified coaches"
-        description="WIAL highlights its coach directory as a fast way to discover certified Action Learning coaches. This page now reads from the backend coach and chapter endpoints when available."
+        description="Browse certified coaches across the WIAL network and discover chapter-based expertise."
       />
 
       <section className="mt-8 grid gap-4 rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft lg:grid-cols-[1.4fr_1fr_1fr_auto]">
@@ -36,18 +36,20 @@ export default async function CoachesPage() {
         <button className="rounded-full bg-brand-navy px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-ink">Search</button>
       </section>
 
-      <div className="mt-8 rounded-[1.5rem] border border-dashed border-brand-teal bg-brand-sand p-5 text-sm text-brand-ink">
-        Connected endpoints: GET /api/v1/coaches and GET /api/v1/chapters. The search UI is still static, but the cards below will hydrate from backend data when the API is reachable.
-      </div>
-
-      <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {allCoaches.map((coach) => (
-          <div key={`${coach.name}-${coach.country}`}>
-            <CoachCard coach={coach} />
-            <p className="mt-2 text-sm text-slate-500">Chapter: {coach.country}</p>
-          </div>
-        ))}
-      </div>
+      {allCoaches.length > 0 ? (
+        <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {allCoaches.map((coach) => (
+            <div key={`${coach.name}-${coach.country}`}>
+              <CoachCard coach={coach} />
+              <p className="mt-2 text-sm text-slate-500">Chapter: {coach.country}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-soft">
+          No coaches are published yet.
+        </div>
+      )}
     </PageShell>
   );
 }

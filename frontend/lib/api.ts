@@ -430,6 +430,8 @@ export const api = {
 
   login: (payload: LoginPayload) => request<AuthResponse>('/auth/login', { method: 'POST', body: payload }),
   getMe: (token: string) => request<MeResponse>('/me', { token }),
+  patchMyCoach: (payload: CoachPatchPayload, token: string) =>
+    request<BackendCoach>('/me/coach', { method: 'PATCH', body: payload, token }),
   createUser: (
     payload: { email: string; password: string; role: string; chapter_id: string },
     token: string

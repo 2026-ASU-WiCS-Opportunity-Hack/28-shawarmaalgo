@@ -145,6 +145,59 @@ func (h *CoachHandlers) ListCoaches(c *gin.Context) {
 	})
 }
 
+func (h *CoachHandlers) PatchMyCoach(c *gin.Context) {
+	user, ok := actingUser(c, h.store)
+	if !ok {
+		return
+	}
+	if user.Role != models.RoleCoach {
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+		return
+	}
+
+	existing, err := h.store.GetCoachByUserID(c.Request.Context(), user.ID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "coach profile not found"})
+			return
+		}
+		logRequestError(c, "failed to load coach", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch coach"})
+		return
+	}
+
+	var req models.CoachPatchRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logRequestError(c, "invalid patch my coach request", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	req.UserID = nil
+	req.Email = nil
+	req.ChapterID = nil
+	req.CertificationLevel = nil
+	req.CertificationDate = nil
+	req.IsActive = nil
+
+	coach, err := h.store.PatchCoach(c.Request.Context(), existing.ID, req)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "coach not found"})
+			return
+		}
+		if err.Error() == "no fields to update" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"})
+			return
+		}
+		logRequestError(c, "failed to patch my coach", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch coach"})
+		return
+	}
+
+	c.JSON(http.StatusOK, coach)
+}
+
 func (h *CoachHandlers) PatchCoach(c *gin.Context) {
 	user, ok := actingUser(c, h.store)
 	if !ok {
@@ -161,7 +214,12 @@ func (h *CoachHandlers) PatchCoach(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to patch coach"})
 		return
 	}
-	if !requireSameChapter(c, user, existing.ChapterID) {
+	if user.Role == models.RoleCoach {
+		if existing.UserID != user.ID {
+			c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+	} else if !requireSameChapter(c, user, existing.ChapterID) {
 		return
 	}
 

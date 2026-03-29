@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ChangeEvent, ReactNode } from 'react';
 
 export function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
@@ -23,14 +23,47 @@ export function Panel({ title, description, children }: { title: string; descrip
   );
 }
 
-export function Field({ label, placeholder, textarea = false, defaultValue }: { label: string; placeholder?: string; textarea?: boolean; defaultValue?: string }) {
+export function Field({
+  label,
+  placeholder,
+  textarea = false,
+  defaultValue,
+  value,
+  onChange,
+  disabled = false,
+  type = 'text'
+}: {
+  label: string;
+  placeholder?: string;
+  textarea?: boolean;
+  defaultValue?: string;
+  value?: string;
+  onChange?: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  disabled?: boolean;
+  type?: string;
+}) {
   return (
     <label className="block">
       <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
       {textarea ? (
-        <textarea defaultValue={defaultValue} placeholder={placeholder} className="min-h-32 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" />
+        <textarea
+          value={value}
+          defaultValue={value === undefined ? defaultValue : undefined}
+          onChange={onChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="min-h-32 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm disabled:bg-slate-50 disabled:text-slate-500"
+        />
       ) : (
-        <input defaultValue={defaultValue} placeholder={placeholder} className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm" />
+        <input
+          type={type}
+          value={value}
+          defaultValue={value === undefined ? defaultValue : undefined}
+          onChange={onChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm disabled:bg-slate-50 disabled:text-slate-500"
+        />
       )}
     </label>
   );

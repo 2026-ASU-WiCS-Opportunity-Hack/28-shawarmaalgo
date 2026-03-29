@@ -57,7 +57,7 @@ function mapGlobalPageToUI(page: BackendGlobalPage) {
 
 function mapCoachToUI(coach: BackendCoach): UICoach {
   return {
-    name: `${coach.first_name} ${coach.last_name}`.trim(),
+    name: `${coach.first_name} ${coach.last_name}`.trim() || coach.email,
     certification: (coach.certification_level || 'CALC') as UICoach['certification'],
     location: [coach.city, coach.country].filter(Boolean).join(', ') || coach.country,
     focus: coach.specializations.join(', ') || 'Action Learning coaching',
@@ -186,6 +186,23 @@ function mapSessionFromMe(me: Awaited<ReturnType<typeof api.getMe>>) {
   };
 }
 
+function buildFallbackCoachAccount() {
+  return {
+    coachId: null,
+    profile: {
+      ...coachAccount.profile,
+      firstName: coachAccount.profile.name.split(' ')[0] || '',
+      lastName: coachAccount.profile.name.split(' ').slice(1).join(' ') || '',
+      city: coachAccount.profile.location.split(',')[0] || '',
+      country: coachAccount.profile.location.split(',').slice(-1)[0]?.trim() || '',
+      languages: [],
+      linkedinUrl: '',
+      websiteUrl: ''
+    },
+    certification: coachAccount.certification
+  };
+}
+
 function buildFallbackPortalWorkspace() {
   const fallbackSlug = mockSession.user.chapterSlug;
   const fallbackChapter = (fallbackSlug && getCountryBySlug(fallbackSlug)) || countries[0];
@@ -234,14 +251,16 @@ export async function getCountryCoaches(slug: string) {
 
   return safeFetch(async () => {
     const response = await api.listCoaches({ page_size: 100, chapter_id: chapter.id });
-    return response.data.map(mapCoachToUI);
+    return response.data.filter((coach) => coach.is_active).map(mapCoachToUI);
   }, getCountryBySlug(slug)?.coaches || []);
 }
 
 export async function getCoachDirectory() {
   return safeFetch(async () => {
     const response = await api.listCoaches({ page_size: 100 });
-    return response.data.map((coach) => ({ ...mapCoachToUI(coach), country: coach.chapter_name || coach.country }));
+    return response.data
+      .filter((coach) => coach.is_active)
+      .map((coach) => ({ ...mapCoachToUI(coach), country: coach.chapter_name || coach.country }));
   }, countries.flatMap((country) => country.coaches.map((coach) => ({ ...coach, country: country.shortName }))));
 }
 
@@ -392,23 +411,42 @@ export async function getUsers() {
 
 export async function getCoachAccount() {
   const token = getServerAuthToken();
-  if (!token) return coachAccount;
+  if (!token) return buildFallbackCoachAccount();
 
   return safeFetch(async () => {
     const me = await api.getMe(token);
+    const certificationLevel = me.coach?.certification_level || coachAccount.profile.certification;
+    const certificationDate = me.coach?.certification_date
+      ? formatDate(me.coach.certification_date)
+      : coachAccount.certification.renewalDue;
+
     return {
+      coachId: me.coach?.id || null,
       profile: {
-        name: me.user.email,
+        name: me.coach ? `${me.coach.first_name} ${me.coach.last_name}`.trim() : me.user.email,
         email: me.user.email,
         chapter: me.chapter?.name || 'Unassigned',
-        certification: 'Coach',
-        location: me.chapter?.country || 'N/A',
-        specialties: [],
-        bio: 'Profile fields can be extended when backend coach profile endpoints are added.'
+        certification: certificationLevel,
+        location: [me.coach?.city, me.coach?.country || me.chapter?.country].filter(Boolean).join(', ') || 'N/A',
+        specialties: me.coach?.specializations || [],
+        bio: me.coach?.bio || coachAccount.profile.bio,
+        firstName: me.coach?.first_name || '',
+        lastName: me.coach?.last_name || '',
+        city: me.coach?.city || '',
+        country: me.coach?.country || me.chapter?.country || '',
+        languages: me.coach?.languages || [],
+        linkedinUrl: me.coach?.linkedin_url || '',
+        websiteUrl: me.coach?.website_url || ''
       },
-      certification: coachAccount.certification
+      certification: {
+        currentLevel: certificationLevel,
+        renewalDue: certificationDate,
+        continuingEducationCredits: coachAccount.certification.continuingEducationCredits,
+        requiredCredits: coachAccount.certification.requiredCredits,
+        status: me.coach?.is_active === false ? 'Profile hidden from public directories' : coachAccount.certification.status
+      }
     };
-  }, coachAccount);
+  }, buildFallbackCoachAccount());
 }
 
 export async function getGlobalResources() {
@@ -428,8 +466,13 @@ export async function getChapterOptions() {
       (await api.listChapters({ page_size: 100 })).data.map((chapter) => ({
         id: chapter.id,
         name: chapter.name,
-        slug: chapter.slug
+        slug: chapter.slug,
+        country: chapter.country
       })),
-    [] as Array<{ id: string; name: string; slug: string }>
+    [] as Array<{ id: string; name: string; slug: string; country: string }>
   );
+}
+
+export async function getCoachProfilesRaw() {
+  return safeFetch(async () => (await api.listCoaches({ page_size: 200 })).data, [] as BackendCoach[]);
 }

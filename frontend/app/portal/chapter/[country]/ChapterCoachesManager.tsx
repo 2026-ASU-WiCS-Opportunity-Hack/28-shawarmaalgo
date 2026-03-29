@@ -15,6 +15,7 @@ type CoachForm = {
   first_name: string;
   last_name: string;
   certification_level: string;
+  certification_date: string;
   city: string;
   country: string;
   specializations: string;
@@ -25,6 +26,7 @@ type CoachForm = {
 
 const inputClassName = 'w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm';
 const labelClassName = 'mb-2 block text-sm font-medium text-slate-700';
+const certificationLevels = ['CALC', 'PALC', 'SALC', 'MALC'];
 
 function optionalString(value: string) {
   const trimmed = value.trim();
@@ -43,6 +45,7 @@ function buildCoachForm(coach: BackendCoach): CoachForm {
     first_name: coach.first_name,
     last_name: coach.last_name,
     certification_level: coach.certification_level,
+    certification_date: coach.certification_date.slice(0, 10),
     city: coach.city || '',
     country: coach.country,
     specializations: coach.specializations.join(', '),
@@ -84,6 +87,7 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
             first_name: form.first_name.trim(),
             last_name: form.last_name.trim(),
             certification_level: form.certification_level.trim(),
+            certification_date: new Date(`${form.certification_date}T00:00:00`).toISOString(),
             city: optionalString(form.city),
             country: form.country.trim(),
             specializations: parseStringList(form.specializations),
@@ -145,7 +149,17 @@ export default function ChapterCoachesManager({ chapter, initialCoaches }: Chapt
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Certification level</span>
-                  <input className={inputClassName} value={form.certification_level} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, certification_level: event.target.value } }))} />
+                  <select className={inputClassName} value={form.certification_level} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, certification_level: event.target.value } }))}>
+                    {certificationLevels.map((level) => (
+                      <option key={level} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className={labelClassName}>Certification date</span>
+                  <input className={inputClassName} type="date" value={form.certification_date} onChange={(event) => setDrafts((current) => ({ ...current, [coach.id]: { ...form, certification_date: event.target.value } }))} />
                 </label>
                 <label className="block">
                   <span className={labelClassName}>Country</span>

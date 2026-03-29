@@ -77,6 +77,12 @@ func New(
 		{
 			protected.GET("/me", meH.GetMe)
 
+			coachSelf := protected.Group("/me")
+			coachSelf.Use(handlers.RoleMiddleware("coach"))
+			{
+				coachSelf.PATCH("/coach", coachH.PatchMyCoach)
+			}
+
 			userAdmin := protected.Group("/users")
 			userAdmin.Use(handlers.RoleMiddleware("super_admin", "chapter_lead"))
 			{
