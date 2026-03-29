@@ -1,348 +1,145 @@
-# WIAL frontend
+# WIAL Frontend
 
-A production-ready frontend for the World Institute for Action Learning built with Next.js, TypeScript, and Tailwind CSS.
+The frontend is a Next.js App Router application for WIAL public pages, chapter microsites, and role-based management portals.
+
+## Links
+- [Project README](../README.md)
+- [Backend Documentation](../backend/README.md)
+- [Frontend-to-Backend Handoff](./docs/BACKEND_HANDOFF.md)
+- [OpenAPI Spec](../backend/api/openapi.yaml)
+
+## What the Frontend Includes
+- Public marketing pages for WIAL content and certification information
+- Country-level chapter pages under `/:country`
+- A global coach directory with client-facing filters
+- Admin screens for chapter provisioning, global page editing, and managed users
+- Chapter workspaces for content, team members, coaches, events, resources, testimonials, and contact details
+- Coach self-service profile management
+
+## Frontend Data Flow
+```mermaid
+flowchart LR
+  Route["Page or portal route"] --> Loader["Server loader or client action"]
+  Loader --> API["frontend/lib/api.ts"]
+  API --> Backend["Go API"]
+  Backend --> Data["PostgreSQL and MinIO"]
+  Data --> Backend
+  Backend --> API
+  API --> UI["Rendered UI"]
+```
 
 ## Stack
-- Next.js App Router
-- TypeScript
-- Tailwind CSS
-- Server components for public pages and management consoles
-- Structured placeholder API integration in `lib/api.ts`
+- [Next.js App Router](https://nextjs.org/docs/app)
+- [React 18](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
 
-## Included routes
+## Routes
+### Public routes
+- `/`
+- `/about`
+- `/action-learning`
+- `/certification`
+- `/chapters`
+- `/coaches`
+- `/events`
+- `/resources`
+- `/contact`
+- `/countries`
 
-### Public pages
-- /
-- /about
-- /action-learning
-- /certification
-- /coaches
-- /resources
-- /events
-- /chapters
-- /contact
+### Country routes
+- `/:country`
+- `/:country/about`
+- `/:country/team`
+- `/:country/coaches`
+- `/:country/events`
+- `/:country/resources`
+- `/:country/contact`
 
-### Chapter pages
-- /[country]
-- /[country]/team
-- /[country]/coaches
-- /[country]/events
-- /[country]/resources
-- /[country]/contact
-
-### Account and portal pages
-- /login
-- /portal
-- /portal/admin
-- /portal/admin/chapters
-- /portal/admin/chapters/new
-- /portal/admin/chapters/[slug]
-- /portal/admin/pages
-- /portal/admin/users
-- /portal/chapter
-- /portal/chapter/[country]/content
-- /portal/chapter/[country]/team
-- /portal/chapter/[country]/coaches
-- /portal/chapter/[country]/events
-- /portal/chapter/[country]/resources
-- /portal/chapter/[country]/contact
-- /portal/coach
-
-## Quick start
-```bash
-npm install
-npm run dev
-```
-
-Open:
-```bash
-http://localhost:3000
-```
+### Portal routes
+- `/login`
+- `/portal`
+- `/portal/admin`
+- `/portal/admin/chapters`
+- `/portal/admin/chapters/new`
+- `/portal/admin/chapters/[slug]`
+- `/portal/admin/pages`
+- `/portal/admin/users`
+- `/portal/chapter`
+- `/portal/chapter/[country]/content`
+- `/portal/chapter/[country]/team`
+- `/portal/chapter/[country]/coaches`
+- `/portal/chapter/[country]/events`
+- `/portal/chapter/[country]/resources`
+- `/portal/chapter/[country]/testimonials`
+- `/portal/chapter/[country]/contact`
+- `/portal/coach`
 
 ## Environment
-Create `.env.local` from `.env.example` and set:
+Create `frontend/.env.local` from [`../.env.example`](../.env.example) or [`./.env.example`](./.env.example):
+
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
 ```
 
-## Frontend structure
-- `app/` contains routes
-- `components/` contains shared layout, cards, sections, and portal UI
-- `data/` contains seeded content and mock records
-- `lib/api.ts` contains placeholder API helpers
-- `lib/server-data.ts` contains async server-side mock data loaders
-- `docs/BACKEND_HANDOFF.md` mirrors the backend contract
+If the frontend is running in Docker while the backend runs in another container, also set `INTERNAL_API_BASE_URL` in the runtime environment so server components can reach the API on the container network.
 
-## Rendering approach
-
-### Public pages
-Public routes are built with Next.js server components. They can stay static-first, or you can fetch page, chapter, event, and resource data from your backend on the server.
-
-Recommended production approach:
-- keep public marketing pages cached with `revalidate`
-- fetch chapter content on the server
-- fetch listings on the server for SEO and initial performance
-
-### Portal routes
-Portal routes are already set to dynamic rendering with:
-```ts
-export const dynamic = 'force-dynamic'
+## Run
+```bash
+cd frontend
+npm install
+npm run dev
 ```
-Use that for authenticated, role-based pages where content changes frequently.
 
-### If you want full SSR everywhere
-Use server-side `fetch()` in page files and keep `cache: 'no-store'` for authenticated or rapidly changing content. In App Router, that is enough to make the route render on the server per request.
+Open [`http://localhost:3000`](http://localhost:3000).
 
-## Endpoint contract
-These are the backend endpoints this frontend is designed to connect to.
+## Integration Map
+The frontend client in [`./lib/api.ts`](./lib/api.ts) is aligned to the current backend router, not the older `/api/portal/chapters/:slug/...` contract.
 
-### Auth and session
-#### `POST /api/auth/login`
-Purpose: sign a user in.
+### Auth and current user
+- `POST /api/v1/auth/login`
+- `GET /api/v1/me`
+- `PATCH /api/v1/me/coach`
 
-Send:
-- `email`
-- `password`
+### Public data
+- `GET /api/v1/chapters`
+- `GET /api/v1/chapters/:id`
+- `GET /api/v1/coaches`
+- `GET /api/v1/coaches/:id`
+- `GET /api/v1/events`
+- `GET /api/v1/team-members`
+- `GET /api/v1/resources`
+- `GET /api/v1/testimonials`
+- `GET /api/v1/global-pages`
+- `GET /api/v1/global-pages/:slug`
 
-Return:
-- authenticated user object
-- role (`admin`, `chapter-leader`, `coach`)
-- session token or cookie-based session confirmation
-- chapter assignment if relevant
+### Portal summary data
+- `GET /api/v1/portal/overview`
+- `GET /api/v1/portal/chapter`
 
-#### `POST /api/auth/logout`
-Purpose: end the current session.
+### Managed CRUD used by portal screens
+- `POST|GET|PATCH|DELETE /api/v1/users`
+- `POST|GET|PUT|PATCH|DELETE /api/v1/chapters`
+- `POST|GET|PATCH|DELETE /api/v1/coaches`
+- `POST|GET|PATCH|DELETE /api/v1/events`
+- `POST|GET|PATCH|DELETE /api/v1/team-members`
+- `POST|GET|PATCH|DELETE /api/v1/resources`
+- `POST|GET|PATCH|DELETE /api/v1/testimonials`
+- `PATCH /api/v1/global-pages/:slug`
+- `POST /api/v1/uploads/images`
 
-#### `GET /api/auth/session`
-Purpose: return the current authenticated session.
+### Demo and exploration endpoints
+- `GET /api/v1/ai/coach-search`
+- `POST /api/v1/ai/generate-chapter`
+- `POST /api/v1/payments/create-session`
 
-Return:
-- `isAuthenticated`
-- `user.id`
-- `user.name`
-- `user.email`
-- `user.role`
-- `user.chapterSlug` if applicable
+## Rendering Notes
+- Public pages are primarily server-rendered and can stay cache-friendly
+- Portal routes are intentionally dynamic because they depend on auth and recent data
+- The app already supports server-side API access through `INTERNAL_API_BASE_URL`
+- Several public pages fall back to local seed data when backend data is missing, which is useful for demos
 
-### Public content pages
-#### `GET /api/pages/:slug`
-Purpose: return shared content for editable global pages.
-
-Supported slugs used by this frontend:
-- `home`
-- `about`
-- `action-learning`
-- `certification`
-- `resources`
-- `contact`
-
-Return shape:
-- `title`
-- `hero`
-- `sections[]`
-- optional `cta`
-
-### Public chapters
-#### `GET /api/chapters`
-Purpose: list all chapters for `/chapters`, navigation, and admin selection.
-
-Each chapter should include:
-- `id`
-- `name`
-- `slug`
-- `country`
-- `contact`
-- `hero`
-- `status`
-
-#### `GET /api/chapters/:slug`
-Purpose: return the public chapter homepage data.
-
-Return:
-- `slug`
-- `name`
-- `hero`
-- `overview`
-- `contact`
-- featured content summaries
-
-#### `GET /api/chapters/:slug/team`
-Purpose: return team and leadership content for a chapter.
-
-#### `GET /api/chapters/:slug/coaches`
-Purpose: return coach cards for a chapter.
-
-#### `GET /api/chapters/:slug/events`
-Purpose: return chapter-specific events.
-
-#### `GET /api/chapters/:slug/resources`
-Purpose: return chapter-specific resources.
-
-#### `GET /api/chapters/:slug/testimonials`
-Purpose: return chapter testimonials.
-
-#### `POST /api/chapters/:slug/contact`
-Purpose: submit chapter contact form entries.
-
-Send:
-- `name`
-- `email`
-- `message`
-
-### Public listings
-#### `GET /api/coaches?q=&chapter=&certification=`
-Purpose: global coach directory with filters.
-
-Query params expected by frontend:
-- `q`
-- `chapter`
-- `certification`
-
-#### `GET /api/events?scope=global|chapter&chapter=`
-Purpose: global and chapter events listing.
-
-#### `GET /api/resources?chapter=&type=`
-Purpose: global and chapter resources listing.
-
-### Coach account
-#### `GET /api/me/coach-profile`
-Purpose: return the current coach profile for `/portal/coach`.
-
-#### `PATCH /api/me/coach-profile`
-Purpose: update the current coach profile.
-
-Send:
-- `name`
-- `location`
-- `bio`
-- `specialties`
-- optional profile media fields
-
-#### `GET /api/me/certification`
-Purpose: return certification status, credits, and renewal information.
-
-### Chapter leader console
-#### `GET /api/portal/chapters/:slug`
-Purpose: return the chapter management workspace for a specific chapter.
-
-Return should combine:
-- chapter settings
-- content fields
-- team
-- coaches
-- events
-- resources
-- contact
-
-#### `PATCH /api/portal/chapters/:slug/content`
-Purpose: update chapter homepage content.
-
-Send:
-- `hero`
-- `overview`
-- featured content references
-
-#### `PATCH /api/portal/chapters/:slug/contact`
-Purpose: update chapter contact information.
-
-#### `PATCH /api/portal/chapters/:slug/team/:memberId`
-Purpose: update a single team member entry.
-
-#### `POST /api/portal/chapters/:slug/coaches`
-Purpose: create a chapter coach record.
-
-#### `PATCH /api/portal/chapters/:slug/coaches/:coachId`
-Purpose: update a chapter coach record.
-
-#### `DELETE /api/portal/chapters/:slug/coaches/:coachId`
-Purpose: archive or remove a coach from the chapter workspace.
-
-#### `POST /api/portal/chapters/:slug/events`
-Purpose: create a chapter event.
-
-#### `PATCH /api/portal/chapters/:slug/events/:eventId`
-Purpose: update a chapter event.
-
-#### `DELETE /api/portal/chapters/:slug/events/:eventId`
-Purpose: delete or archive a chapter event.
-
-#### `POST /api/portal/chapters/:slug/resources`
-Purpose: create a chapter resource.
-
-#### `PATCH /api/portal/chapters/:slug/resources/:resourceId`
-Purpose: update a chapter resource.
-
-#### `DELETE /api/portal/chapters/:slug/resources/:resourceId`
-Purpose: delete or archive a chapter resource.
-
-### Admin console
-#### `GET /api/portal/overview`
-Purpose: high-level stats for the admin dashboard.
-
-Suggested return:
-- `chapters`
-- `activeCoaches`
-- `upcomingEvents`
-- `pendingApprovals`
-- `pageUpdates`
-- `chapterLeaders`
-
-#### `GET /api/portal/chapters`
-Purpose: list all chapters in the admin console.
-
-#### `POST /api/portal/chapters`
-Purpose: create a new chapter from the shared template.
-
-Send:
-- `name`
-- `slug`
-- `country`
-- `primaryLanguage`
-- `contactEmail`
-- `leaderEmail`
-- `hero`
-- optional `status`
-
-Expected backend behavior:
-- create the chapter record
-- seed default content sections
-- assign the chapter leader if provided
-- make the new public route available at `/:slug`
-
-#### `GET /api/portal/chapters/:slug`
-Purpose: return one chapter for admin editing.
-
-#### `PATCH /api/portal/chapters/:slug`
-Purpose: update chapter settings.
-
-#### `POST /api/portal/chapters/:slug/assign-leader`
-Purpose: assign or replace a chapter leader.
-
-#### `GET /api/portal/pages`
-Purpose: return editable global pages list.
-
-#### `PATCH /api/portal/pages/:slug`
-Purpose: update a shared global page.
-
-#### `GET /api/portal/users`
-Purpose: return user and role management data for admins.
-
-## Suggested backend entities
-Your backend teammate should plan for these core entities:
-- `users`
-- `chapters`
-- `chapter_content`
-- `chapter_team_members`
-- `coaches`
-- `events`
-- `resources`
-- `testimonials`
-- `contact_submissions`
-- `sessions` or auth provider-backed session storage
-
-## Notes
-- Public routes are ready for server-side fetching.
-- Portal routes are already organized by role.
-- Chapter creation is represented in the admin console UI.
-- Chapter leaders already have dedicated screens for content, team, coaches, events, resources, and contact editing.
-- Coach accounts already have profile and certification views.
+## Payment and AI Notes
+- Resource pages include Stripe-hosted dues links for the demo experience
+- The backend checkout-session endpoint is still simulated
+- The AI search and chapter-generation endpoints are integration stubs, not a finished production AI stack

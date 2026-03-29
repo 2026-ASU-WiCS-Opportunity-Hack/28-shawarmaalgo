@@ -1,15 +1,45 @@
-# WIAL Backend (Chapters API)
+# WIAL Backend
+
+The backend is a Go + Gin API for chapters, coaches, events, team members, resources, testimonials, global pages, uploads, and role-based portal access.
+
+## Links
+- [Project README](../README.md)
+- [Frontend Documentation](../frontend/README.md)
+- [Frontend-to-Backend Handoff](../frontend/docs/BACKEND_HANDOFF.md)
+- [OpenAPI Spec](./api/openapi.yaml)
+
+## What This Service Owns
+- Login-based authentication and `GET /api/v1/me`
+- Public read APIs for chapters, coaches, events, team members, resources, testimonials, and global pages
+- Protected CRUD for users, chapters, coaches, events, team members, resources, testimonials, and global pages
+- Portal summary endpoints for super admins and chapter-level users
+- Image upload handling through an S3-compatible storage layer
+- Demo AI and payment endpoints used for hackathon exploration
+
+## Request Flow
+```mermaid
+flowchart LR
+  Client["Frontend or API client"] --> Router["Gin router"]
+  Router --> Auth["Auth and role middleware"]
+  Auth --> Handlers["Domain handlers"]
+  Handlers --> Store["db.Store"]
+  Store --> Postgres["PostgreSQL"]
+  Handlers --> Uploads["S3 upload service"]
+  Uploads --> MinIO["MinIO bucket"]
+  Handlers --> Response["JSON response"]
+```
 
 ## Requirements
-- Go 1.22+
-- Postgres 13+
+- [Go 1.25+](https://go.dev/)
+- [PostgreSQL 13+](https://www.postgresql.org/)
+- An S3-compatible bucket for uploads in environments outside the local Compose stack
 
 ## Environment
 The backend loads environment variables from `backend/.env` if the file exists.
 
-Use the shared template at [`.env.example`](/Users/beybutabdulrahimov/Documents/28-shawarmaalgo/.env.example) and copy these values into `backend/.env`:
+Start from the shared template at [`../.env.example`](../.env.example) and copy the backend values into `backend/.env`:
 
-```
+```bash
 PORT=8080
 APP_ENV=development
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/wial?sslmode=disable
@@ -27,84 +57,63 @@ MAX_UPLOAD_SIZE_BYTES=10485760
 ```
 
 Notes:
-
 - `PORT` defaults to `8080`
 - `APP_ENV` defaults to `development`
 - `DATABASE_URL` must point to a reachable PostgreSQL instance
 - `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` are required on first launch when the `users` table is empty
-- `CORS_ALLOWED_ORIGINS` controls which browser origins may call the API; by default local frontend origins on port `3000` are allowed
-- `S3_*` values configure image uploads; the local Docker Compose stack provisions a MinIO bucket that matches these defaults
-- `MAX_UPLOAD_SIZE_BYTES` defaults to `10485760` (10 MiB)
-- JWT signing is currently hardcoded in the app and is not yet configurable through env vars
+- `CORS_ALLOWED_ORIGINS` should include the frontend origin
+- `S3_*` config powers image uploads for coach profiles, chapter content, and other managed assets
+- `MAX_UPLOAD_SIZE_BYTES` defaults to `10485760` bytes, or 10 MiB
 
-## Image Uploads
-- Authenticated users can upload images through `POST /api/v1/uploads/images`.
-- Send `multipart/form-data` with a single `file` field.
-- Supported image types are `jpeg`, `png`, `gif`, and `webp`.
-- Successful uploads return a public object URL plus the object key and detected content type.
-
-## Auth and User Provisioning
-- Public self-registration is disabled.
-- Use `POST /api/v1/auth/login` for login.
-- Use authenticated `POST /api/v1/users` to create users.
-- Allowed managed roles are `chapter_lead`, `coach`, and `content_creator`.
-- `super_admin` can create users for any chapter.
-- `chapter_lead` can create `chapter_lead`, `coach`, and `content_creator` only for their own chapter.
-- No API route can create another `super_admin`.
-
-## Role Access
-- `super_admin` has global access across chapter, coach, event, and managed-user endpoints.
-- `chapter_lead` can create users, coaches, and events only for their own chapter, and can update/delete only their own chapter.
-- Coach profiles are public through `GET /api/v1/coaches/:id`.
-- Public coach discovery is available through `GET /api/v1/coaches` with filters such as `chapter_id`, `certification_level`, `language`, and `specialization`.
-- `content_creator` can access `PATCH /api/v1/chapters/:id/content` only for their own chapter.
-
-## Chapter Rules
-- Each chapter must belong to a country.
-- Each country can have only one chapter.
-- Chapter create/update/patch requests return `409 Conflict` when either `slug` or `country` is already in use.
-
-## Migrations
-This scaffold uses SQL migrations compatible with `golang-migrate`.
-
-Example (install migrate CLI separately):
-
-```
-migrate -path ./migrations -database "$DATABASE_URL" up
+## Run
+### Local Go process
+```bash
+cd backend
+go run ./cmd/server
 ```
 
-With Docker Compose from the repo root, migrations run automatically before the backend starts:
+### Docker Compose
+From the repo root:
 
 ```bash
 docker compose up --build
 ```
 
-The compose stack uses:
+Before using the shared Compose file in a new environment, review [`../docker-compose.yml`](../docker-compose.yml) so the database, migration, and storage settings match your target setup.
 
-- `postgres` for the database
-- `migrate` as a one-shot migration runner
-- `minio` for S3-compatible object storage
-- `create-bucket` as a one-shot bucket bootstrapper
-- `backend` for the Go API
+## Migrations
+SQL migrations live in [`./migrations`](./migrations). They are compatible with [`golang-migrate`](https://github.com/golang-migrate/migrate).
 
-## Run
-```
-go run ./cmd/server
+Example:
+
+```bash
+migrate -path ./migrations -database "$DATABASE_URL" up
 ```
 
-The server starts on `http://localhost:8080` by default.
+## Endpoint Groups
+- Auth: `POST /api/v1/auth/login`
+- Session/profile: `GET /api/v1/me`, `PATCH /api/v1/me/coach`
+- Portal: `GET /api/v1/portal/overview`, `GET /api/v1/portal/chapter`
+- Public content: `GET /api/v1/chapters`, `GET /api/v1/coaches`, `GET /api/v1/events`, `GET /api/v1/team-members`, `GET /api/v1/resources`, `GET /api/v1/testimonials`, `GET /api/v1/global-pages`
+- Management CRUD: `/api/v1/users`, `/api/v1/chapters`, `/api/v1/coaches`, `/api/v1/events`, `/api/v1/team-members`, `/api/v1/resources`, `/api/v1/testimonials`, `/api/v1/global-pages`
+- Uploads: `POST /api/v1/uploads/images`
+- Demo endpoints: `GET /api/v1/ai/coach-search`, `POST /api/v1/ai/generate-chapter`, `POST /api/v1/payments/create-session`
 
-With the Compose stack running, MinIO is available at:
+For full request and response schemas, use the [OpenAPI spec](./api/openapi.yaml) or open Swagger UI at [`http://localhost:8080/swagger-ui`](http://localhost:8080/swagger-ui) when the service is running.
 
-- S3 API: `http://localhost:9000`
-- Console: `http://localhost:9001`
+## Role Access
+- `super_admin` has global access across managed users, chapters, coaches, events, resources, testimonials, and global pages
+- `chapter_lead` is scoped to their own chapter for chapter, coach, event, team-member, resource, and testimonial management
+- `content_creator` can update only chapter content through `PATCH /api/v1/chapters/:id/content`
+- `coach` can update only their own coach profile through `PATCH /api/v1/me/coach`
 
-## Swagger
-- OpenAPI spec: `/swagger`
-- Swagger UI: `/swagger-ui`
+## Image Uploads
+- Authenticated users can upload images through `POST /api/v1/uploads/images`
+- Requests must use `multipart/form-data` with a single `file` field
+- Supported image types are `jpeg`, `png`, `gif`, and `webp`
+- Successful uploads return a public object URL, storage key, content type, and size
 
-## API Base
-- `/api/v1`
-
-## Health
-- `/health`
+## Notes for the Hackathon Build
+- The AI search route currently performs a keyword-style search while documenting the intended AI-ready extension point
+- The payment session route currently returns a simulated checkout session
+- Public user registration is intentionally disabled; managed users are created by authenticated admins
