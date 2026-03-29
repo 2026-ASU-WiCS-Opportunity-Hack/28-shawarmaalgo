@@ -1,6 +1,7 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
+import { ImageUploadField } from '@/components/forms/ImageUploadField';
 import { Panel } from '@/components/portal/PortalCards';
 import { Button } from '@/components/ui/button';
 import { type BackendChapter, type BackendTestimonial, api } from '@/lib/api';
@@ -202,14 +203,14 @@ export default function ChapterTestimonialsManager({
                   onChange={(event) => updateDraft(testimonial.id, { author_company: event.target.value })}
                 />
               </label>
-              <label className="block">
-                <span className={labelClassName}>Author image URL</span>
-                <input
-                  className={inputClassName}
-                  value={form.author_image_url}
-                  onChange={(event) => updateDraft(testimonial.id, { author_image_url: event.target.value })}
-                />
-              </label>
+              <ImageUploadField
+                label="Author image"
+                value={form.author_image_url}
+                onChange={(value) => updateDraft(testimonial.id, { author_image_url: value })}
+                helpText="Upload a headshot and the returned S3 URL will be saved with the testimonial."
+                previewAlt={`${form.author_name || testimonial.author_name} testimonial author`}
+                emptyLabel="No author image uploaded yet."
+              />
               <label className="block">
                 <span className={labelClassName}>Quote</span>
                 <textarea
@@ -282,16 +283,14 @@ export default function ChapterTestimonialsManager({
               onChange={(event) => setNewTestimonial((current) => ({ ...current, author_company: event.target.value }))}
             />
           </label>
-          <label className="block">
-            <span className={labelClassName}>Author image URL</span>
-            <input
-              className={inputClassName}
-              value={newTestimonial.author_image_url}
-              onChange={(event) =>
-                setNewTestimonial((current) => ({ ...current, author_image_url: event.target.value }))
-              }
-            />
-          </label>
+          <ImageUploadField
+            label="Author image"
+            value={newTestimonial.author_image_url}
+            onChange={(value) => setNewTestimonial((current) => ({ ...current, author_image_url: value }))}
+            helpText="Upload a headshot and the form will store the S3 URL automatically."
+            previewAlt={`${newTestimonial.author_name || 'New'} testimonial author`}
+            emptyLabel="No author image uploaded yet."
+          />
           <label className="block">
             <span className={labelClassName}>Quote</span>
             <textarea
