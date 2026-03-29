@@ -59,7 +59,6 @@ flowchart LR
   API --> DB["PostgreSQL"]
   API --> Storage["MinIO (S3-compatible uploads)"]
   Frontend --> Stripe["Stripe-hosted payment links"]
-  API --> Demo["AI-ready and payment demo endpoints"]
 ```
 
 The current hackathon build includes real content management, uploads, and CRUD flows. The AI chapter-generation flow and checkout-session API are still demo-oriented scaffolding rather than production integrations.
