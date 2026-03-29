@@ -27,11 +27,11 @@ export default async function ChaptersPage() {
 
       <section className="mt-12 grid gap-6 md:grid-cols-2">
         {countries.map((country) => (
-          <article key={country.slug} className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-950">
+          <article key={country.slug} className="flex h-full flex-col rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-950">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-teal">{country.contact.city}</p>
             <h3 className="mt-2 text-2xl font-semibold text-brand-navy dark:text-white">{country.name}</h3>
             <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-300">{country.overview}</p>
-            <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold">
+            <div className="mt-auto flex flex-wrap gap-4 pt-5 text-sm font-semibold">
               <Link href={`/${country.slug}`} className="text-brand-navy hover:text-brand-teal dark:text-slate-100 dark:hover:text-brand-gold">
                 Overview →
               </Link>
